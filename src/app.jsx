@@ -146,6 +146,35 @@ function App() {
     return () => window.removeEventListener('cadence-tour-action', onAction);
   }, [tourOn]);
 
+  // Demo bus — drives the phone from outside (used by demo.html marketing page).
+  // Listens for `cadence:demo` CustomEvents with detail = { tab?, sheet?, close? }.
+  React.useEffect(() => {
+    const closeAllSheets = () => {
+      setSheetOpen(false); setRunningLongOpen(false); setWhyOpen(false);
+      setLifeOpen(false); setVoiceOpen(false); setLibraryOpen(false); setEnergyOpen(false);
+    };
+    const setSheet = (name, open) => {
+      switch (name) {
+        case 'new-goal':     setSheetOpen(open); break;
+        case 'running-long': setRunningLongOpen(open); break;
+        case 'why':          setWhyOpen(open); break;
+        case 'life':         setLifeOpen(open); break;
+        case 'voice':        setVoiceOpen(open); break;
+        case 'library':      setLibraryOpen(open); break;
+        case 'energy':       setEnergyOpen(open); break;
+      }
+    };
+    const onDemo = (e) => {
+      const d = e.detail || {};
+      if (d.close === 'all' || d.tab) closeAllSheets();
+      if (d.tab) setTab(d.tab);
+      if (d.sheet) setSheet(d.sheet, true);
+      if (d.dismissOnboarding) finishOnboarding();
+    };
+    window.addEventListener('cadence:demo', onDemo);
+    return () => window.removeEventListener('cadence:demo', onDemo);
+  }, []);
+
   function flash(msg) {
     setToast(msg);
     clearTimeout(window.__cadToastT);
