@@ -1,4 +1,5 @@
 import React from 'react';
+import { usePersistedState } from './storage.js';
 import { INITIAL_GOALS, TIMELINE_BLOCKS } from './data.jsx';
 import { Icon, Chip } from './ui.jsx';
 import { TodayScreen } from './screen-today.jsx';
@@ -101,8 +102,8 @@ function CadenceHeader() {
 
 function App() {
   const [tab, setTab] = React.useState('today');
-  const [blocks, setBlocks] = React.useState(TIMELINE_BLOCKS);
-  const [goals, setGoals] = React.useState(INITIAL_GOALS);
+  const [blocks, setBlocks] = usePersistedState('blocks', TIMELINE_BLOCKS);
+  const [goals, setGoals] = usePersistedState('goals', INITIAL_GOALS);
   const [toast, setToast] = React.useState(null);
 
   // Sheets
