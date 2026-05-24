@@ -1,0 +1,691 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cadence — Pitch Deck</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --paper:   #F6F1E8;
+    --paper-2: #EFE8DA;
+    --paper-3: #E6DEC9;
+    --card:    #FBF7EE;
+    --ink:     #1F1B16;
+    --ink-2:   rgba(31,27,22,0.65);
+    --ink-3:   rgba(31,27,22,0.42);
+    --terra:   #C26A38;
+    --sage:    #6B8E5A;
+    --lav:     #8E7CB8;
+    --butter:  #C89A3A;
+    --serif:   'Instrument Serif', Georgia, serif;
+    --sans:    'Geist', system-ui, sans-serif;
+    --mono:    'Geist Mono', ui-monospace, monospace;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: #0c0a08; font-family: var(--sans); }
+
+  /* Each slide is 1920x1080. deck-stage scales it to viewport. */
+  deck-stage { display: block; width: 100%; height: 100vh; }
+  section {
+    width: 1920px; height: 1080px;
+    background: var(--paper);
+    color: var(--ink);
+    position: relative; overflow: hidden;
+    font-family: var(--sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Slide chrome — running label + brand */
+  .chrome-tl {
+    position: absolute; top: 56px; left: 80px;
+    font-family: var(--mono); font-size: 14px; letter-spacing: 2px;
+    text-transform: uppercase; color: var(--terra);
+  }
+  .chrome-tr {
+    position: absolute; top: 56px; right: 80px;
+    display: flex; align-items: center; gap: 12px;
+    font-family: var(--serif); font-size: 26px; color: var(--ink);
+    letter-spacing: -0.4px;
+  }
+  .chrome-bl {
+    position: absolute; bottom: 56px; left: 80px;
+    font-family: var(--mono); font-size: 13px; color: var(--ink-3); letter-spacing: 1px;
+  }
+
+  /* TYPE */
+  .display { font-family: var(--serif); font-weight: 400; line-height: 0.98; letter-spacing: -2.5px; color: var(--ink); margin: 0; text-wrap: pretty; }
+  .h1 { font-size: 180px; }
+  .h2 { font-size: 124px; }
+  .h3 { font-size: 92px; }
+  .h4 { font-size: 64px; line-height: 1.05; letter-spacing: -1.5px; }
+  .h5 { font-size: 48px; line-height: 1.1; letter-spacing: -1px; }
+
+  .lede { font-family: var(--sans); font-size: 28px; line-height: 1.45; color: var(--ink-2); max-width: 1100px; }
+  .lede.lg { font-size: 36px; max-width: 1300px; line-height: 1.4; }
+  .body { font-size: 22px; color: var(--ink-2); line-height: 1.5; }
+
+  .num-display { font-family: var(--serif); font-size: 240px; line-height: 1; letter-spacing: -6px; color: var(--terra); }
+
+  /* SLIDE LAYOUTS */
+  .slide-pad { padding: 56px 80px; height: 100%; display: flex; flex-direction: column; }
+  .slide-content { flex: 1; display: flex; flex-direction: column; justify-content: center; }
+  .slide-content.cols { flex-direction: row; align-items: center; gap: 80px; }
+  .slide-content.cols > * { flex: 1; }
+
+  /* TAG / EYEBROW */
+  .tag {
+    font-family: var(--mono); font-size: 18px; letter-spacing: 3px;
+    text-transform: uppercase; color: var(--terra); margin-bottom: 36px;
+    display: inline-block;
+  }
+
+  /* CARDS / MOCKS */
+  .card {
+    background: var(--card); border-radius: 28px; padding: 40px;
+    border: 0.5px solid rgba(31,27,22,0.08);
+    box-shadow: 0 20px 50px -30px rgba(31,27,22,0.2);
+  }
+  .pill {
+    display: inline-block; padding: 8px 18px; border-radius: 999px;
+    font-family: var(--mono); font-size: 14px; letter-spacing: 1.4px;
+    text-transform: uppercase; background: rgba(200,96,47,0.12); color: var(--terra);
+  }
+  .pill.sage { background: rgba(107,142,90,0.16); color: var(--sage); }
+  .pill.lav { background: rgba(155,138,196,0.20); color: var(--lav); }
+  .pill.but { background: rgba(200,154,58,0.22); color: #8a6b1f; }
+
+  /* TWO-COLUMN GRID */
+  .col-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; }
+  .col-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 36px; }
+  .col-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 28px; }
+
+  /* PHONE FRAME */
+  .phone-shot {
+    border-radius: 56px;
+    box-shadow: 0 60px 120px -40px rgba(31,27,22,0.45), 0 24px 60px -20px rgba(31,27,22,0.3);
+    max-height: 880px; height: auto;
+    background: #000;
+    display: block;
+  }
+
+  /* DARK SLIDES */
+  section.dark { background: var(--ink); color: var(--paper); }
+  section.dark .display, section.dark .h2 { color: var(--paper); }
+  section.dark .lede { color: rgba(246,241,232,0.7); }
+  section.dark .tag { color: #E8B47C; }
+  section.dark .card { background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.06); color: var(--paper); }
+  section.dark .num-display { color: #E8B47C; }
+  section.dark .chrome-tr { color: var(--paper); }
+  section.dark .chrome-bl { color: rgba(246,241,232,0.5); }
+
+  /* QUOTE */
+  .quote {
+    background: var(--paper-2); border-left: 6px solid var(--terra);
+    border-radius: 22px; padding: 36px;
+  }
+  .quote p { font-family: var(--serif); font-size: 38px; line-height: 1.2; letter-spacing: -0.8px; color: var(--ink); margin: 0 0 18px; }
+  .quote .who { font-size: 18px; color: var(--ink-3); }
+
+  /* TABLE */
+  table.compete { width: 100%; border-collapse: collapse; }
+  table.compete th, table.compete td { text-align: left; padding: 18px 18px; font-size: 22px; border-bottom: 0.5px solid rgba(31,27,22,0.08); }
+  table.compete th { font-family: var(--mono); font-size: 13px; letter-spacing: 1.8px; text-transform: uppercase; color: var(--ink-3); font-weight: 500; padding-bottom: 14px; }
+  table.compete tr:last-child td { border-bottom: none; }
+  table.compete td.cad { color: var(--terra); font-weight: 500; }
+  table.compete .y { color: var(--sage); font-family: var(--mono); font-size: 24px; }
+  table.compete .n { color: rgba(31,27,22,0.25); font-family: var(--mono); font-size: 24px; }
+  table.compete .p { color: var(--butter); font-family: var(--mono); font-size: 24px; }
+
+  /* BLOOM SVG */
+  .bloom { width: 240px; height: 240px; }
+
+  /* BIG NUMBER + LABEL */
+  .stat-block .num { font-family: var(--serif); font-size: 132px; line-height: 0.95; letter-spacing: -2px; }
+  .stat-block .lab { font-size: 20px; color: var(--ink-2); margin-top: 18px; max-width: 320px; line-height: 1.4; }
+
+  /* PERSONA CARD */
+  .persona { background: var(--card); border-radius: 22px; padding: 32px; border: 0.5px solid rgba(31,27,22,0.08); height: 100%; display: flex; flex-direction: column; }
+  .persona.feature { background: var(--terra); color: #fff; border: none; }
+  .persona .lab { font-family: var(--mono); font-size: 13px; letter-spacing: 1.8px; text-transform: uppercase; color: var(--ink-3); margin-bottom: 14px; }
+  .persona.feature .lab { color: rgba(255,255,255,0.7); }
+  .persona h4 { font-family: var(--serif); font-size: 38px; margin: 0 0 16px; letter-spacing: -0.6px; line-height: 1.05; color: inherit; }
+  .persona p { font-size: 19px; line-height: 1.5; color: inherit; opacity: 0.85; margin: 0; }
+  .persona .ptags { display: flex; gap: 8px; flex-wrap: wrap; margin-top: auto; padding-top: 20px; }
+  .ptag { padding: 6px 12px; background: rgba(31,27,22,0.06); border-radius: 999px; font-size: 14px; color: var(--ink-2); font-family: var(--mono); letter-spacing: 0.4px; }
+  .persona.feature .ptag { background: rgba(255,255,255,0.18); color: #fff; }
+
+  /* SCORE BAR */
+  .scorebar { display: flex; flex-direction: column; gap: 8px; }
+  .scorebar .row { display: flex; justify-content: space-between; font-size: 18px; color: var(--ink-2); }
+  .scorebar .row .v { font-family: var(--mono); font-size: 16px; }
+  .scorebar .bar { height: 8px; background: rgba(31,27,22,0.07); border-radius: 4px; overflow: hidden; }
+  .scorebar .bar > div { height: 100%; border-radius: 4px; }
+
+  /* ROADMAP */
+  .phases { display: flex; flex-direction: column; gap: 20px; }
+  .phase {
+    background: var(--card); border-radius: 22px; padding: 32px;
+    border: 0.5px solid rgba(31,27,22,0.08);
+    display: grid; grid-template-columns: 200px 1fr; gap: 40px; align-items: center;
+  }
+  .phase.now { background: var(--terra); color: #fff; border: none; }
+  .phase.now .when, .phase.now p { color: rgba(255,255,255,0.85); }
+  .phase .when { font-family: var(--mono); font-size: 16px; letter-spacing: 2px; text-transform: uppercase; color: var(--terra); }
+  .phase h4 { font-family: var(--serif); font-size: 36px; letter-spacing: -0.6px; margin: 0 0 8px; color: inherit; }
+  .phase p { font-size: 18px; color: var(--ink-2); margin: 0; line-height: 1.45; }
+
+  /* PRICE CARDS */
+  .price { background: var(--card); border-radius: 22px; padding: 36px; border: 0.5px solid rgba(31,27,22,0.08); height: 100%; }
+  .price.feature { background: var(--ink); color: var(--paper); border: none; }
+  .price h4 { font-family: var(--serif); font-size: 38px; margin: 0 0 6px; color: inherit; letter-spacing: -0.6px; }
+  .price .pval { font-family: var(--serif); font-size: 86px; letter-spacing: -2px; margin: 14px 0 6px; line-height: 1; color: inherit; }
+  .price .pval small { font-family: var(--sans); font-size: 22px; color: var(--ink-3); }
+  .price.feature .pval small { color: rgba(246,241,232,0.55); }
+  .price ul { padding: 0; list-style: none; margin: 24px 0 0; display: flex; flex-direction: column; gap: 14px; }
+  .price li { font-size: 19px; padding-left: 28px; position: relative; color: inherit; opacity: 0.85; }
+  .price li::before { content: ''; position: absolute; left: 0; top: 8px; width: 14px; height: 8px; border-left: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: rotate(-45deg); }
+
+  /* DIFFS / LIST W/ NUM */
+  .biglist { display: flex; flex-direction: column; gap: 30px; }
+  .bigitem { display: grid; grid-template-columns: 80px 1fr; gap: 24px; align-items: baseline; }
+  .bigitem .n { font-family: var(--serif); font-size: 80px; line-height: 1; color: var(--terra); letter-spacing: -1.5px; }
+  .bigitem h4 { font-family: var(--serif); font-size: 38px; margin: 0 0 6px; letter-spacing: -0.6px; color: var(--ink); }
+  .bigitem p { font-size: 19px; color: var(--ink-2); margin: 0; line-height: 1.5; max-width: 720px; }
+
+  /* USE OF FUNDS */
+  .uof-row { display: flex; justify-content: space-between; align-items: center; padding: 22px 0; border-bottom: 0.5px solid rgba(31,27,22,0.12); }
+  .uof-row .l { font-size: 24px; color: var(--ink); }
+  .uof-row .v { font-family: var(--mono); font-size: 24px; color: var(--terra); }
+</style>
+</head>
+<body>
+
+<deck-stage>
+
+<!-- 01 — TITLE -->
+<section data-screen-label="01 Title">
+  <div class="slide-pad">
+    <div class="chrome-tl">Cadence · pre-seed · 2026</div>
+    <div class="chrome-tr">
+      <svg width="36" height="36" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="10" fill="none" stroke="#C26A38" stroke-width="1.5"/>
+        <path d="M12 6v6l4 2.5" stroke="#C26A38" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+      </svg>
+      Cadence
+    </div>
+    <div class="slide-content" style="justify-content: center;">
+      <h1 class="display h1" style="max-width: 1400px;">The planner<br>that plans for you.</h1>
+      <div style="margin-top: 60px;">
+        <p class="lede lg" style="max-width: 1200px;">A habit-sequence planner built for real brains and real life. We turn goals into tiny, time-estimated steps that actually get started — and reshape themselves when life gets in the way.</p>
+      </div>
+    </div>
+    <div class="chrome-bl">May 2026 · investor pitch</div>
+  </div>
+</section>
+
+<!-- 02 — THE PROBLEM -->
+<section data-screen-label="02 Problem">
+  <div class="slide-pad">
+    <div class="chrome-tl">The problem · 01</div>
+    <div class="chrome-tr">Cadence</div>
+    <div class="slide-content">
+      <div class="tag">User reality</div>
+      <h2 class="display h2" style="max-width: 1500px;">Existing apps log what you did. They never tell you what to do next.</h2>
+      <p class="lede lg" style="margin-top: 50px;">Users know what to do. They struggle with <i>how</i> and <i>in what order</i> under real constraints — time, energy, complexity, life interruptions. Every tool offloads this work back to the user. Every tool gets abandoned.</p>
+    </div>
+    <div class="chrome-bl">02 / 14</div>
+  </div>
+</section>
+
+<!-- 03 — VOICES FROM THE RESEARCH -->
+<section data-screen-label="03 Voices">
+  <div class="slide-pad">
+    <div class="chrome-tl">The problem · 02</div>
+    <div class="chrome-tr">Cadence</div>
+    <div class="slide-content">
+      <div class="tag">Real user voices · 2025–2026</div>
+      <h2 class="display h3" style="margin-bottom: 60px;">"It created more stress than it solved."</h2>
+      <div class="col-3">
+        <div class="quote">
+          <p>"It's too rigid — and that's saying something coming from an autistic person who loves structure."</p>
+          <div class="who">App-store review · 2025</div>
+        </div>
+        <div class="quote">
+          <p>"Spent more time fixing the app than using it. Setup was the actual job."</p>
+          <div class="who">Reddit · r/productivity · on Motion</div>
+        </div>
+        <div class="quote">
+          <p>"I ended up building my own system in Notion because nothing else actually sequenced things."</p>
+          <div class="who">Reddit · r/ADHD · 2026</div>
+        </div>
+      </div>
+      <p class="lede" style="margin-top: 50px;">Synthesized from thousands of posts across r/productivity, r/ADHD, r/getdisciplined, and reviews of Motion, Reclaim, Tiimo, Habitica, Streaks, TickTick.</p>
+    </div>
+    <div class="chrome-bl">03 / 14</div>
+  </div>
+</section>
+
+<!-- 04 — WHY NOW -->
+<section data-screen-label="04 Why Now" class="dark">
+  <div class="slide-pad">
+    <div class="chrome-tl">Why now</div>
+    <div class="chrome-tr">Cadence</div>
+    <div class="slide-content">
+      <div class="tag">Market</div>
+      <h2 class="display h2" style="max-width: 1500px;">A growing market no incumbent has cracked.</h2>
+      <div class="col-3" style="margin-top: 80px;">
+        <div class="stat-block">
+          <div class="num">$1.9B</div>
+          <div class="lab">2025 habit-tracking app spend</div>
+        </div>
+        <div class="stat-block">
+          <div class="num" style="color: #E8B47C;">$5.5B</div>
+          <div class="lab">Projected by 2033 · 14%+ CAGR</div>
+        </div>
+        <div class="stat-block">
+          <div class="num">15.5M</div>
+          <div class="lab">US adults with ADHD diagnoses · the highest-WTP segment, paying $15+/mo for relief tools</div>
+        </div>
+      </div>
+      <p class="lede lg" style="margin-top: 80px; color: rgba(246,241,232,0.8);">GenAI maturity, rising awareness of ADHD in adults, and the privacy backlash all favor a new entrant. The category is ready for its next generation.</p>
+    </div>
+    <div class="chrome-bl">04 / 14</div>
+  </div>
+</section>
+
+<!-- 05 — MEET CADENCE -->
+<section data-screen-label="05 Solution">
+  <div class="slide-pad">
+    <div class="chrome-tl">Meet Cadence</div>
+    <div class="chrome-tr">Cadence</div>
+    <div class="slide-content cols">
+      <div>
+        <div class="tag">The solution</div>
+        <h2 class="display h2" style="max-width: 800px;">An intelligent planner that adapts to your life and brain.</h2>
+        <p class="lede lg" style="margin-top: 40px;">Cadence turns goals into ordered, time-estimated micro-sequences. Reshapes itself in real time. Never punishes a missed day.</p>
+        <div style="margin-top: 50px; display: flex; flex-direction: column; gap: 16px; font-size: 26px; color: var(--ink-2);">
+          <div>· Goal → micro-sequence in one tap</div>
+          <div>· Visual timeline blocks, not endless lists</div>
+          <div>· One-button rescue when life happens</div>
+          <div>· Effort bloom, never streaks</div>
+          <div>· Local-first by default</div>
+        </div>
+      </div>
+      <div style="display: flex; justify-content: center;">
+        <img class="phone-shot" src="deck-assets/today.png" alt="Cadence Today screen"/>
+      </div>
+    </div>
+    <div class="chrome-bl">05 / 14</div>
+  </div>
+</section>
+
+<!-- 06 — GOAL → SEQUENCE -->
+<section data-screen-label="06 Sequencing">
+  <div class="slide-pad">
+    <div class="chrome-tl">Product · 01 of 04</div>
+    <div class="chrome-tr">Cadence</div>
+    <div class="slide-content cols">
+      <div>
+        <span class="pill">Core intelligence</span>
+        <h2 class="display h3" style="margin-top: 28px; max-width: 800px;">Goals become micro-sequences automatically.</h2>
+        <p class="lede" style="margin-top: 30px; max-width: 760px;">Speak or type a goal with your constraints. A hybrid priority-queue + LLM pipeline produces 5–7 ordered micro-steps with realistic time estimates and a one-line rationale each. Under 5 seconds.</p>
+      </div>
+      <div>
+        <div class="card">
+          <div style="font-family: var(--mono); font-size: 16px; color: var(--ink-3); letter-spacing: 1.8px; text-transform: uppercase; margin-bottom: 22px;">Input → output</div>
+          <div style="background: var(--paper); border-radius: 16px; padding: 22px; font-size: 22px; color: var(--ink-2); margin-bottom: 24px; font-family: var(--mono); line-height: 1.4;">
+            "Get my portfolio site live before the meetup — 2 hours, medium energy"
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 14px;">
+            <div style="display: flex; gap: 16px; font-size: 22px; align-items: baseline;"><span style="font-family: var(--mono); color: var(--ink-3); width: 48px; flex-shrink: 0;">2m</span><span>Open the project folder <i style="color: var(--ink-3); font-style: normal; font-size: 17px;">· tiny first step</i></span></div>
+            <div style="display: flex; gap: 16px; font-size: 22px; align-items: baseline;"><span style="font-family: var(--mono); color: var(--ink-3); width: 48px; flex-shrink: 0;">10m</span><span>List 5 sections missing copy <i style="color: var(--ink-3); font-style: normal; font-size: 17px;">· visible scope</i></span></div>
+            <div style="display: flex; gap: 16px; font-size: 22px; align-items: baseline;"><span style="font-family: var(--mono); color: var(--ink-3); width: 48px; flex-shrink: 0;">25m</span><span>Draft hero copy only <i style="color: var(--ink-3); font-style: normal; font-size: 17px;">· hardest while fresh</i></span></div>
+            <div style="display: flex; gap: 16px; font-size: 22px; align-items: baseline;"><span style="font-family: var(--mono); color: var(--ink-3); width: 48px; flex-shrink: 0;">5m</span><span>Stand up + water <i style="color: var(--ink-3); font-style: normal; font-size: 17px;">· protects focus</i></span></div>
+            <div style="display: flex; gap: 16px; font-size: 22px; align-items: baseline;"><span style="font-family: var(--mono); color: var(--ink-3); width: 48px; flex-shrink: 0;">30m</span><span>Wire one case study <i style="color: var(--ink-3); font-style: normal; font-size: 17px;">· concrete win</i></span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="chrome-bl">06 / 14</div>
+  </div>
+</section>
+
+<!-- 07 — LIFE HAPPENED -->
+<section data-screen-label="07 Life Happened">
+  <div class="slide-pad">
+    <div class="chrome-tl">Product · 02 of 04</div>
+    <div class="chrome-tr">Cadence</div>
+    <div class="slide-content cols">
+      <div>
+        <span class="pill sage">Real-time adaptation</span>
+        <h2 class="display h3" style="margin-top: 28px; max-width: 800px;">One button reshapes the entire day.</h2>
+        <p class="lede" style="margin-top: 30px; max-width: 800px;">The defining UX moment. Tap "Life happened" and pick a shape: delay, simplify, swap, or generate a gentle recovery. The constraint solver moves blocks, drops the lowest-score optional one, shows the diff. No shame.</p>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 18px;">
+        <div class="card" style="padding: 28px;">
+          <div style="display: flex; gap: 22px; align-items: center;">
+            <div style="width: 56px; height: 56px; border-radius: 18px; background: rgba(200,96,47,0.16); color: var(--terra); display: flex; align-items: center; justify-content: center; font-size: 28px; flex-shrink: 0;">⤓</div>
+            <div><div style="font-size: 28px; font-weight: 500;">Delay everything</div><div style="font-size: 20px; color: var(--ink-2); margin-top: 4px;">Push the rest of today by 30 minutes.</div></div>
+          </div>
+        </div>
+        <div class="card" style="padding: 28px;">
+          <div style="display: flex; gap: 22px; align-items: center;">
+            <div style="width: 56px; height: 56px; border-radius: 18px; background: rgba(107,142,90,0.18); color: var(--sage); display: flex; align-items: center; justify-content: center; font-size: 28px; flex-shrink: 0;">↯</div>
+            <div><div style="font-size: 28px; font-weight: 500;">Simplify the day</div><div style="font-size: 20px; color: var(--ink-2); margin-top: 4px;">Shrink focus blocks to 25-min sprints.</div></div>
+          </div>
+        </div>
+        <div class="card" style="padding: 28px;">
+          <div style="display: flex; gap: 22px; align-items: center;">
+            <div style="width: 56px; height: 56px; border-radius: 18px; background: rgba(200,154,58,0.25); color: #8a6b1f; display: flex; align-items: center; justify-content: center; font-size: 28px; flex-shrink: 0;">⇄</div>
+            <div><div style="font-size: 28px; font-weight: 500;">Swap one task</div><div style="font-size: 20px; color: var(--ink-2); margin-top: 4px;">Drop the lowest-priority optional block.</div></div>
+          </div>
+        </div>
+        <div class="card" style="padding: 28px;">
+          <div style="display: flex; gap: 22px; align-items: center;">
+            <div style="width: 56px; height: 56px; border-radius: 18px; background: rgba(155,138,196,0.22); color: var(--lav); display: flex; align-items: center; justify-content: center; font-size: 28px; flex-shrink: 0;">✿</div>
+            <div><div style="font-size: 28px; font-weight: 500;">Gentle recovery plan</div><div style="font-size: 20px; color: var(--ink-2); margin-top: 4px;">Replace today with 3 tiny restart steps.</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="chrome-bl">07 / 14</div>
+  </div>
+</section>
+
+<!-- 08 — BLOOM NOT STREAKS -->
+<section data-screen-label="08 Bloom">
+  <div class="slide-pad">
+    <div class="chrome-tl">Product · 03 of 04</div>
+    <div class="chrome-tr">Cadence</div>
+    <div class="slide-content cols">
+      <div>
+        <span class="pill lav">Non-punitive feedback</span>
+        <h2 class="display h3" style="margin-top: 28px; max-width: 800px;">An effort bloom that only grows.</h2>
+        <p class="lede" style="margin-top: 30px; max-width: 800px;">We replaced streaks. The bloom shows stacked effort — it grows with consistency and doesn't reset on a missed day. Insights surface patterns, never failure rates.</p>
+
+        <div class="card" style="margin-top: 40px; display: flex; gap: 28px; align-items: center; max-width: 700px;">
+          <svg class="bloom" viewBox="0 0 100 100" style="width: 150px; height: 150px;">
+            <g>
+              <ellipse cx="50" cy="22" rx="9" ry="18" fill="#C26A38" opacity="0.6" transform="rotate(0 50 50)"/>
+              <ellipse cx="50" cy="22" rx="9" ry="18" fill="#C26A38" opacity="0.5" transform="rotate(45 50 50)"/>
+              <ellipse cx="50" cy="22" rx="9" ry="18" fill="#C26A38" opacity="0.6" transform="rotate(90 50 50)"/>
+              <ellipse cx="50" cy="22" rx="9" ry="18" fill="#C26A38" opacity="0.5" transform="rotate(135 50 50)"/>
+              <ellipse cx="50" cy="22" rx="9" ry="18" fill="#C26A38" opacity="0.6" transform="rotate(180 50 50)"/>
+              <ellipse cx="50" cy="22" rx="9" ry="18" fill="#C26A38" opacity="0.5" transform="rotate(225 50 50)"/>
+              <ellipse cx="50" cy="22" rx="9" ry="18" fill="#C26A38" opacity="0.6" transform="rotate(270 50 50)"/>
+              <ellipse cx="50" cy="22" rx="9" ry="18" fill="#C26A38" opacity="0.5" transform="rotate(315 50 50)"/>
+            </g>
+            <circle cx="50" cy="50" r="18" fill="#FBF7EE"/>
+            <circle cx="50" cy="50" r="14" fill="#C26A38" opacity="0.85"/>
+          </svg>
+          <div>
+            <div style="font-family: var(--serif); font-size: 56px; line-height: 1; letter-spacing: -1px;">14 days</div>
+            <div style="font-size: 20px; color: var(--ink-2); margin-top: 14px; line-height: 1.4;">of stacked effort. Skipping a day doesn't reset anything. Effort compounds either way.</div>
+          </div>
+        </div>
+      </div>
+      <div style="display: flex; justify-content: center;">
+        <img class="phone-shot" src="deck-assets/insights.png" alt="Cadence Insights screen with bloom and patterns"/>
+      </div>
+    </div>
+    <div class="chrome-bl">08 / 14</div>
+  </div>
+</section>
+
+<!-- 09 — WHY THIS ORDER -->
+<section data-screen-label="09 Transparency">
+  <div class="slide-pad">
+    <div class="chrome-tl">Product · 04 of 04</div>
+    <div class="chrome-tr">Cadence</div>
+    <div class="slide-content cols">
+      <div>
+        <span class="pill but">Transparent intelligence</span>
+        <h2 class="display h3" style="margin-top: 28px; max-width: 800px;">"Why this order?" — never a black box.</h2>
+        <p class="lede" style="margin-top: 30px; max-width: 800px;">Every step is scored on five sub-signals — urgency, importance, energy match, success likelihood, low effort — plus a composite. Tap any block to see the breakdown. Trust comes from legibility.</p>
+        <p class="body" style="margin-top: 30px; max-width: 760px;">"You complete 82% of sequences started before 10am. I biased today toward your peak window." — that's the kind of explanation we surface every day.</p>
+      </div>
+      <div class="card">
+        <div style="font-family: var(--mono); font-size: 16px; color: var(--ink-3); letter-spacing: 1.8px; text-transform: uppercase; margin-bottom: 8px;">Block · Draft nav-bar reply</div>
+        <div style="font-family: var(--serif); font-size: 52px; line-height: 1; letter-spacing: -1px; margin-bottom: 30px;">87 <span style="color: var(--ink-3); font-size: 24px; font-family: var(--mono);">/ 100</span></div>
+        <div class="scorebar">
+          <div><div class="row"><span>Urgency</span><span class="v">85</span></div><div class="bar"><div style="width: 85%; background: var(--terra);"></div></div></div>
+          <div><div class="row"><span>Importance</span><span class="v">90</span></div><div class="bar"><div style="width: 90%; background: var(--terra);"></div></div></div>
+          <div><div class="row"><span>Energy match</span><span class="v">82</span></div><div class="bar"><div style="width: 82%; background: var(--sage);"></div></div></div>
+          <div><div class="row"><span>Success likelihood</span><span class="v">78</span></div><div class="bar"><div style="width: 78%; background: var(--lav);"></div></div></div>
+          <div><div class="row"><span>Low effort</span><span class="v">30</span></div><div class="bar"><div style="width: 30%; background: #C89A3A;"></div></div></div>
+        </div>
+      </div>
+    </div>
+    <div class="chrome-bl">09 / 14</div>
+  </div>
+</section>
+
+<!-- 10 — COMPETITIVE -->
+<section data-screen-label="10 Competitive" class="dark">
+  <div class="slide-pad">
+    <div class="chrome-tl">Differentiation</div>
+    <div class="chrome-tr">Cadence</div>
+    <div class="slide-content">
+      <h2 class="display h2" style="max-width: 1400px;">No one combines all four. We do.</h2>
+      <table class="compete" style="margin-top: 70px;">
+        <thead>
+          <tr>
+            <th>Capability</th>
+            <th>Habitica · Streaks</th>
+            <th>TickTick</th>
+            <th>Motion · Reclaim</th>
+            <th>Tiimo</th>
+            <th style="color: #E8B47C;">Cadence</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Goal → micro-sequence</td><td class="n">✕</td><td class="n">✕</td><td class="p">~</td><td class="y">✓</td><td class="cad y">✓</td></tr>
+          <tr><td>Real-time adaptation</td><td class="n">✕</td><td class="n">✕</td><td class="p">~</td><td class="n">✕</td><td class="cad y">✓</td></tr>
+          <tr><td>Non-punitive feedback</td><td class="n">✕</td><td class="p">~</td><td class="p">~</td><td class="y">✓</td><td class="cad y">✓</td></tr>
+          <tr><td>Visual timeline (not lists)</td><td class="n">✕</td><td class="n">✕</td><td class="y">✓</td><td class="y">✓</td><td class="cad y">✓</td></tr>
+          <tr><td>ADHD-focused design</td><td class="n">✕</td><td class="n">✕</td><td class="n">✕</td><td class="y">✓</td><td class="cad y">✓</td></tr>
+          <tr><td>Local-first / self-host</td><td class="n">✕</td><td class="n">✕</td><td class="n">✕</td><td class="n">✕</td><td class="cad y">✓</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="chrome-bl">10 / 14</div>
+  </div>
+</section>
+
+<!-- 11 — PERSONAS -->
+<section data-screen-label="11 Personas">
+  <div class="slide-pad">
+    <div class="chrome-tl">Target users</div>
+    <div class="chrome-tr">Cadence</div>
+    <div class="slide-content">
+      <div class="tag">Who we win with first</div>
+      <h2 class="display h2" style="max-width: 1500px;">Beachhead: the segment that already pays for relief.</h2>
+      <div class="col-4" style="margin-top: 60px;">
+        <div class="persona feature">
+          <div class="lab">Beachhead</div>
+          <h4>ADHD & neurodivergent professionals</h4>
+          <p>25–50, cycle through tools, build custom Notion systems. Already pay $15+/mo. Tiimo's growth proves the segment.</p>
+          <div class="ptags">
+            <span class="ptag">$15+/mo</span>
+            <span class="ptag">Active communities</span>
+          </div>
+        </div>
+        <div class="persona">
+          <div class="lab">Expand</div>
+          <h4>Overwhelmed knowledge workers</h4>
+          <p>28–45, remote/hybrid, parents. Use 4–5 tools. Realism sells.</p>
+          <div class="ptags">
+            <span class="ptag">Large segment</span>
+          </div>
+        </div>
+        <div class="persona">
+          <div class="lab">Expand</div>
+          <h4>Performance optimizers</h4>
+          <p>30–55, entrepreneurs. Build custom trackers. Want analytics + leverage.</p>
+          <div class="ptags">
+            <span class="ptag">High ARPU</span>
+          </div>
+        </div>
+        <div class="persona">
+          <div class="lab">Long tail</div>
+          <h4>Privacy minimalists</h4>
+          <p>Open-source crowd. Reject cloud-heavy tools. Lifetime SKU captures them.</p>
+          <div class="ptags">
+            <span class="ptag">$249 lifetime</span>
+          </div>
+        </div>
+      </div>
+      <p class="lede" style="margin-top: 60px;">Acquisition: Reddit (r/ADHD, r/productivity), X threads, ADHD coaches, Product Hunt. Content-led with a free goal-to-sequence web tool as a lead magnet.</p>
+    </div>
+    <div class="chrome-bl">11 / 14</div>
+  </div>
+</section>
+
+<!-- 12 — BUSINESS MODEL -->
+<section data-screen-label="12 Business">
+  <div class="slide-pad">
+    <div class="chrome-tl">Business model</div>
+    <div class="chrome-tr">Cadence</div>
+    <div class="slide-content">
+      <div class="tag">Pricing & projections</div>
+      <h2 class="display h2">Freemium that converts. Lifetime SKU for privacy lovers.</h2>
+      <div class="col-3" style="margin-top: 60px;">
+        <div class="price">
+          <h4>Free</h4>
+          <div class="pval">$0</div>
+          <ul>
+            <li>Basic goal input</li>
+            <li>3 AI sequences / month</li>
+            <li>Today timeline</li>
+            <li>Local-only</li>
+          </ul>
+        </div>
+        <div class="price feature">
+          <h4>Premium</h4>
+          <div class="pval">$12<small>/mo · $129/yr</small></div>
+          <ul>
+            <li>Unlimited AI sequencing</li>
+            <li>Real-time adaptation</li>
+            <li>Calendar integrations</li>
+            <li>Advanced insights</li>
+            <li>Priority support</li>
+          </ul>
+        </div>
+        <div class="price">
+          <h4>Lifetime · self-hosted</h4>
+          <div class="pval">$249<small> · one-time</small></div>
+          <ul>
+            <li>On-device AI</li>
+            <li>No accounts ever</li>
+            <li>Full data export</li>
+            <li>Source-available client</li>
+          </ul>
+        </div>
+      </div>
+      <p class="lede lg" style="margin-top: 60px; max-width: 1500px;"><b style="color: var(--terra);">Conservative outlook:</b> 5,000 paying users × $12/mo = ~$720K ARR by month 18. Lifetime sales + content engine push to multi-million ARR by year 2.</p>
+    </div>
+    <div class="chrome-bl">12 / 14</div>
+  </div>
+</section>
+
+<!-- 13 — ROADMAP -->
+<section data-screen-label="13 Roadmap">
+  <div class="slide-pad">
+    <div class="chrome-tl">Roadmap</div>
+    <div class="chrome-tr">Cadence</div>
+    <div class="slide-content">
+      <div class="tag">8–10 weeks to a lovable MVP</div>
+      <h2 class="display h2">Ship narrow. Win the segment. Then expand.</h2>
+      <div class="phases" style="margin-top: 60px;">
+        <div class="phase now">
+          <div class="when">Now · weeks 0–1</div>
+          <div>
+            <h4>Phase 0 · Foundation</h4>
+            <p>Landing page + waitlist · interactive prototype (live) · 50–100 beta tester recruit · data model finalised.</p>
+          </div>
+        </div>
+        <div class="phase">
+          <div class="when">Weeks 1–6</div>
+          <div>
+            <h4>Phase 1 · Core MVP</h4>
+            <p>Automatic sequencing · visual timeline · Life Happened v1 · basic energy profile · calendar read-only.</p>
+          </div>
+        </div>
+        <div class="phase">
+          <div class="when">Weeks 7–12</div>
+          <div>
+            <h4>Phase 2 · Enhancement</h4>
+            <p>"Why this order?" · voice planning · micro-sequence library · smart recovery · weekly insights.</p>
+          </div>
+        </div>
+        <div class="phase">
+          <div class="when">Month 3–6</div>
+          <div>
+            <h4>Phase 3 · Differentiation</h4>
+            <p>Full offline mode · on-device AI · advanced energy auto-detection · team plans.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="chrome-bl">13 / 14</div>
+  </div>
+</section>
+
+<!-- 14 — TEAM + ASK -->
+<section data-screen-label="14 Ask" class="dark">
+  <div class="slide-pad">
+    <div class="chrome-tl">The ask</div>
+    <div class="chrome-tr">Cadence</div>
+    <div class="slide-content cols">
+      <div>
+        <div class="tag">Pre-seed</div>
+        <h2 class="display h2" style="margin-bottom: 36px;">Raising $750K.</h2>
+        <p class="lede lg" style="color: rgba(246,241,232,0.85);">18-month runway to ship MVP, validate with 500+ active beta users in the ADHD-pro segment, and reach $20K MRR for a defensible seed round.</p>
+        <div style="margin-top: 50px; display: flex; flex-direction: column; gap: 20px;">
+          <div style="display: flex; gap: 24px; align-items: center;">
+            <div style="width: 80px; height: 80px; border-radius: 999px; background: var(--terra); display: flex; align-items: center; justify-content: center; font-family: var(--serif); font-size: 42px; color: #fff;">A</div>
+            <div>
+              <div style="font-family: var(--serif); font-size: 32px; color: var(--paper);">Founder · CEO</div>
+              <div style="font-size: 17px; color: rgba(246,241,232,0.55); margin-top: 4px;">Product, design, GTM · replace with your bio</div>
+            </div>
+          </div>
+          <div style="display: flex; gap: 24px; align-items: center;">
+            <div style="width: 80px; height: 80px; border-radius: 999px; background: var(--lav); display: flex; align-items: center; justify-content: center; font-family: var(--serif); font-size: 42px; color: #fff;">B</div>
+            <div>
+              <div style="font-family: var(--serif); font-size: 32px; color: var(--paper);">Founder · CTO</div>
+              <div style="font-size: 17px; color: rgba(246,241,232,0.55); margin-top: 4px;">AI, infra, ML systems · replace with your bio</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="tag" style="color: #E8B47C;">Use of funds</div>
+        <h3 class="display h4" style="margin-bottom: 20px;">$750K, 18 months.</h3>
+        <div style="margin-top: 30px;">
+          <div class="uof-row" style="border-color: rgba(246,241,232,0.18);"><div class="l" style="color: var(--paper);">Engineering · 2 hires</div><div class="v" style="color: #E8B47C;">52%</div></div>
+          <div class="uof-row" style="border-color: rgba(246,241,232,0.18);"><div class="l" style="color: var(--paper);">Design · 1 hire</div><div class="v" style="color: #E8B47C;">18%</div></div>
+          <div class="uof-row" style="border-color: rgba(246,241,232,0.18);"><div class="l" style="color: var(--paper);">AI inference + infra</div><div class="v" style="color: #E8B47C;">12%</div></div>
+          <div class="uof-row" style="border-color: rgba(246,241,232,0.18);"><div class="l" style="color: var(--paper);">Content + community GTM</div><div class="v" style="color: #E8B47C;">10%</div></div>
+          <div class="uof-row" style="border-color: rgba(246,241,232,0.18);"><div class="l" style="color: var(--paper);">Operating + reserve</div><div class="v" style="color: #E8B47C;">8%</div></div>
+        </div>
+        <div style="margin-top: 40px; padding: 28px; background: rgba(232,180,124,0.10); border: 0.5px solid rgba(232,180,124,0.35); border-radius: 18px;">
+          <div style="font-family: var(--serif); font-size: 26px; color: var(--paper); margin-bottom: 8px;">Terms</div>
+          <div style="font-size: 18px; color: rgba(246,241,232,0.75); line-height: 1.5;">SAFE at $5M post-money cap. Looking for a lead + 2–3 strategic angels (productivity, ADHD coaching, design). Closing target: 8 weeks.</div>
+          <div style="margin-top: 16px; font-family: var(--mono); font-size: 14px; color: #E8B47C; letter-spacing: 0.4px;">founder@cadence.app</div>
+        </div>
+      </div>
+    </div>
+    <div class="chrome-bl">14 / 14 · thank you</div>
+  </div>
+</section>
+
+</deck-stage>
+
+<script src="deck-stage.js"></script>
+</body>
+</html>

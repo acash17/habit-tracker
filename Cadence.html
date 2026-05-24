@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cadence — the planner that plans for you</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --paper:   #F6F1E8;
+    --paper-2: #EFE8DA;
+    --card:    #FBF7EE;
+    --ink:     #1F1B16;
+    --terra:   #C26A38;
+    --sage:    #6B8E5A;
+    --lav:     #8E7CB8;
+    --serif:   'Instrument Serif', Georgia, serif;
+    --sans:    'Geist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    --mono:    'Geist Mono', ui-monospace, monospace;
+  }
+  html, body { margin: 0; padding: 0; height: 100%; background: #E8E2D5; }
+  body {
+    font-family: var(--sans);
+    color: var(--ink);
+    -webkit-font-smoothing: antialiased;
+    display: flex; align-items: center; justify-content: center;
+    min-height: 100vh;
+    background:
+      radial-gradient(1200px 700px at 30% 20%, #EFE7D5, transparent 60%),
+      radial-gradient(900px 600px at 80% 80%, #E9DDC9, transparent 60%),
+      #DDD5C3;
+  }
+  * { box-sizing: border-box; }
+  button { font-family: inherit; }
+  textarea { font-family: inherit; }
+
+  @keyframes slideup {
+    from { transform: translateY(20px); opacity: 0; }
+    to   { transform: translateY(0); opacity: 1; }
+  }
+  @keyframes fadein {
+    from { opacity: 0; } to { opacity: 1; }
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 0.25; transform: scale(0.9); }
+    50%      { opacity: 1; transform: scale(1.15); }
+  }
+
+  @keyframes wave {
+    0%, 100% { transform: scaleY(0.4); }
+    50%      { transform: scaleY(1.2); }
+  }
+
+  @keyframes confetti-fall {
+    0%   { transform: translateY(-20px) rotate(0deg); opacity: 0; }
+    10%  { opacity: 1; }
+    100% { transform: translateY(280px) rotate(720deg); opacity: 0; }
+  }
+
+  @keyframes tour-pop {
+    0%   { transform: translate(-50%, calc(-50% + 12px)) scale(0.96); opacity: 0; }
+    100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+  }
+
+  /* Hide scrollbars inside phone */
+  .phone-scroll::-webkit-scrollbar { display: none; }
+
+  /* Stage */
+  .stage {
+    padding: 32px;
+    display: flex; align-items: center; justify-content: center;
+    gap: 28px;
+    flex-wrap: wrap;
+  }
+  .blurb {
+    max-width: 320px;
+    color: rgba(31,27,22,0.78);
+  }
+  .blurb h1 {
+    font-family: var(--serif);
+    font-size: 44px; line-height: 1.05; letter-spacing: -0.5px;
+    margin: 0 0 14px;
+    color: var(--ink);
+    text-wrap: pretty;
+  }
+  .blurb p {
+    font-size: 14.5px; line-height: 1.5; margin: 0 0 12px;
+    color: rgba(31,27,22,0.68);
+  }
+  .blurb .tag {
+    display: inline-block; font-family: var(--mono); font-size: 11px;
+    text-transform: uppercase; letter-spacing: 1.6px;
+    color: var(--terra); margin-bottom: 18px;
+  }
+  .blurb ul { padding: 0; list-style: none; margin: 18px 0 0; display: flex; flex-direction: column; gap: 8px; }
+  .blurb li { font-size: 13px; color: rgba(31,27,22,0.62); padding-left: 18px; position: relative; }
+  .blurb li::before {
+    content: ''; position: absolute; left: 0; top: 8px;
+    width: 6px; height: 6px; border-radius: 999px; background: var(--terra);
+  }
+</style>
+</head>
+<body>
+  <div class="stage">
+    <div class="blurb">
+      <div class="tag">Cadence · v0.4</div>
+      <h1>The planner that plans for you.</h1>
+      <p>A habit-sequence planner built for real brains and real life. Turns big goals into tiny, time-estimated steps you can actually start. Adapts when life happens. Never punishes a missed day.</p>
+      <ul>
+        <li>Goal → micro-sequence in one tap (real AI breakdown)</li>
+        <li>Visual timeline blocks, not endless lists</li>
+        <li>Effort bloom, never streaks</li>
+        <li>Local-first by default</li>
+      </ul>
+    </div>
+
+    <div id="phone-mount"></div>
+  </div>
+
+  <script>
+    // ?bare=1 — hide the marketing blurb for screenshot/embed contexts
+    if (new URLSearchParams(location.search).get('bare') === '1') {
+      document.querySelector('.blurb').remove();
+      document.querySelector('.stage').style.justifyContent = 'center';
+    }
+  </script>
+
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+  <script type="text/babel" src="src/ios-frame.jsx"></script>
+  <script type="text/babel" src="src/data.jsx"></script>
+  <script type="text/babel" src="src/ui.jsx"></script>
+  <script type="text/babel" src="src/screen-today.jsx"></script>
+  <script type="text/babel" src="src/screen-goals.jsx"></script>
+  <script type="text/babel" src="src/screen-insights.jsx"></script>
+  <script type="text/babel" src="src/screen-settings.jsx"></script>
+  <script type="text/babel" src="src/screen-newgoal.jsx"></script>
+  <script type="text/babel" src="src/sheet-life-happened.jsx"></script>
+  <script type="text/babel" src="src/sheet-voice.jsx"></script>
+  <script type="text/babel" src="src/sheet-library.jsx"></script>
+  <script type="text/babel" src="src/sheet-energy.jsx"></script>
+  <script type="text/babel" src="src/onboarding.jsx"></script>
+  <script type="text/babel" src="src/planner.jsx"></script>
+  <script type="text/babel" src="src/tour.jsx"></script>
+  <script type="text/babel" src="src/app.jsx"></script>
+
+  <script type="text/babel">
+    function Mount() {
+      return (
+        <IOSDevice width={402} height={874}>
+          <App/>
+        </IOSDevice>
+      );
+    }
+    ReactDOM.createRoot(document.getElementById('phone-mount')).render(<Mount/>);
+  </script>
+</body>
+</html>
