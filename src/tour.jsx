@@ -1,3 +1,5 @@
+import React from 'react';
+
 // Guided product tour overlay. Activated via ?tour=1 on Cadence.html
 // Steps walk investors through the key value props in 60-90 seconds.
 
@@ -194,3 +196,5 @@ function TourOverlay({ onExit }) {
 }
 
 Object.assign(window, { TourOverlay, TOUR_STEPS });
+
+export { TOUR_STEPS, TourOverlay };

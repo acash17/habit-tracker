@@ -1,3 +1,5 @@
+import React from 'react';
+
 // Cadence shared UI primitives
 
 // Color tokens come from CSS vars defined in index.html.
@@ -162,3 +164,5 @@ function H({ children, size = 28, style = {} }) {
 }
 
 Object.assign(window, { Icon, Bloom, Chip, Btn, Card, H });
+
+export { Icon, Bloom, Chip, Btn, Card, H };

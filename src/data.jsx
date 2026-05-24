@@ -1,3 +1,5 @@
+import React from 'react';
+
 // Sample data + helpers for Cadence
 
 const INITIAL_GOALS = [
@@ -110,3 +112,5 @@ function minToTime(m) {
 }
 
 Object.assign(window, { INITIAL_GOALS, TIMELINE_BLOCKS, INSIGHTS, minToTime, composite });
+
+export { INITIAL_GOALS, TIMELINE_BLOCKS, INSIGHTS };

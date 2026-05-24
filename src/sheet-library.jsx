@@ -1,3 +1,7 @@
+import React from 'react';
+import { Icon, Chip, Btn, Card, H } from './ui.jsx';
+import { SheetShell, SheetFooter } from './planner.jsx';
+
 // Micro-sequence library — pre-built templates for common goals.
 // Especially powerful for ADHD users: zero decision cost to start.
 
@@ -254,3 +258,5 @@ function TemplatePreview({ t, onBack, onApply }) {
 }
 
 Object.assign(window, { LibrarySheet, TEMPLATES });
+
+export { TEMPLATES, TemplateCard, LibrarySheet, TemplatePreview };

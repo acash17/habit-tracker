@@ -1,3 +1,6 @@
+import React from 'react';
+import { Icon, Bloom, Chip, Btn, Card, H } from './ui.jsx';
+
 // 6-screen onboarding flow (per MVP roadmap PDF)
 // 1. Welcome  2. Energy profile  3. First goals  4. Sequence preview  5. Tour  6. First win
 
@@ -336,3 +339,5 @@ function Confetti() {
 }
 
 Object.assign(window, { OnboardingFlow });
+
+export { OnboardingFlow, WelcomeScreen, EnergyScreen, GoalsScreenOnboard, PreviewScreen, TourScreen, WinScreen, Confetti };

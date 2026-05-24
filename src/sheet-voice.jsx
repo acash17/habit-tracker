@@ -1,3 +1,7 @@
+import React from 'react';
+import { Bloom, Chip, Btn, H } from './ui.jsx';
+import { SheetShell, SheetFooter } from './planner.jsx';
+
 // Voice planning sheet — natural language → full day sequence.
 // Simulates a voice capture, shows live transcript, then parses into a plan.
 
@@ -153,3 +157,5 @@ function VoiceWave() {
 }
 
 Object.assign(window, { VoiceSheet });
+
+export { VoiceSheet, VoiceWave };

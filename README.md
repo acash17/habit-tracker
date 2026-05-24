@@ -1,6 +1,6 @@
 # Cadence
 
-Habit sequence planner — iOS-style React prototype, wrapped with Capacitor for Android + iOS native builds.
+Habit sequence planner — iOS-style React app. **Vite + React 18 + Capacitor 6** for Android + iOS.
 
 ---
 
@@ -8,10 +8,10 @@ Habit sequence planner — iOS-style React prototype, wrapped with Capacitor for
 
 ```bash
 npm install
-npm start
+npm run dev
 ```
 
-Open http://localhost:5173/Cadence.html
+Open http://localhost:5173 — Vite HMR, sub-second reload.
 
 ---
 
@@ -20,15 +20,13 @@ Open http://localhost:5173/Cadence.html
 ### One-time setup
 
 1. Install **Android Studio**: https://developer.android.com/studio
-2. During setup, accept SDK licenses and install:
-   - Android SDK Platform 34 (or latest)
-   - Android SDK Build-Tools
-   - Android SDK Platform-Tools
-3. Install **JDK 17** (Android Studio bundles one; or install separately).
-4. Set env vars:
+2. SDK Manager → install Android SDK Platform 34, Build-Tools, Platform-Tools.
+3. Env vars:
    - `ANDROID_HOME` → e.g. `C:\Users\<you>\AppData\Local\Android\Sdk`
-   - `JAVA_HOME` → JDK 17 path
+   - `JAVA_HOME` → JDK 17–21 (Android Studio bundles JDK 21 at `C:\Program Files\Android\Android Studio\jbr`)
    - Add `%ANDROID_HOME%\platform-tools` to PATH
+
+> JDK 22+ may fail Gradle. JDK 25 confirmed broken with Gradle 8.11.
 
 ### Build debug APK
 
@@ -36,25 +34,21 @@ Open http://localhost:5173/Cadence.html
 npm run android:apk
 ```
 
-APK output: `android/app/build/outputs/apk/debug/app-debug.apk`
+Output: `android/app/build/outputs/apk/debug/app-debug.apk`
 
 Install on phone:
 ```bash
 adb install android/app/build/outputs/apk/debug/app-debug.apk
 ```
 
-Or open Android Studio to build / sign / release:
+Or sideload: copy APK → phone → enable "Install unknown apps" → tap APK.
+
+### Open in Android Studio (signed release / Play Store)
+
 ```bash
 npm run android
 ```
-
-### Build signed release APK
-
-1. Generate keystore (one-time):
-   ```bash
-   keytool -genkey -v -keystore cadence.keystore -alias cadence -keyalg RSA -keysize 2048 -validity 10000
-   ```
-2. Open `android/` in Android Studio → Build → Generate Signed Bundle / APK.
+Build → Generate Signed Bundle / APK.
 
 ---
 
@@ -63,57 +57,71 @@ npm run android
 Cannot build on Windows. On a Mac:
 
 ```bash
-# After cloning the repo:
+git clone https://github.com/acash17/habit-tracker.git
+cd habit-tracker
 npm install
-sudo gem install cocoapods   # if not present
-npm run build
-npx cap sync ios
-npm run ios                  # opens Xcode
+sudo gem install cocoapods
+npm run ios   # opens Xcode
 ```
 
-In Xcode: select team, product → archive → distribute.
-Requires Apple Developer account ($99/yr) for App Store / TestFlight.
+Xcode: select team → Product → Archive → Distribute. Apple Developer account needed for TestFlight / App Store ($99/yr).
 
 ---
 
-## 4. Sync changes after editing JSX
-
-Whenever you edit files in `src/` or `Cadence.html`:
+## 4. After editing source
 
 ```bash
-npm run sync         # copies web assets into native projects
+npm run sync         # vite build + cap sync — pushes to native projects
 npm run android:apk  # rebuild APK
 ```
 
 ---
 
+## Stack
+
+- **React 18.3** — ES modules, named imports
+- **Vite 5** — dev server, prod bundle (~73 KB gzipped)
+- **Capacitor 6** — native iOS + Android wrappers
+- No Tailwind / styled-components — uses CSS variables + inline `style` props
+
 ## Project layout
 
 ```
-Cadence.html             — main app shell (Babel-in-browser React)
-src/                     — JSX components
-  app.jsx                — root + tab bar
-  screen-*.jsx           — Today / Goals / Insights / Settings
-  sheet-*.jsx            — bottom sheets
-  onboarding.jsx, planner.jsx, tour.jsx, ui.jsx, data.jsx, ios-frame.jsx
-standalone/              — alternate HTML entry points
-Investor Landing.html    — marketing page
-Pitch Deck.html          — investor deck
-build.js                 — copies app → www/ for Capacitor
-capacitor.config.json    — app id, name, webDir
-android/                 — native Android project (generated)
-ios/                     — native iOS project (generated, build on Mac)
-www/                     — build output (gitignored)
+index.html               — Vite entry (loads /src/main.jsx)
+vite.config.js           — Vite + React plugin
+capacitor.config.json    — appId, appName, webDir=dist
+src/
+  main.jsx               — bootstrap, mounts <App/> inside <IOSDevice/>
+  styles.css             — global CSS (fonts, keyframes, layout)
+  app.jsx                — root: tab bar, screens, sheets, toasts
+  data.jsx               — initial goals / timeline blocks / insights
+  ui.jsx                 — Icon, Bloom, Chip, Btn, Card, H primitives
+  ios-frame.jsx          — phone chrome (IOSDevice, IOSStatusBar, ...)
+  screen-today.jsx       — Today timeline + quick chips
+  screen-goals.jsx       — Goals list
+  screen-insights.jsx    — Insights cards + completion-by-hour chart
+  screen-settings.jsx    — Settings
+  screen-newgoal.jsx     — New goal wizard
+  sheet-energy.jsx       — Energy profile editor
+  sheet-library.jsx      — Template library
+  sheet-life-happened.jsx— Life-happened recovery flow
+  sheet-voice.jsx        — Voice capture
+  planner.jsx            — Sheet shells + planner UI
+  onboarding.jsx         — First-run onboarding
+  tour.jsx               — Tour overlay
+  tweaks-panel.jsx       — Dev tweak controls (unused at runtime)
+dist/                    — Vite build output (gitignored)
+android/                 — Capacitor Android project
+ios/                     — Capacitor iOS project (build on Mac)
+standalone/              — Self-contained HTML bundles (older)
+Investor Landing.html    — Marketing page
+Pitch Deck.html          — Investor deck
+Cadence.html             — Legacy Babel-in-browser entry (kept for reference)
 ```
-
-## Tech
-
-- React 18.3 via UMD CDN
-- Babel Standalone (in-browser JSX transform — slow first load on phone)
-- Capacitor 6 (native wrapper)
 
 ## Known limitations
 
-- **Babel-in-browser**: first paint slow on phone (~2-3s). Migrate to Vite + `@vitejs/plugin-react` for production. Needs JSX file refactor to ES modules.
-- **No offline storage yet**: data lost on app restart. Add `@capacitor/preferences` plugin for persistence.
-- **No push notifications**: add `@capacitor/push-notifications`.
+- **No persistence** — state resets when app closes. Add `@capacitor/preferences` for storage.
+- **No push notifications** — add `@capacitor/push-notifications`.
+- **No backend** — all data is in-memory React state.
+- **Tweaks panel + ios-frame device chrome** are loaded but largely passive in the mobile build (the device chrome looks redundant inside a real native shell — consider stripping for native builds).

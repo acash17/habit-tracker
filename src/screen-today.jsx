@@ -1,3 +1,7 @@
+import React from 'react';
+import { Icon, Bloom, Chip, Btn, Card, H } from './ui.jsx';
+import { ScoreDrawer } from './planner.jsx';
+
 // Today screen — visual timeline + energy + bloom
 
 function EnergyDots({ value, onChange }) {
@@ -265,3 +269,5 @@ function TodayScreen({ blocks, setBlocks, onAdapt, openNewGoal, onRunningLong, o
 }
 
 Object.assign(window, { TodayScreen });
+
+export { EnergyDots, TimelineBlock, QuickChip, RecoveryCard, TodayScreen };

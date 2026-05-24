@@ -1,3 +1,6 @@
+import React from 'react';
+import { Icon, Chip, Btn, Card, H } from './ui.jsx';
+
 // Goals / Library — list of active sequences
 
 function GoalCard({ g, onOpen }) {
@@ -77,3 +80,5 @@ function GoalsScreen({ goals, openNewGoal, openGoal }) {
 }
 
 Object.assign(window, { GoalsScreen, GoalCard });
+
+export { GoalCard, GoalsScreen };

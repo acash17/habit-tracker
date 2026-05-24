@@ -1,3 +1,7 @@
+import React from 'react';
+import { INSIGHTS } from './data.jsx';
+import { Icon, Bloom, Card, H } from './ui.jsx';
+
 // Insights — non-punitive pattern surfaces
 
 function InsightCard({ i }) {
@@ -105,3 +109,5 @@ function InsightsScreen() {
 }
 
 Object.assign(window, { InsightsScreen });
+
+export { InsightCard, CompletionByHour, InsightsScreen };

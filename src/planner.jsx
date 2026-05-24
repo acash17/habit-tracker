@@ -1,3 +1,6 @@
+import React from 'react';
+import { Icon, Bloom, Btn, Card, H } from './ui.jsx';
+
 // Planner-internals UI: score drawer, "Running long" reschedule sheet,
 // and "Why this order?" plain-language explainer.
 
@@ -393,3 +396,5 @@ Object.assign(window, {
   ScoreDrawer, RunningLongSheet, WhyOrderSheet,
   recomputeForOverrun, computeRank,
 });
+
+export { ScoreBar, ScoreDrawer, RunningLongSheet, DiffRow, WhyOrderSheet, ReasonCard, SheetShell, SheetFooter };

@@ -1,3 +1,6 @@
+import React from 'react';
+import { Icon, Bloom, Chip, Btn, Card, H } from './ui.jsx';
+
 // New Goal sheet — the showcase: goal + constraints → AI-generated micro-sequence
 
 function ConstraintChip({ active, children, onClick }) {
@@ -301,3 +304,5 @@ function ResultStage({ goal, steps }) {
 }
 
 Object.assign(window, { NewGoalSheet });
+
+export { ConstraintChip, NewGoalSheet, InputStage, ThinkingStage, ResultStage };

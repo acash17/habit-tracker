@@ -1,3 +1,8 @@
+import React from 'react';
+import { Chip, Btn, Card, H } from './ui.jsx';
+import { Toggle } from './screen-settings.jsx';
+import { SheetShell, SheetFooter } from './planner.jsx';
+
 // Energy profile editor — visible 24h energy curve.
 // Settings -> opens this. The profile feeds the "Energy match" sub-score.
 
@@ -158,3 +163,5 @@ function ProfilePreset({ label, curve, onPick }) {
 }
 
 Object.assign(window, { EnergyProfileSheet, DEFAULT_CURVE });
+
+export { DEFAULT_CURVE, EnergyCurveEditor, EnergyProfileSheet, ProfilePreset };

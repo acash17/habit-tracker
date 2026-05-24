@@ -1,3 +1,19 @@
+import React from 'react';
+import { INITIAL_GOALS, TIMELINE_BLOCKS } from './data.jsx';
+import { Icon, Chip } from './ui.jsx';
+import { TodayScreen } from './screen-today.jsx';
+import { GoalsScreen } from './screen-goals.jsx';
+import { InsightsScreen } from './screen-insights.jsx';
+import { SettingsScreen } from './screen-settings.jsx';
+import { NewGoalSheet } from './screen-newgoal.jsx';
+import { EnergyProfileSheet } from './sheet-energy.jsx';
+import { LibrarySheet } from './sheet-library.jsx';
+import { LifeHappenedSheet } from './sheet-life-happened.jsx';
+import { VoiceSheet } from './sheet-voice.jsx';
+import { RunningLongSheet, WhyOrderSheet } from './planner.jsx';
+import { OnboardingFlow } from './onboarding.jsx';
+import { TourOverlay } from './tour.jsx';
+
 // Cadence — app shell (with onboarding gate + all sheets wired)
 
 function TabBar({ tab, setTab, onAdd }) {
@@ -264,3 +280,5 @@ function App() {
 }
 
 Object.assign(window, { App });
+
+export { TabBar, CadenceHeader, App };

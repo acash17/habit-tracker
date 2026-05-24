@@ -1,3 +1,6 @@
+import React from 'react';
+import { Icon, Chip, Btn, Card, H } from './ui.jsx';
+
 // Settings — privacy-first, non-punitive controls
 
 function Row({ title, sub, control, last }) {
@@ -151,3 +154,5 @@ function SettingsScreen({ onOpenEnergy, onReplay }) {
 }
 
 Object.assign(window, { SettingsScreen });
+
+export { Row, Toggle, Section, SettingsScreen };
