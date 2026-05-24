@@ -1,4 +1,5 @@
 node_modules/
+www/
 .DS_Store
 Thumbs.db
 *.log
@@ -6,3 +7,29 @@ Thumbs.db
 .idea/
 dist/
 .cache/
+
+# Android
+android/.gradle/
+android/build/
+android/app/build/
+android/local.properties
+android/captures/
+android/.idea/
+android/app/release/
+android/app/src/main/assets/public/
+android/app/src/main/assets/capacitor.config.json
+android/app/src/main/assets/capacitor.plugins.json
+*.iml
+*.keystore
+!debug.keystore
+
+# iOS
+ios/App/Pods/
+ios/App/build/
+ios/DerivedData/
+ios/App/App/public/
+ios/App/App/capacitor.config.json
+ios/App/App/config.xml
+xcuserdata/
+*.xcworkspace/xcuserdata/
+ios/App/Podfile.lock

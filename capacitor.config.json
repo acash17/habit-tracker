@@ -1,0 +1,8 @@
+{
+  "appId": "com.acash.cadence",
+  "appName": "Cadence",
+  "webDir": "www",
+  "server": {
+    "androidScheme": "https"
+  }
+}
