@@ -2,7 +2,12 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { IOSDevice } from './ios-frame.jsx';
 import { App } from './app.jsx';
+import { initNativeAuthHandler } from './use-auth.js';
 import './styles.css';
+
+// Arm Capacitor deep-link handler before mount so the OAuth callback isn't dropped.
+// No-op on web (and when cloud env vars aren't set).
+initNativeAuthHandler();
 
 function Mount() {
   return (

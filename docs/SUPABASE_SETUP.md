@@ -134,18 +134,56 @@ If something fails:
 
 ---
 
-## G. Mobile (Capacitor) OAuth — DEFERRED but planned
+## G. Mobile (Capacitor) OAuth — SHIPPED
 
-The current code uses the **web** OAuth flow (browser redirect). On a native Android/iOS app, this opens the system browser and never gets back to the app cleanly. To support mobile sign-in, three pieces are needed:
+The native Android + iOS flow is wired:
 
-1. **Custom URL scheme**: add `cadence://` to `AndroidManifest.xml` + iOS `Info.plist`
-2. **Deep-link listener**: `@capacitor/app` `App.addListener('appUrlOpen', ...)` → reads the tokens from the redirect URL → calls `supabase.auth.setSession(...)`
-3. **In-app browser**: `@capacitor/browser` to open the OAuth page so the app stays alive
+| Piece | Where |
+|---|---|
+| Custom URL scheme `cadence://auth-callback` | `AndroidManifest.xml` (intent-filter) + `Info.plist` (CFBundleURLTypes) |
+| In-app browser opens Google's URL | `@capacitor/browser` |
+| Deep-link listener parses tokens, calls `setSession` | `@capacitor/app` + `initNativeAuthHandler()` in `src/main.jsx` |
+| Same `signInWithGoogle()` call routes to web flow on web, native flow on Capacitor | `src/use-auth.js` (`isNative()` branch) |
 
-The Capacitor + Supabase community has a documented pattern for this:
-https://supabase.com/docs/guides/auth/quickstarts/with-capacitor
+### ONE manual step before mobile sign-in works:
 
-I'll add this layer when you're ready to ship a signed Play Store build with auth. For now, web OAuth works in the Capacitor WebView for *testing* purposes — the redirect happens inside the WebView and stays put, which is good enough for QA on a real phone via `npm run android:run`.
+Add `cadence://auth-callback` to Supabase's redirect URL allowlist:
+
+1. Supabase Dashboard → **Authentication → URL Configuration**
+2. **Redirect URLs** → click "Add URL"
+3. Paste: `cadence://auth-callback`
+4. Save
+
+Without this Supabase will refuse to redirect to the custom scheme and the OAuth flow dead-ends on the consent screen.
+
+### How it works end-to-end on native:
+
+1. User taps **Continue with Google** in Settings
+2. App calls `supabase.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: 'cadence://auth-callback', skipBrowserRedirect: true } })` → Supabase returns the Google URL
+3. `Browser.open({ url })` opens an in-app browser tab (Chrome Custom Tabs on Android, SFSafariViewController on iOS)
+4. User picks their Google account → consents
+5. Google redirects to Supabase's callback (`https://YOUR-REF.supabase.co/auth/v1/callback`) which exchanges the code for tokens
+6. Supabase then redirects to `cadence://auth-callback#access_token=...&refresh_token=...`
+7. Android/iOS routes the `cadence://` URL back to our app via the intent-filter / URL scheme
+8. `App.addListener('appUrlOpen', ...)` fires → handler parses tokens from the URL fragment → calls `supabase.auth.setSession({ access_token, refresh_token })`
+9. `Browser.close()` dismisses the in-app browser
+10. `onAuthStateChange` fires → React updates → user lands on the signed-in profile card
+
+### Testing it
+
+```bash
+# Wire env vars + Supabase allowlist first (see step D + the manual step above)
+npm run android:apk
+# Install on phone:
+adb install -r android/app/build/outputs/apk/debug/app-debug.apk
+# Open app → Settings → Continue with Google → real Google chooser → returns to app
+```
+
+If the deep link doesn't return:
+- Verify the intent-filter exists: `grep -A6 'cadence' android/app/src/main/AndroidManifest.xml`
+- Test deep link manually: `adb shell am start -W -a android.intent.action.VIEW -d "cadence://auth-callback?test=1"`
+- Check that `cadence://auth-callback` is in Supabase redirect allowlist
+- Check Logcat for `[auth] OAuth error:` or `[auth] setSession failed:` messages
 
 ---
 
