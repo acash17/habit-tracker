@@ -6,6 +6,9 @@
 import React from 'react';
 import { supabase, cloudEnabled } from './supabase.js';
 import { save as saveLocal } from './storage.js';
+import { clearLocalCloudCache } from './use-auth.js';
+
+const LAST_USER_KEY = 'cadence:last-user-id';
 
 const TABLE = 'goals';
 
@@ -72,10 +75,20 @@ export function useCloudSync({ user, goals, setGoals }) {
   const dirtyRef = React.useRef(false);
   const timerRef = React.useRef(null);
 
-  // Initial pull/seed when user becomes available
+  // Initial pull/seed when user becomes available. Detect a user-id switch
+  // (different user signed in since last time) and clear local cache first to
+  // prevent the previous user's goals from being pushed into this user's cloud.
   React.useEffect(() => {
     if (!user || !cloudEnabled) return;
     let cancelled = false;
+
+    const lastUserId = (() => { try { return localStorage.getItem(LAST_USER_KEY); } catch { return null; } })();
+    const userSwitched = lastUserId && lastUserId !== user.id;
+    if (userSwitched) {
+      clearLocalCloudCache();
+      setGoals([]); // drop the previous account's goals from memory before pull
+    }
+
     (async () => {
       const bootstrapped = localStorage.getItem(syncedKey) === '1';
       const cloud = await pullGoals(user.id);
@@ -83,10 +96,15 @@ export function useCloudSync({ user, goals, setGoals }) {
       if (cloud && cloud.length > 0) {
         setGoals(cloud);
         saveLocal('goals', cloud);
-      } else if (!bootstrapped && goals.length > 0) {
+      } else if (!bootstrapped && !userSwitched && goals.length > 0) {
+        // Only push local-only goals to cloud when this is the FIRST sign-in on this
+        // device for this user (not a re-sign-in after switching accounts).
         await pushGoals(user.id, goals);
       }
-      localStorage.setItem(syncedKey, '1');
+      try {
+        localStorage.setItem(syncedKey, '1');
+        localStorage.setItem(LAST_USER_KEY, user.id);
+      } catch { /* fine */ }
     })();
     return () => { cancelled = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps

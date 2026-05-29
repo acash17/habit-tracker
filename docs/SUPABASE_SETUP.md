@@ -156,6 +156,17 @@ Add `cadence://auth-callback` to Supabase's redirect URL allowlist:
 
 Without this Supabase will refuse to redirect to the custom scheme and the OAuth flow dead-ends on the consent screen.
 
+### Security model — PKCE flow
+
+The native flow uses **PKCE (Proof Key for Code Exchange)**. Custom URL schemes like `cadence://` can technically be claimed by any other installed app, so we **never** put `access_token` in the redirect URL. Instead:
+
+1. When the client calls `signInWithOAuth`, Supabase generates a **PKCE verifier** that only this app instance knows (stored in localStorage of this app's WebView).
+2. The callback URL contains only a short-lived `?code=` — useless on its own.
+3. Our deep-link handler calls `supabase.auth.exchangeCodeForSession(code)`, which sends both the code AND the PKCE verifier to Supabase to obtain the actual tokens.
+4. A hijacker app that intercepts the `?code=` cannot exchange it without the verifier.
+
+This is the same model OAuth 2.1 mandates for native apps.
+
 ### How it works end-to-end on native:
 
 1. User taps **Continue with Google** in Settings

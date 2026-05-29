@@ -68,9 +68,28 @@ export async function signInWithGoogle() {
   return data;
 }
 
+/**
+ * Clear local copies of cloud-synced data so a different account that signs in next
+ * doesn't inherit the previous user's goals. Called on sign-out and on user-id change.
+ */
+export function clearLocalCloudCache() {
+  try {
+    // Wipe goals cache — bootstrap will pull fresh from cloud on next sign-in.
+    localStorage.removeItem('cadence:goals');
+    // Wipe every per-user bootstrap flag so the next user starts clean.
+    for (let i = localStorage.length - 1; i >= 0; i--) {
+      const k = localStorage.key(i);
+      if (k && k.startsWith('cadence:sync-bootstrapped:')) localStorage.removeItem(k);
+    }
+  } catch { /* localStorage disabled — fine */ }
+}
+
 export async function signOut() {
   if (!cloudEnabled) return;
   await supabase.auth.signOut();
+  clearLocalCloudCache();
+  // Reload so the React tree re-reads fresh (now-default) goals from storage.
+  if (typeof window !== 'undefined') window.location.reload();
 }
 
 /**
@@ -92,26 +111,34 @@ export async function initNativeAuthHandler() {
     if (!url || typeof url !== 'string') return;
     if (!url.startsWith(NATIVE_CALLBACK)) return;
 
-    // Supabase returns tokens in the URL fragment: `cadence://auth-callback#access_token=...&refresh_token=...&expires_in=...`
-    // Some providers/paths use ?query instead — handle both.
+    // PKCE flow returns `cadence://auth-callback?code=...`. We exchange the code with
+    // Supabase using the PKCE verifier the client created when we called
+    // signInWithOAuth — a malicious app that intercepts the same scheme can grab the
+    // code but cannot exchange it without the verifier.
+    //
+    // We still handle the legacy implicit-flow case (#access_token=...) for safety so
+    // we don't break if a deployment hasn't switched.
+    let code = null;
     let access_token = null;
     let refresh_token = null;
     try {
-      const hashIdx = url.indexOf('#');
       const queryIdx = url.indexOf('?');
-      const raw = hashIdx >= 0 ? url.slice(hashIdx + 1)
-                 : queryIdx >= 0 ? url.slice(queryIdx + 1)
-                 : '';
-      const params = new URLSearchParams(raw);
-      access_token  = params.get('access_token');
-      refresh_token = params.get('refresh_token');
-      const errDesc = params.get('error_description') || params.get('error');
+      const hashIdx  = url.indexOf('#');
+      const query  = queryIdx >= 0 ? new URLSearchParams(url.slice(queryIdx + 1, hashIdx >= 0 ? hashIdx : undefined)) : new URLSearchParams();
+      const hash   = hashIdx  >= 0 ? new URLSearchParams(url.slice(hashIdx + 1)) : new URLSearchParams();
+      code          = query.get('code');
+      access_token  = hash.get('access_token');
+      refresh_token = hash.get('refresh_token');
+      const errDesc = query.get('error_description') || hash.get('error_description') || query.get('error') || hash.get('error');
       if (errDesc) console.warn('[auth] OAuth error:', errDesc);
     } catch (e) {
       console.warn('[auth] failed to parse callback URL:', e);
     }
 
-    if (access_token && refresh_token) {
+    if (code) {
+      const { error } = await supabase.auth.exchangeCodeForSession(code);
+      if (error) console.warn('[auth] exchangeCodeForSession failed:', error.message);
+    } else if (access_token && refresh_token) {
       const { error } = await supabase.auth.setSession({ access_token, refresh_token });
       if (error) console.warn('[auth] setSession failed:', error.message);
     }
