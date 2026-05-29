@@ -7,6 +7,7 @@ import { GoalsScreen } from './screen-goals.jsx';
 import { InsightsScreen } from './screen-insights.jsx';
 import { SettingsScreen } from './screen-settings.jsx';
 import { NewGoalSheet } from './screen-newgoal.jsx';
+import { GoalEditSheet } from './sheet-goal-edit.jsx';
 import { EnergyProfileSheet } from './sheet-energy.jsx';
 import { LibrarySheet } from './sheet-library.jsx';
 import { LifeHappenedSheet } from './sheet-life-happened.jsx';
@@ -114,6 +115,7 @@ function App() {
   const [voiceOpen, setVoiceOpen] = React.useState(false);
   const [libraryOpen, setLibraryOpen] = React.useState(false);
   const [energyOpen, setEnergyOpen] = React.useState(false);
+  const [editingGoalId, setEditingGoalId] = React.useState(null);
 
   // Tour gate: ?tour=1 starts the guided investor tour; closes when finished.
   const [tourOn, setTourOn] = React.useState(() => {
@@ -218,6 +220,22 @@ function App() {
     setGoals(prev => [newGoal, ...prev]);
     flash(`Added · ${title.length > 28 ? title.slice(0, 28) + '…' : title}`);
   }
+
+  function openGoal(id) { setEditingGoalId(id); }
+  function saveGoal(updated) {
+    setGoals(prev => prev.map(g => g.id === updated.id ? updated : g));
+    setEditingGoalId(null);
+    flash('Goal updated');
+  }
+  function deleteGoal(id) {
+    setGoals(prev => prev.filter(g => g.id !== id));
+    setEditingGoalId(null);
+    flash('Goal deleted');
+  }
+  const editingGoal = React.useMemo(
+    () => goals.find(g => g.id === editingGoalId) || null,
+    [goals, editingGoalId]
+  );
   function finishOnboarding() {
     try { localStorage.setItem('cadence-onboarded', '1'); } catch {}
     setOnboarding(false);
@@ -255,7 +273,7 @@ function App() {
             onLibrary={() => setLibraryOpen(true)}
           />
         )}
-        {tab === 'goals' && <GoalsScreen goals={goals} openNewGoal={() => setSheetOpen(true)} openGoal={() => {}} />}
+        {tab === 'goals' && <GoalsScreen goals={goals} openNewGoal={() => setSheetOpen(true)} openGoal={openGoal} />}
         {tab === 'insights' && <InsightsScreen />}
         {tab === 'settings' && <SettingsScreen onOpenEnergy={() => setEnergyOpen(true)} onReplay={replayOnboarding}/>}
       </div>
@@ -316,6 +334,15 @@ function App() {
         <EnergyProfileSheet
           onClose={() => setEnergyOpen(false)}
           onSave={() => { setEnergyOpen(false); flash('Energy profile saved'); }}
+        />
+      )}
+
+      {editingGoal && (
+        <GoalEditSheet
+          goal={editingGoal}
+          onClose={() => setEditingGoalId(null)}
+          onSave={saveGoal}
+          onDelete={() => deleteGoal(editingGoal.id)}
         />
       )}
 
