@@ -1,5 +1,7 @@
 import React from 'react';
 import { Icon, Chip, Btn, Card, H } from './ui.jsx';
+import { useAuth, signInWithGoogle, signOut } from './use-auth.js';
+import { cloudEnabled } from './supabase.js';
 
 // Settings — privacy-first, non-punitive controls
 
@@ -49,6 +51,122 @@ function Section({ header, children }) {
   );
 }
 
+function GoogleLogo({ size = 16 }) {
+  // Brand-accurate 4-color Google "G"
+  return (
+    <svg width={size} height={size} viewBox="0 0 48 48" aria-hidden>
+      <path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3c-1.6 4.6-6 8-11.3 8-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/>
+      <path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.6 16.1 19 13 24 13c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/>
+      <path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2c-2 1.5-4.5 2.4-7.2 2.4-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/>
+      <path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.3-2.3 4.3-4.1 5.6l6.2 5.2C41.2 36.3 44 30.6 44 24c0-1.3-.1-2.4-.4-3.5z"/>
+    </svg>
+  );
+}
+
+function ProfileCard() {
+  const { user, ready } = useAuth();
+  const [busy, setBusy] = React.useState(false);
+
+  async function onSignIn() {
+    try { setBusy(true); await signInWithGoogle(); }
+    catch (e) { alert(e.message || 'Sign-in failed'); }
+    finally { setBusy(false); }
+  }
+  async function onSignOut() {
+    try { setBusy(true); await signOut(); }
+    finally { setBusy(false); }
+  }
+
+  // Cloud disabled — show a local-only badge instead of a fake profile
+  if (!cloudEnabled) {
+    return (
+      <Card style={{ padding: 18, display: 'flex', alignItems: 'center', gap: 14 }}>
+        <div style={{
+          width: 52, height: 52, borderRadius: 999, background: 'var(--paper-2)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          color: 'rgba(31,27,22,0.55)', fontFamily: 'var(--mono)', fontSize: 11,
+          letterSpacing: 1, textTransform: 'uppercase',
+        }}>local</div>
+        <div style={{ flex: 1 }}>
+          <div style={{ fontFamily: 'var(--serif)', fontSize: 20, color: 'var(--ink)', letterSpacing: -0.3 }}>This device only</div>
+          <div style={{ fontSize: 12, color: 'rgba(31,27,22,0.55)', marginTop: 2 }}>Cloud sync not configured. See docs/SUPABASE_SETUP.md.</div>
+        </div>
+      </Card>
+    );
+  }
+
+  // Signed out — Google sign-in CTA
+  if (!user) {
+    return (
+      <Card style={{ padding: 16, display: 'flex', flexDirection: 'column', gap: 12 }}>
+        <div>
+          <div style={{ fontFamily: 'var(--serif)', fontSize: 20, color: 'var(--ink)', letterSpacing: -0.3, lineHeight: 1.1 }}>
+            Sync your sequences
+          </div>
+          <div style={{ fontSize: 12.5, color: 'rgba(31,27,22,0.6)', marginTop: 6, lineHeight: 1.5 }}>
+            Sign in to back up your goals and pick them up on any device. Local data stays on this device; signing in only mirrors it.
+          </div>
+        </div>
+        <button
+          onClick={onSignIn}
+          disabled={!ready || busy}
+          style={{
+            display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 10,
+            padding: '11px 16px', borderRadius: 12, cursor: busy ? 'wait' : 'pointer',
+            background: '#fff', color: '#1F1B16',
+            border: '0.5px solid rgba(31,27,22,0.18)',
+            boxShadow: '0 1px 2px rgba(31,27,22,0.05)',
+            fontFamily: 'inherit', fontSize: 14, fontWeight: 500,
+            opacity: ready ? 1 : 0.6,
+          }}>
+          <GoogleLogo size={18} />
+          <span>{busy ? 'Redirecting…' : 'Continue with Google'}</span>
+        </button>
+      </Card>
+    );
+  }
+
+  // Signed in
+  const name = user.user_metadata?.full_name || user.user_metadata?.name || user.email || 'Signed in';
+  const avatar = user.user_metadata?.avatar_url || user.user_metadata?.picture || null;
+  const initials = (name || 'U').trim().split(/\s+/).map(s => s[0]).join('').slice(0, 2).toUpperCase();
+
+  return (
+    <Card style={{ padding: 16, display: 'flex', alignItems: 'center', gap: 14 }}>
+      {avatar ? (
+        <img src={avatar} alt="" referrerPolicy="no-referrer" style={{
+          width: 48, height: 48, borderRadius: 999, objectFit: 'cover',
+          border: '0.5px solid rgba(31,27,22,0.12)',
+        }} />
+      ) : (
+        <div style={{
+          width: 48, height: 48, borderRadius: 999, background: 'var(--terra)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          color: '#fff', fontFamily: 'var(--serif)', fontSize: 20, letterSpacing: -0.4,
+        }}>{initials}</div>
+      )}
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{
+          fontFamily: 'var(--serif)', fontSize: 19, color: 'var(--ink)', letterSpacing: -0.3,
+          overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+        }}>{name}</div>
+        <div style={{
+          fontSize: 11.5, color: 'rgba(31,27,22,0.55)', marginTop: 2,
+          display: 'flex', alignItems: 'center', gap: 6,
+        }}>
+          <span style={{ width: 6, height: 6, borderRadius: 999, background: 'var(--sage)' }} />
+          Synced
+        </div>
+      </div>
+      <button onClick={onSignOut} disabled={busy} style={{
+        background: 'transparent', border: '0.5px solid rgba(31,27,22,0.15)',
+        padding: '7px 12px', borderRadius: 999, fontFamily: 'inherit', fontSize: 12,
+        color: 'rgba(31,27,22,0.7)', cursor: busy ? 'wait' : 'pointer',
+      }}>Sign out</button>
+    </Card>
+  );
+}
+
 function SettingsScreen({ onOpenEnergy, onReplay }) {
   const [local, setLocal] = React.useState(true);
   const [calendar, setCalendar] = React.useState(false);
@@ -67,19 +185,8 @@ function SettingsScreen({ onOpenEnergy, onReplay }) {
         <H size={32}>Settings</H>
       </div>
 
-      {/* Profile card */}
-      <Card style={{ padding: 18, display: 'flex', alignItems: 'center', gap: 14 }}>
-        <div style={{
-          width: 52, height: 52, borderRadius: 999, background: 'var(--terra)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          color: '#fff', fontFamily: 'var(--serif)', fontSize: 24, letterSpacing: -0.5,
-        }}>A</div>
-        <div style={{ flex: 1 }}>
-          <div style={{ fontFamily: 'var(--serif)', fontSize: 20, color: 'var(--ink)', letterSpacing: -0.3 }}>Alex Morgan</div>
-          <div style={{ fontSize: 12, color: 'rgba(31,27,22,0.55)', marginTop: 2 }}>Free plan · 14 days of bloom</div>
-        </div>
-        <Btn variant="ghost" size="sm">Upgrade</Btn>
-      </Card>
+      {/* Profile card — driven by Supabase auth when cloud is enabled */}
+      <ProfileCard />
 
       <Section header="Privacy">
         <Row

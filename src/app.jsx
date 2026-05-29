@@ -1,5 +1,7 @@
 import React from 'react';
 import { usePersistedState } from './storage.js';
+import { useAuth } from './use-auth.js';
+import { useCloudSync, deleteGoalCloud } from './cloud-sync.js';
 import { INITIAL_GOALS, TIMELINE_BLOCKS } from './data.jsx';
 import { Icon, Chip } from './ui.jsx';
 import { TodayScreen } from './screen-today.jsx';
@@ -116,6 +118,10 @@ function App() {
   const [libraryOpen, setLibraryOpen] = React.useState(false);
   const [energyOpen, setEnergyOpen] = React.useState(false);
   const [editingGoalId, setEditingGoalId] = React.useState(null);
+
+  // Cloud sync — no-op when env vars / Supabase not set up.
+  const { user } = useAuth();
+  useCloudSync({ user, goals, setGoals });
 
   // Tour gate: ?tour=1 starts the guided investor tour; closes when finished.
   const [tourOn, setTourOn] = React.useState(() => {
@@ -297,7 +303,12 @@ function App() {
             detailGoalId={editingGoalId}
             setDetailGoalId={setEditingGoalId}
             updateGoal={(g) => setGoals(prev => prev.map(x => x.id === g.id ? g : x))}
-            deleteGoal={(id) => { setGoals(prev => prev.filter(g => g.id !== id)); setEditingGoalId(null); flash('Goal deleted'); }}
+            deleteGoal={(id) => {
+              setGoals(prev => prev.filter(g => g.id !== id));
+              setEditingGoalId(null);
+              if (user) deleteGoalCloud(user.id, id);
+              flash('Goal deleted');
+            }}
           />
         )}
         {tab === 'insights' && <InsightsScreen />}
