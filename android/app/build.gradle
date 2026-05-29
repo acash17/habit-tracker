@@ -8,7 +8,7 @@ android {
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
-        versionName "1.0"
+        versionName "0.5.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
@@ -16,10 +16,40 @@ android {
             ignoreAssetsPattern '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
         }
     }
+    // Signing config — reads from keystore.properties OR env vars (CI).
+    // keystore.properties is gitignored. Generate yours with: keytool -genkey ...
+    signingConfigs {
+        release {
+            def ksProps = new Properties()
+            def ksFile = rootProject.file('keystore.properties')
+            if (ksFile.exists()) {
+                ksFile.withInputStream { ksProps.load(it) }
+                storeFile     file(ksProps['storeFile'])
+                storePassword ksProps['storePassword']
+                keyAlias      ksProps['keyAlias']
+                keyPassword   ksProps['keyPassword']
+            } else if (System.getenv('CADENCE_KEYSTORE_PATH')) {
+                storeFile     file(System.getenv('CADENCE_KEYSTORE_PATH'))
+                storePassword System.getenv('CADENCE_KEYSTORE_PASSWORD')
+                keyAlias      System.getenv('CADENCE_KEY_ALIAS')
+                keyPassword   System.getenv('CADENCE_KEY_PASSWORD')
+            }
+        }
+    }
+
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled true
+            shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            // Only sign if a keystore is available; otherwise produce unsigned for inspection.
+            if (rootProject.file('keystore.properties').exists() || System.getenv('CADENCE_KEYSTORE_PATH')) {
+                signingConfig signingConfigs.release
+            }
+        }
+        debug {
+            applicationIdSuffix '.debug'
+            versionNameSuffix '-debug'
         }
     }
 }

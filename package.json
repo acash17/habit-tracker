@@ -14,7 +14,9 @@
     "android": "npm run sync && npx cap open android",
     "ios": "npm run sync && npx cap open ios",
     "android:run": "npm run sync && npx cap run android",
-    "android:apk": "npm run sync && cd android && gradlew.bat assembleDebug"
+    "android:apk": "npm run sync && cd android && gradlew.bat assembleDebug",
+    "android:aab": "npm run sync && cd android && gradlew.bat bundleRelease",
+    "assets": "node scripts/gen-assets.js && npx capacitor-assets generate"
   },
   "dependencies": {
     "@capacitor/android": "^6.2.0",
@@ -24,8 +26,10 @@
     "react-dom": "^18.3.1"
   },
   "devDependencies": {
+    "@capacitor/assets": "^3.0.5",
     "@capacitor/cli": "^6.2.0",
     "@vitejs/plugin-react": "^4.3.4",
+    "sharp": "^0.34.5",
     "vite": "^5.4.11"
   }
 }

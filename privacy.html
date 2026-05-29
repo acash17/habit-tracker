@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cadence — Privacy Policy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper:#F6F1E8; --ink:#1F1B16; --terra:#C26A38; --sage:#6B8E5A;
+    --serif:'Instrument Serif',Georgia,serif;
+    --sans:'Geist',-apple-system,system-ui,sans-serif;
+    --mono:'Geist Mono',ui-monospace,monospace;
+  }
+  html,body { margin:0; padding:0; background:#E8E2D5; color:var(--ink); font-family:var(--sans); -webkit-font-smoothing:antialiased; }
+  body {
+    background:
+      radial-gradient(1200px 700px at 30% 20%, #EFE7D5, transparent 60%),
+      radial-gradient(900px 600px at 80% 80%, #E9DDC9, transparent 60%),
+      #DDD5C3;
+    min-height:100vh;
+  }
+  main { max-width:680px; margin:0 auto; padding:64px 28px 96px; }
+  .kicker { font-family:var(--mono); font-size:11px; letter-spacing:1.6px; text-transform:uppercase; color:var(--terra); margin-bottom:12px; }
+  h1 { font-family:var(--serif); font-size:52px; line-height:1.02; letter-spacing:-0.6px; margin:0 0 8px; }
+  .sub { font-size:14px; color:rgba(31,27,22,0.55); margin-bottom:40px; font-family:var(--mono); letter-spacing:0.4px; }
+  h2 { font-family:var(--serif); font-size:24px; letter-spacing:-0.3px; margin:36px 0 10px; }
+  p, li { font-size:15px; line-height:1.65; color:rgba(31,27,22,0.78); }
+  ul { padding-left:20px; }
+  strong { color:var(--ink); }
+  a { color:var(--terra); }
+  footer { margin-top:64px; padding-top:24px; border-top:0.5px solid rgba(31,27,22,0.12); font-size:12.5px; color:rgba(31,27,22,0.5); }
+</style>
+</head>
+<body>
+<main>
+  <div class="kicker">Cadence · Privacy Policy</div>
+  <h1>Your data stays with you.</h1>
+  <div class="sub">Last updated: 29 May 2026</div>
+
+  <h2>The short version</h2>
+  <p>Cadence is a local-first habit-sequence planner. Your goals, sub-habits, energy profile, and progress live on your device. We do not run a server that stores your data. There is no account. There is no advertising. There is no third-party analytics SDK in this version of the app.</p>
+
+  <h2>What is stored, and where</h2>
+  <ul>
+    <li><strong>On your device only:</strong> all goal titles, sub-habit names, completion state, timeline blocks, energy profile, onboarding flag. This is kept in your device’s local storage (browser <code>localStorage</code> on the web; the WebView’s local storage on iOS and Android).</li>
+    <li><strong>What we never collect:</strong> name, email, phone, location, contacts, photos, files, advertising ID, or device identifiers.</li>
+  </ul>
+
+  <h2>Optional AI sequence generation</h2>
+  <p>When you type a goal into “New goal → sequence” and press <em>Generate</em>, the goal text is sent to an LLM endpoint for a single, stateless request that returns a suggested sequence. We do not log the request, the response, or associate it with you. The request is sent over HTTPS. If the request fails, the app falls back to an on-device default sequence so the feature still works offline.</p>
+
+  <h2>Optional sync (not yet shipped)</h2>
+  <p>A future version may offer optional cross-device sync through an end-to-end encrypted account. If and when that ships, it will be off by default and we will update this page before the feature is released.</p>
+
+  <h2>Permissions Cadence requests</h2>
+  <ul>
+    <li><strong>Internet</strong> — only for the optional AI sequence generation, font loading, and future update checks. Cadence works fully offline if you skip the AI feature.</li>
+  </ul>
+  <p>Cadence does not request the camera, microphone, contacts, location, calendar, notifications (yet), files, or any other sensitive permission.</p>
+
+  <h2>Children</h2>
+  <p>Cadence is not directed at children under 13. We do not knowingly collect data from anyone of any age, but if you are a parent and have concerns about a minor’s usage on your device, simply delete the app — all data is removed.</p>
+
+  <h2>Your rights</h2>
+  <p>Because all data is on-device, you control it directly:</p>
+  <ul>
+    <li><strong>Delete everything:</strong> uninstall the app, or clear app data in your OS settings. Your data is gone.</li>
+    <li><strong>Export everything</strong> (coming soon) — Settings will offer JSON export.</li>
+  </ul>
+
+  <h2>Changes to this policy</h2>
+  <p>If we materially change how data is handled — for example, if we ship sync — we will update this page and bump the “last updated” date. Continued use of the app after a change means you accept the updated policy.</p>
+
+  <h2>Contact</h2>
+  <p>Questions about privacy? Email <a href="mailto:achaurasia994@gmail.com">achaurasia994@gmail.com</a> or open an issue at <a href="https://github.com/acash17/habit-tracker">github.com/acash17/habit-tracker</a>.</p>
+
+  <footer>
+    Cadence is built and maintained by an independent developer. Source code is open at the GitHub link above.
+  </footer>
+</main>
+</body>
+</html>

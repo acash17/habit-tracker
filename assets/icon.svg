@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+  <defs>
+    <radialGradient id="paperGlow" cx="0.3" cy="0.25" r="0.9">
+      <stop offset="0%" stop-color="#FBF7EE"/>
+      <stop offset="60%" stop-color="#F2EAD7"/>
+      <stop offset="100%" stop-color="#E8DDC4"/>
+    </radialGradient>
+    <linearGradient id="terraGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#D8763F"/>
+      <stop offset="100%" stop-color="#B85825"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background paper -->
+  <rect width="1024" height="1024" fill="url(#paperGlow)"/>
+
+  <!-- Three rhythm dots (sub-habits motif) -->
+  <g opacity="0.9">
+    <circle cx="356" cy="780" r="42" fill="#6B8E5A"/>
+    <circle cx="512" cy="780" r="42" fill="url(#terraGrad)"/>
+    <circle cx="668" cy="780" r="42" fill="#8E7CB8"/>
+  </g>
+
+  <!-- Cadence "C" — Instrument Serif feel via custom path: open arc -->
+  <g transform="translate(512 420)">
+    <path d="
+      M 220 -200
+      A 240 260 0 1 0 220 200
+      L 160 130
+      A 170 190 0 1 1 160 -130
+      Z
+    " fill="url(#terraGrad)"/>
+  </g>
+
+  <!-- Subtle ink underline -->
+  <rect x="356" y="868" width="312" height="3" rx="1.5" fill="#1F1B16" opacity="0.18"/>
+</svg>
