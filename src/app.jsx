@@ -1,5 +1,6 @@
 import React from 'react';
 import { usePersistedState } from './storage.js';
+import { newId } from './utils.js';
 import { useAuth } from './use-auth.js';
 import { useCloudSync, deleteGoalCloud } from './cloud-sync.js';
 import { INITIAL_GOALS, TIMELINE_BLOCKS } from './data.jsx';
@@ -205,6 +206,13 @@ function App() {
     window.__cadToastT = setTimeout(() => setToast(null), 2600);
   }
 
+  // Listen for non-React code dispatching toasts (auth handler, etc.)
+  React.useEffect(() => {
+    const onToast = (e) => { if (e?.detail) flash(String(e.detail)); };
+    window.addEventListener('cadence:toast', onToast);
+    return () => window.removeEventListener('cadence:toast', onToast);
+  }, []);
+
   function adapt() {
     setBlocks(prev => prev.map(b => b.done ? b : { ...b, dur: Math.max(8, Math.round(b.dur * 0.75)) }));
     flash('Sequence rebalanced · lighter blocks first');
@@ -223,14 +231,14 @@ function App() {
       'this-month': 'This month', 'no-rush': 'Slow burn',
     }[deadlineKey] || deadlineKey;
     const newGoal = {
-      id: `g${Date.now()}`,
+      id: newId('g_'),
       title,
       color: palette[goals.length % palette.length],
       cadence,
       recurring,
       deadline: cadence === 'oneoff' ? deadlineLabel : (cadence === 'daily' ? 'Every day' : cadence === 'weekly' ? 'Every week' : 'Every month'),
       sequence: steps.map((s, i) => ({
-        id: `s${Date.now()}_${i}`,
+        id: newId('s_'),
         label: s.label || `Step ${i + 1}`,
         est: typeof s.est === 'number' ? s.est : 10,
         done: false,

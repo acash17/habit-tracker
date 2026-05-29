@@ -9,6 +9,7 @@
 import React from 'react';
 import { Capacitor } from '@capacitor/core';
 import { supabase, cloudEnabled } from './supabase.js';
+import { toast } from './utils.js';
 
 // Custom scheme registered in AndroidManifest + iOS Info.plist + Capacitor config.
 // Must also be added to Supabase's Auth → URL Configuration → Redirect URLs allowlist.
@@ -130,17 +131,31 @@ export async function initNativeAuthHandler() {
       access_token  = hash.get('access_token');
       refresh_token = hash.get('refresh_token');
       const errDesc = query.get('error_description') || hash.get('error_description') || query.get('error') || hash.get('error');
-      if (errDesc) console.warn('[auth] OAuth error:', errDesc);
+      if (errDesc) {
+        console.warn('[auth] OAuth error:', errDesc);
+        toast(`Sign-in failed · ${errDesc.slice(0, 60)}`);
+      }
     } catch (e) {
       console.warn('[auth] failed to parse callback URL:', e);
+      toast('Sign-in failed · could not read response');
     }
 
     if (code) {
       const { error } = await supabase.auth.exchangeCodeForSession(code);
-      if (error) console.warn('[auth] exchangeCodeForSession failed:', error.message);
+      if (error) {
+        console.warn('[auth] exchangeCodeForSession failed:', error.message);
+        toast(`Sign-in failed · ${error.message.slice(0, 60)}`);
+      } else {
+        toast('Signed in');
+      }
     } else if (access_token && refresh_token) {
       const { error } = await supabase.auth.setSession({ access_token, refresh_token });
-      if (error) console.warn('[auth] setSession failed:', error.message);
+      if (error) {
+        console.warn('[auth] setSession failed:', error.message);
+        toast(`Sign-in failed · ${error.message.slice(0, 60)}`);
+      } else {
+        toast('Signed in');
+      }
     }
 
     try { await Browser.close(); } catch { /* already closed is fine */ }

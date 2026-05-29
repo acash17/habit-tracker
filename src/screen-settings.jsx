@@ -2,6 +2,7 @@ import React from 'react';
 import { Icon, Chip, Btn, Card, H } from './ui.jsx';
 import { useAuth, signInWithGoogle, signOut } from './use-auth.js';
 import { cloudEnabled } from './supabase.js';
+import { toast } from './utils.js';
 
 // Settings — privacy-first, non-punitive controls
 
@@ -69,7 +70,7 @@ function ProfileCard() {
 
   async function onSignIn() {
     try { setBusy(true); await signInWithGoogle(); }
-    catch (e) { alert(e.message || 'Sign-in failed'); }
+    catch (e) { toast(`Sign-in failed · ${(e?.message || 'unknown error').slice(0, 60)}`); }
     finally { setBusy(false); }
   }
   async function onSignOut() {

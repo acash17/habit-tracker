@@ -1,5 +1,6 @@
 import React from 'react';
 import { Icon, Chip, Btn, Card, H } from './ui.jsx';
+import { newId } from './utils.js';
 
 // Goals / Library — list + inline detail navigation.
 // Tap a card → drill into a full goal detail page inside the same tab.
@@ -14,7 +15,6 @@ const PALETTE = [
   ['butter',     '#c89a3a'],
 ];
 function paletteHex(key) { return (PALETTE.find(([k]) => k === key) || PALETTE[0])[1]; }
-function uid(prefix = 's') { return `${prefix}${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`; }
 
 // ── List view ────────────────────────────────────────────────────────────────
 
@@ -205,7 +205,7 @@ function GoalDetail({ goal, allGoals, onBack, onPrev, onNext, onUpdate, onDelete
   function addStep() {
     onUpdate({
       ...goal,
-      sequence: [...goal.sequence, { id: uid('s'), label: '', est: 10, done: false, why: '', kind: 'focus' }],
+      sequence: [...goal.sequence, { id: newId('s_'), label: '', est: 10, done: false, why: '', kind: 'focus' }],
     });
   }
 

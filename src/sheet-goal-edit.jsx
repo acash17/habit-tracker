@@ -1,6 +1,7 @@
 import React from 'react';
 import { Icon, Btn, Card, H, Chip } from './ui.jsx';
 import { SheetShell, SheetFooter } from './planner.jsx';
+import { newId } from './utils.js';
 
 // Intuitive goal editor — edit title, cadence, recurring, and add/edit/reorder/delete sub-habits.
 // Surfaces as a bottom sheet over the goals screen. Tap a sub-habit to edit inline.
@@ -19,9 +20,7 @@ const PALETTE = [
   ['butter',     '#c89a3a'],
 ];
 
-function uid(prefix = 's') {
-  return `${prefix}${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
-}
+const uid = (prefix = 's_') => newId(prefix);
 
 function SubHabitRow({ s, color, onChange, onDelete, onMoveUp, onMoveDown, canUp, canDown }) {
   const [editing, setEditing] = React.useState(false);
