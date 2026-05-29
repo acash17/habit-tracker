@@ -185,7 +185,39 @@ function App() {
     setBlocks(prev => prev.map(b => b.done ? b : { ...b, dur: Math.max(8, Math.round(b.dur * 0.75)) }));
     flash('Sequence rebalanced · lighter blocks first');
   }
-  function commitNewGoal() { setSheetOpen(false); flash('Sequence added to today'); }
+  function commitNewGoal(goalTitle, sequence, opts) {
+    setSheetOpen(false);
+    const title = (goalTitle || '').trim();
+    if (!title) { flash('Goal needs a name'); return; }
+    const steps = Array.isArray(sequence) ? sequence : [];
+    const palette = ['terracotta', 'sage', 'lavender'];
+    const cadence = (opts && opts.cadence) || 'oneoff';
+    const recurring = !!(opts && opts.recurring) && cadence !== 'oneoff';
+    const deadlineKey = (opts && opts.deadline) || 'this-week';
+    const deadlineLabel = {
+      'today': 'Today', 'this-week': 'This week',
+      'this-month': 'This month', 'no-rush': 'Slow burn',
+    }[deadlineKey] || deadlineKey;
+    const newGoal = {
+      id: `g${Date.now()}`,
+      title,
+      color: palette[goals.length % palette.length],
+      cadence,
+      recurring,
+      deadline: cadence === 'oneoff' ? deadlineLabel : (cadence === 'daily' ? 'Every day' : cadence === 'weekly' ? 'Every week' : 'Every month'),
+      sequence: steps.map((s, i) => ({
+        id: `s${Date.now()}_${i}`,
+        label: s.label || `Step ${i + 1}`,
+        est: typeof s.est === 'number' ? s.est : 10,
+        done: false,
+        active: i === 0,
+        why: s.why || '',
+        kind: s.kind || 'focus',
+      })),
+    };
+    setGoals(prev => [newGoal, ...prev]);
+    flash(`Added · ${title.length > 28 ? title.slice(0, 28) + '…' : title}`);
+  }
   function finishOnboarding() {
     try { localStorage.setItem('cadence-onboarded', '1'); } catch {}
     setOnboarding(false);

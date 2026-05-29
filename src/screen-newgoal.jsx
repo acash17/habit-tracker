@@ -22,6 +22,8 @@ function NewGoalSheet({ onClose, onCommit, onOpenLibrary }) {
   const [hours, setHours] = React.useState(2);
   const [energy, setEnergy] = React.useState('medium');
   const [deadline, setDeadline] = React.useState('this-week');
+  const [cadence, setCadence] = React.useState('oneoff'); // daily | weekly | monthly | oneoff
+  const [recurring, setRecurring] = React.useState(false);
   const [sequence, setSequence] = React.useState(null);
   const [err, setErr] = React.useState(null);
 
@@ -104,6 +106,8 @@ Respond ONLY with raw JSON in this exact shape:
               hours={hours} setHours={setHours}
               energy={energy} setEnergy={setEnergy}
               deadline={deadline} setDeadline={setDeadline}
+              cadence={cadence} setCadence={setCadence}
+              recurring={recurring} setRecurring={setRecurring}
               onOpenLibrary={onOpenLibrary}
             />
           )}
@@ -129,7 +133,7 @@ Respond ONLY with raw JSON in this exact shape:
           {stage === 'result' && (
             <>
               <Btn variant="ghost" size="lg" onClick={() => setStage('input')}>Tweak</Btn>
-              <Btn variant="terra" size="lg" full onClick={() => onCommit(goal, sequence)}>
+              <Btn variant="terra" size="lg" full onClick={() => onCommit(goal, sequence, { cadence, recurring, deadline })}>
                 Add to today
               </Btn>
             </>
@@ -140,7 +144,7 @@ Respond ONLY with raw JSON in this exact shape:
   );
 }
 
-function InputStage({ goal, setGoal, hours, setHours, energy, setEnergy, deadline, setDeadline, onOpenLibrary }) {
+function InputStage({ goal, setGoal, hours, setHours, energy, setEnergy, deadline, setDeadline, cadence, setCadence, recurring, setRecurring, onOpenLibrary }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 22, paddingTop: 6 }}>
       <div>
@@ -202,6 +206,40 @@ function InputStage({ goal, setGoal, hours, setHours, energy, setEnergy, deadlin
             <ConstraintChip key={e} active={energy === e} onClick={() => setEnergy(e)}>{e}</ConstraintChip>
           ))}
         </div>
+      </div>
+
+      <div>
+        <div style={{ fontSize: 12, fontWeight: 600, color: 'rgba(31,27,22,0.55)', marginBottom: 10, letterSpacing: 0.4, textTransform: 'uppercase' }}>
+          Cadence
+        </div>
+        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+          {[['daily','Daily'], ['weekly','Weekly'], ['monthly','Monthly'], ['oneoff','One-off project']].map(([k,l]) => (
+            <ConstraintChip key={k} active={cadence === k} onClick={() => setCadence(k)}>{l}</ConstraintChip>
+          ))}
+        </div>
+        {cadence !== 'oneoff' && (
+          <label style={{
+            display: 'flex', alignItems: 'center', gap: 10, marginTop: 12,
+            padding: '10px 14px',
+            background: recurring ? 'rgba(107,142,90,0.10)' : 'var(--card)',
+            border: `0.5px solid ${recurring ? 'rgba(107,142,90,0.4)' : 'rgba(31,27,22,0.08)'}`,
+            borderRadius: 14, cursor: 'pointer',
+            transition: 'all 160ms ease',
+          }}>
+            <input
+              type="checkbox"
+              checked={recurring}
+              onChange={(e) => setRecurring(e.target.checked)}
+              style={{ accentColor: 'var(--sage)', width: 18, height: 18, cursor: 'pointer' }}
+            />
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: 13.5, color: 'var(--ink)', fontWeight: 500 }}>Repeat each {cadence === 'daily' ? 'day' : cadence === 'weekly' ? 'week' : 'month'}</div>
+              <div style={{ fontSize: 11.5, color: 'rgba(31,27,22,0.55)', marginTop: 2 }}>
+                Sub-habits reset on a new {cadence === 'daily' ? 'day' : cadence === 'weekly' ? 'week' : 'month'}.
+              </div>
+            </div>
+          </label>
+        )}
       </div>
 
       <div>

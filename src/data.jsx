@@ -7,6 +7,8 @@ const INITIAL_GOALS = [
     id: 'g1',
     title: 'Finish Q3 design review',
     color: 'terracotta',
+    cadence: 'oneoff',
+    recurring: false,
     deadline: 'Fri',
     sequence: [
       { id: 's1', label: 'Pull yesterday’s comments into one doc', est: 8, done: true, why: 'Front-loads the easiest scan; clears context.' },
@@ -20,7 +22,9 @@ const INITIAL_GOALS = [
     id: 'g2',
     title: 'Run a 5K by August',
     color: 'sage',
-    deadline: 'Aug 30',
+    cadence: 'weekly',
+    recurring: true,
+    deadline: 'Every week',
     sequence: [
       { id: 't1', label: 'Lace up + step outside', est: 2, done: false, why: 'Tiny first step beats motivation.' },
       { id: 't2', label: 'Walk 5 min warmup', est: 5, done: false, why: 'Lowers initiation cost.' },
@@ -31,7 +35,9 @@ const INITIAL_GOALS = [
     id: 'g3',
     title: 'Read “Thinking in Systems”',
     color: 'lavender',
-    deadline: 'Slow burn',
+    cadence: 'daily',
+    recurring: true,
+    deadline: 'Every day',
     sequence: [
       { id: 'r1', label: 'Read 1 chapter', est: 20, done: false, why: 'Single-chapter chunks beat ambiguous "read more".' },
       { id: 'r2', label: 'Note 3 takeaways', est: 8, done: false, why: 'Encoding pass for memory.' },
