@@ -148,12 +148,18 @@ function App() {
     return () => window.removeEventListener('cadence-tour-action', onAction);
   }, [tourOn]);
 
+  // Keep an up-to-date ref to goals so the demo bus can resolve indexes
+  // without stale-closure bugs.
+  const goalsRef = React.useRef(goals);
+  React.useEffect(() => { goalsRef.current = goals; }, [goals]);
+
   // Demo bus — drives the phone from outside (used by demo.html marketing page).
-  // Listens for `cadence:demo` CustomEvents with detail = { tab?, sheet?, close? }.
+  // Listens for `cadence:demo` CustomEvents with detail = { tab?, sheet?, close?, editGoalIndex?, editGoalId?, editGoalClose? }.
   React.useEffect(() => {
-    const closeAllSheets = () => {
+    const closeAllSheets = (alsoEditor = true) => {
       setSheetOpen(false); setRunningLongOpen(false); setWhyOpen(false);
       setLifeOpen(false); setVoiceOpen(false); setLibraryOpen(false); setEnergyOpen(false);
+      if (alsoEditor) setEditingGoalId(null);
     };
     const setSheet = (name, open) => {
       switch (name) {
@@ -168,10 +174,19 @@ function App() {
     };
     const onDemo = (e) => {
       const d = e.detail || {};
-      if (d.close === 'all' || d.tab) closeAllSheets();
+      const willOpenEditor = !!(d.editGoalId || typeof d.editGoalIndex === 'number');
+      // Close sheets on any navigation. Only close the editor if the next event is NOT opening it.
+      if (d.close === 'all' || d.tab || willOpenEditor) closeAllSheets(!willOpenEditor);
+      if (d.editGoalClose) { setEditingGoalId(null); return; }
       if (d.tab) setTab(d.tab);
       if (d.sheet) setSheet(d.sheet, true);
       if (d.dismissOnboarding) finishOnboarding();
+      if (d.editGoalId) setEditingGoalId(d.editGoalId);
+      else if (typeof d.editGoalIndex === 'number') {
+        const list = goalsRef.current || [];
+        const g = list[d.editGoalIndex];
+        setEditingGoalId(g ? g.id : null);
+      }
     };
     window.addEventListener('cadence:demo', onDemo);
     return () => window.removeEventListener('cadence:demo', onDemo);

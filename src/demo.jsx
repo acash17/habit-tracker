@@ -64,6 +64,30 @@ const CHAPTERS = [
     cta: 'View goals',
   },
   {
+    id: 'cadence',
+    title: 'Daily, weekly, monthly, or one-off',
+    body: 'Every goal carries its own rhythm. Tap a filter to see only the daily habits, or only the long-form projects. Each card shows its cadence at a glance — the ↻ marks the ones that loop.',
+    action: { tab: 'goals' },
+    cta: 'Sort by rhythm',
+    isNew: true,
+  },
+  {
+    id: 'edit-goal',
+    title: 'Tap to shape it',
+    body: 'Open any goal to rename it, change its color, switch its cadence, or rewrite its sub-habits. No "settings" page detour — the whole goal opens like a sheet of paper.',
+    action: { tab: 'goals', editGoalIndex: 0 },
+    cta: 'Edit a goal',
+    isNew: true,
+  },
+  {
+    id: 'sub-habits',
+    title: 'Sub-habits, by hand',
+    body: 'Tap a sub-habit to rename. Punch a new duration. Reorder with ▲▼. Add a blank row and start typing. Manual mode for when the AI guessed wrong.',
+    action: { tab: 'goals', editGoalIndex: 0 },
+    cta: 'Edit sub-habits',
+    isNew: true,
+  },
+  {
     id: 'insights',
     title: 'Patterns, not pressure',
     body: 'Which hours work? Which goals stall? Insights that suggest small tweaks, never demand discipline.',
@@ -101,10 +125,13 @@ function ChapterCard({ chapter, active, onActivate, index }) {
   return (
     <div
       ref={ref}
-      className={`chapter ${active ? 'is-active' : ''}`}
+      className={`chapter ${active ? 'is-active' : ''} ${chapter.isNew ? 'is-new' : ''}`}
       onClick={() => onActivate(index)}
     >
-      <div className="chapter-num">{String(index + 1).padStart(2, '0')}</div>
+      <div className="chapter-meta">
+        <span className="chapter-num">{String(index + 1).padStart(2, '0')}</span>
+        {chapter.isNew && <span className="chapter-tag">v0.5 · new</span>}
+      </div>
       <h2>{chapter.title}</h2>
       <p>{chapter.body}</p>
       <button
