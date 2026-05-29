@@ -181,11 +181,12 @@ function App() {
       if (d.tab) setTab(d.tab);
       if (d.sheet) setSheet(d.sheet, true);
       if (d.dismissOnboarding) finishOnboarding();
-      if (d.editGoalId) setEditingGoalId(d.editGoalId);
+      if (d.editGoalId) { setTab('goals'); setEditingGoalId(d.editGoalId); }
       else if (typeof d.editGoalIndex === 'number') {
         const list = goalsRef.current || [];
         const g = list[d.editGoalIndex];
-        setEditingGoalId(g ? g.id : null);
+        if (g) { setTab('goals'); setEditingGoalId(g.id); }
+        else setEditingGoalId(null);
       }
     };
     window.addEventListener('cadence:demo', onDemo);
@@ -288,7 +289,17 @@ function App() {
             onLibrary={() => setLibraryOpen(true)}
           />
         )}
-        {tab === 'goals' && <GoalsScreen goals={goals} openNewGoal={() => setSheetOpen(true)} openGoal={openGoal} />}
+        {tab === 'goals' && (
+          <GoalsScreen
+            goals={goals}
+            openNewGoal={() => setSheetOpen(true)}
+            openGoal={openGoal}
+            detailGoalId={editingGoalId}
+            setDetailGoalId={setEditingGoalId}
+            updateGoal={(g) => setGoals(prev => prev.map(x => x.id === g.id ? g : x))}
+            deleteGoal={(id) => { setGoals(prev => prev.filter(g => g.id !== id)); setEditingGoalId(null); flash('Goal deleted'); }}
+          />
+        )}
         {tab === 'insights' && <InsightsScreen />}
         {tab === 'settings' && <SettingsScreen onOpenEnergy={() => setEnergyOpen(true)} onReplay={replayOnboarding}/>}
       </div>
@@ -352,14 +363,7 @@ function App() {
         />
       )}
 
-      {editingGoal && (
-        <GoalEditSheet
-          goal={editingGoal}
-          onClose={() => setEditingGoalId(null)}
-          onSave={saveGoal}
-          onDelete={() => deleteGoal(editingGoal.id)}
-        />
-      )}
+      {/* Goal editor is now inline inside GoalsScreen (no overlay sheet) */}
 
       {/* Onboarding gate */}
       {onboarding && <OnboardingFlow onDone={finishOnboarding}/>}

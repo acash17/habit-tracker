@@ -74,7 +74,7 @@ const CHAPTERS = [
   {
     id: 'edit-goal',
     title: 'Tap to shape it',
-    body: 'Open any goal to rename it, change its color, switch its cadence, or rewrite its sub-habits. No "settings" page detour — the whole goal opens like a sheet of paper.',
+    body: 'Open any goal inline — rename it, change its color, switch its cadence, rewrite its sub-habits. Use ‹ › at the top to jump between goals without ever leaving the Goals tab.',
     action: { tab: 'goals', editGoalIndex: 0 },
     cta: 'Edit a goal',
     isNew: true,
