@@ -3,6 +3,7 @@ import { Icon, Chip, Btn, Card, H } from './ui.jsx';
 import { useAuth, signInWithGoogle, signOut } from './use-auth.js';
 import { cloudEnabled } from './supabase.js';
 import { toast } from './utils.js';
+import { exportMyData, eraseMyData } from './data-rights.js';
 
 // Settings — privacy-first, non-punitive controls
 
@@ -123,6 +124,12 @@ function ProfileCard() {
           <GoogleLogo size={18} />
           <span>{busy ? 'Redirecting…' : 'Continue with Google'}</span>
         </button>
+        <div style={{ fontSize: 10.5, color: 'rgba(31,27,22,0.5)', lineHeight: 1.5, marginTop: 2 }}>
+          By continuing you consent to Cadence storing your goals and completion history to
+          provide sync, per our{' '}
+          <a href="/privacy.html" target="_blank" rel="noreferrer" style={{ color: 'var(--terra)' }}>Privacy Policy</a>
+          {' '}(DPDP Act 2023). Withdraw anytime via “Erase all my data”.
+        </div>
       </Card>
     );
   }
@@ -165,6 +172,39 @@ function ProfileCard() {
         color: 'rgba(31,27,22,0.7)', cursor: busy ? 'wait' : 'pointer',
       }}>Sign out</button>
     </Card>
+  );
+}
+
+function EraseDataRow() {
+  const [confirm, setConfirm] = React.useState(false);
+  const [busy, setBusy] = React.useState(false);
+  return (
+    <Row
+      title="Erase all my data"
+      sub="Permanently delete your goals, logs, and profile — on this device and in the cloud (right to erasure)."
+      last
+      control={
+        !confirm ? (
+          <button onClick={() => setConfirm(true)} style={{
+            background: 'transparent', border: '0.5px solid rgba(194,106,56,0.4)',
+            padding: '7px 12px', borderRadius: 999, fontFamily: 'inherit', fontSize: 12,
+            color: 'var(--terra)', cursor: 'pointer',
+          }}>Erase</button>
+        ) : (
+          <span style={{ display: 'inline-flex', gap: 6 }}>
+            <button onClick={() => setConfirm(false)} disabled={busy} style={{
+              background: 'transparent', border: '0.5px solid rgba(31,27,22,0.15)',
+              padding: '7px 10px', borderRadius: 999, fontFamily: 'inherit', fontSize: 12, cursor: 'pointer',
+            }}>Cancel</button>
+            <button onClick={async () => { setBusy(true); try { await eraseMyData(); } catch { setBusy(false); } }} disabled={busy} style={{
+              background: 'var(--terra)', color: '#fff', border: 'none',
+              padding: '7px 10px', borderRadius: 999, fontFamily: 'inherit', fontSize: 12, fontWeight: 500,
+              cursor: busy ? 'wait' : 'pointer',
+            }}>{busy ? '…' : 'Confirm'}</button>
+          </span>
+        )
+      }
+    />
   );
 }
 
@@ -248,6 +288,25 @@ function SettingsScreen({ onOpenEnergy, onReplay }) {
           control={<button onClick={onReplay} style={{ background: 'transparent', border: 'none', padding: 4, cursor: 'pointer' }}><Icon name="chev" size={16} color="rgba(31,27,22,0.3)"/></button>}
           last
         />
+      </Section>
+
+      {/* DPDP Act 2023 — data-subject rights */}
+      <Section header="Your data & privacy">
+        <Row
+          title="Download my data"
+          sub="Export everything Cadence holds about you as JSON (right to access)."
+          control={<button onClick={() => exportMyData().catch(() => toast('Export failed'))} style={{
+            background: 'transparent', border: '0.5px solid rgba(31,27,22,0.15)',
+            padding: '7px 12px', borderRadius: 999, fontFamily: 'inherit', fontSize: 12,
+            color: 'var(--ink)', cursor: 'pointer',
+          }}>Export</button>}
+        />
+        <Row
+          title="Privacy policy"
+          sub="How your data is handled, under India's DPDP Act 2023."
+          control={<a href="/privacy.html" target="_blank" rel="noreferrer" style={{ padding: 4, display: 'inline-flex' }}><Icon name="chev" size={16} color="rgba(31,27,22,0.3)"/></a>}
+        />
+        <EraseDataRow />
       </Section>
 
       <div style={{
