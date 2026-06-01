@@ -4,6 +4,8 @@ import { newId } from './utils.js';
 import { PALETTE, paletteHex, cellColor } from './palette.js';
 import { Heatmap, HeatmapStats, LogTodayButton } from './heatmap.jsx';
 import { useHabitLog, cycleLevel, buildGrid } from './habit-log.js';
+import { goalToICS, icsFilename } from './calendar.js';
+import { exportICS } from './calendar-export.js';
 
 // Goals / Library — list + inline detail navigation.
 // Tap a card → drill into a full goal detail page inside the same tab.
@@ -325,13 +327,26 @@ function GoalDetail({ goal, allGoals, onBack, onPrev, onNext, onUpdate, onDelete
       <Section label="Activity">
         <Heatmap log={log} goalId={goal.id} colorKey={goal.color} />
         <HeatmapStats log={log} goalId={goal.id} />
-        <div style={{ marginTop: 12 }}>
-          <LogTodayButton
-            log={log}
-            goalId={goal.id}
-            colorKey={goal.color}
-            onCycle={() => setLog(prev => cycleLevel(prev, goal.id))}
-          />
+        <div style={{ marginTop: 12, display: 'flex', gap: 8 }}>
+          <div style={{ flex: 1 }}>
+            <LogTodayButton
+              log={log}
+              goalId={goal.id}
+              colorKey={goal.color}
+              onCycle={() => setLog(prev => cycleLevel(prev, goal.id))}
+            />
+          </div>
+          <button
+            onClick={() => exportICS(goalToICS(goal), icsFilename(goal.title))}
+            aria-label="add to calendar"
+            title={goal.recurring ? 'Add as recurring event' : 'Add to calendar'}
+            style={{
+              flexShrink: 0, width: 48, borderRadius: 14, cursor: 'pointer',
+              border: '0.5px solid rgba(31,27,22,0.15)', background: 'var(--card)',
+              color: 'var(--ink)', display: 'flex', alignItems: 'center', justifyContent: 'center',
+            }}>
+            <Icon name="calendar" size={18} />
+          </button>
         </div>
       </Section>
 

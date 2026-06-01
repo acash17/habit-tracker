@@ -1,6 +1,8 @@
 import React from 'react';
 import { Icon, Bloom, Chip, Btn, Card, H } from './ui.jsx';
 import { ScoreDrawer } from './planner.jsx';
+import { blocksToICS, icsFilename } from './calendar.js';
+import { exportICS } from './calendar-export.js';
 
 // Today screen — visual timeline + energy + bloom
 
@@ -205,6 +207,9 @@ function TodayScreen({ blocks, setBlocks, onAdapt, openNewGoal, onRunningLong, o
             <Icon name="sparkle" size={14} /> Why this order?
           </Btn>
         </div>
+        <Btn variant="soft" size="sm" full onClick={() => exportICS(blocksToICS(blocks), icsFilename('cadence-today'))}>
+          <Icon name="calendar" size={14} /> Add today to calendar
+        </Btn>
       </Card>
 
       {/* Quick-start chips */}

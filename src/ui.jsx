@@ -18,6 +18,8 @@ function Icon({ name, size = 20, color = 'currentColor', strokeWidth = 1.75 }) {
       return <svg viewBox="0 0 24 24" style={s}><circle cx="12" cy="12" r="3" fill="currentColor" stroke="none"/></svg>;
     case 'today':
       return <svg viewBox="0 0 24 24" style={s}><rect x="3" y="5" width="18" height="16" rx="2" {...sp}/><path d="M3 10h18M8 3v4M16 3v4" {...sp}/></svg>;
+    case 'calendar':
+      return <svg viewBox="0 0 24 24" style={s}><rect x="3" y="5" width="18" height="16" rx="2" {...sp}/><path d="M3 10h18M8 3v4M16 3v4M8 14h2M14 14h2M8 17h2" {...sp}/></svg>;
     case 'goals':
       return <svg viewBox="0 0 24 24" style={s}><circle cx="12" cy="12" r="9" {...sp}/><circle cx="12" cy="12" r="5" {...sp}/><circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none"/></svg>;
     case 'insights':
