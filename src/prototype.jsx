@@ -285,6 +285,137 @@ function AutoLogPanel() {
   );
 }
 
+// ── Panel 5: Active hours / laziest time ──────────────────────────────────────
+const DAYS = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+// 8 three-hour bins covering 06:00 → 06:00 next-day. Index 0 = 6-9am.
+const BINS = ['6a','9a','12p','3p','6p','9p','12a','3a'];
+
+// Deterministic activity matrix [day][bin] = 0..3. Skewed so mornings/evenings
+// hot, mid-afternoon cold (the "laziest" dip), nights near-zero.
+function makeHourMatrix(seed = 42) {
+  let s = seed;
+  const rnd = () => { s = (s * 9301 + 49297) % 233280; return s / 233280; };
+  // base curve per bin: how productive that time-of-day tends to be
+  const curve = [0.75, 0.95, 0.55, 0.25, 0.7, 0.6, 0.15, 0.05]; // 3pm dip, night dead
+  const m = [];
+  for (let d = 0; d < 7; d++) {
+    const weekendDamp = (d >= 5) ? 0.6 : 1;
+    const row = [];
+    for (let b = 0; b < 8; b++) {
+      const p = curve[b] * weekendDamp;
+      const lvl = rnd() < p ? 1 + Math.floor(rnd() * (p > 0.7 ? 3 : 2)) : 0;
+      row.push(Math.min(3, lvl));
+    }
+    m.push(row);
+  }
+  return m;
+}
+
+function HourBars({ row, colorKey }) {
+  const max = Math.max(1, ...row);
+  return (
+    <div style={{ display: 'flex', alignItems: 'flex-end', gap: 5, height: 90, marginTop: 10 }}>
+      {row.map((v, i) => (
+        <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 5 }}>
+          <div style={{
+            width: '100%', borderRadius: 4,
+            height: `${Math.max(6, (v / max) * 76)}px`,
+            background: cell(colorKey, v || 0, false),
+            transition: 'height 200ms ease, background 200ms ease',
+          }} />
+          <span style={{ fontFamily: 'var(--mono)', fontSize: 8, color: 'rgba(31,27,22,0.45)' }}>{BINS[i]}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function ActiveHoursPanel() {
+  const colorKey = 'azure';
+  const matrix = React.useMemo(() => makeHourMatrix(42), []);
+  const [day, setDay] = React.useState(1); // Tue default (peak)
+
+  // Aggregate per-bin across week → peak + laziest (waking hours only, skip night bins 6,7).
+  const stats = React.useMemo(() => {
+    const binTotals = BINS.map((_, b) => matrix.reduce((s, row) => s + row[b], 0));
+    let peakBin = 0, peakV = -1, lazyBin = 0, lazyV = Infinity;
+    for (let b = 0; b < 6; b++) { // 6a..9p waking window
+      if (binTotals[b] > peakV) { peakV = binTotals[b]; peakBin = b; }
+      if (binTotals[b] < lazyV) { lazyV = binTotals[b]; lazyBin = b; }
+    }
+    // peak day = day with highest total
+    const dayTotals = matrix.map(r => r.reduce((a, c) => a + c, 0));
+    const peakDay = dayTotals.indexOf(Math.max(...dayTotals));
+    return { peakBin, lazyBin, peakDay };
+  }, [matrix]);
+
+  const binLabel = (b) => ({ '6a':'6–9am','9a':'9am–12pm','12p':'12–3pm','3p':'3–6pm','6p':'6–9pm','9p':'9pm–12am' }[BINS[b]] || BINS[b]);
+
+  return (
+    <div className="panel">
+      <div className="panel-copy">
+        <div className="tag"><span className="num">05</span> · Rhythm insights</div>
+        <h2>Know your best — and worst — hours.</h2>
+        <p>A time-of-day heatmap across the week shows exactly when you get things done. Tap a day for its hourly breakdown. Cadence biases new sequences toward your peak and protects your slump.</p>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 16 }}>
+          <div className="status-row" style={{ marginTop: 0 }}>
+            <span className="status-dot" style={{ background: paletteHex(colorKey) }} />
+            Peak · <strong style={{ color: 'var(--ink)' }}>{DAYS[stats.peakDay]} {binLabel(stats.peakBin)}</strong>
+          </div>
+          <div className="status-row" style={{ marginTop: 0 }}>
+            <span className="status-dot" style={{ background: 'rgba(31,27,22,0.3)' }} />
+            Laziest · <strong style={{ color: 'var(--ink)' }}>daily {binLabel(stats.lazyBin)}</strong>
+          </div>
+        </div>
+      </div>
+
+      <div className="panel-stage" style={{ alignItems: 'stretch' }}>
+        <div style={{
+          width: '100%', maxWidth: 360, background: 'var(--paper)',
+          border: '0.5px solid rgba(31,27,22,0.1)', borderRadius: 20, padding: 18,
+        }}>
+          {/* hour × day matrix */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+            <div style={{ display: 'flex', gap: 4, paddingLeft: 30 }}>
+              {BINS.map(b => (
+                <span key={b} style={{ flex: 1, textAlign: 'center', fontFamily: 'var(--mono)', fontSize: 7.5, color: 'rgba(31,27,22,0.4)' }}>{b}</span>
+              ))}
+            </div>
+            {matrix.map((row, d) => (
+              <div key={d} onClick={() => setDay(d)} style={{
+                display: 'flex', alignItems: 'center', gap: 4, cursor: 'pointer',
+                opacity: day === d ? 1 : 0.78,
+              }}>
+                <span style={{
+                  width: 26, fontFamily: 'var(--mono)', fontSize: 9,
+                  color: day === d ? 'var(--ink)' : 'rgba(31,27,22,0.45)',
+                  fontWeight: day === d ? 700 : 400,
+                }}>{DAYS[d]}</span>
+                {row.map((v, b) => (
+                  <div key={b} style={{
+                    flex: 1, height: 18, borderRadius: 3,
+                    background: cell(colorKey, v, false),
+                    outline: (d === stats.peakDay && b === stats.peakBin) ? '1.5px solid var(--ink)' : 'none',
+                    outlineOffset: -1,
+                  }} />
+                ))}
+              </div>
+            ))}
+          </div>
+
+          {/* selected day hourly bars */}
+          <div style={{ marginTop: 16, borderTop: '0.5px solid rgba(31,27,22,0.08)', paddingTop: 12 }}>
+            <div style={{ fontFamily: 'var(--mono)', fontSize: 9.5, color: 'rgba(31,27,22,0.5)', textTransform: 'uppercase', letterSpacing: 0.6 }}>
+              {DAYS[day]} · hourly
+            </div>
+            <HourBars row={matrix[day]} colorKey={colorKey} />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function Prototype() {
   return (
     <div className="proto-shell">
@@ -301,7 +432,7 @@ function Prototype() {
 
       <div className="proto-hero">
         <div className="kicker">Cadence · proposed · v0.6</div>
-        <h1>Four features, prototyped.</h1>
+        <h1>Five features, prototyped.</h1>
         <p>Interactive mockups of what's next. Play with each one, then tell me which to build for real. Nothing here is wired to your data yet.</p>
       </div>
 
@@ -310,6 +441,7 @@ function Prototype() {
         <WidgetPanel />
         <SyncPanel />
         <AutoLogPanel />
+        <ActiveHoursPanel />
       </div>
 
       <div className="footer-note">
