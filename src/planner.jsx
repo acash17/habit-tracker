@@ -1,5 +1,6 @@
 import React from 'react';
 import { Icon, Bloom, Btn, Card, H } from './ui.jsx';
+import { minToTime, composite } from './data.jsx';
 
 // Planner-internals UI: score drawer, "Running long" reschedule sheet,
 // and "Why this order?" plain-language explainer.

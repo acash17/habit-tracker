@@ -1,6 +1,7 @@
 import React from 'react';
 import { Icon, Btn, Card, H } from './ui.jsx';
 import { SheetShell, SheetFooter } from './planner.jsx';
+import { composite } from './data.jsx';
 
 // "Life Happened" sheet — one-tap rescue with 4 options.
 // Attacks: rigidity, plan-collapse, shame after a bad day.

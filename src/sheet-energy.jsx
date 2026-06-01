@@ -2,6 +2,7 @@ import React from 'react';
 import { Chip, Btn, Card, H } from './ui.jsx';
 import { Toggle } from './screen-settings.jsx';
 import { SheetShell, SheetFooter } from './planner.jsx';
+import { minToTime } from './data.jsx';
 
 // Energy profile editor — visible 24h energy curve.
 // Settings -> opens this. The profile feeds the "Energy match" sub-score.

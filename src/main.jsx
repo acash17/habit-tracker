@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { IOSDevice } from './ios-frame.jsx';
 import { App } from './app.jsx';
+import { ErrorBoundary } from './error-boundary.jsx';
 import { initNativeAuthHandler } from './use-auth.js';
 import './styles.css';
 
@@ -12,7 +13,9 @@ initNativeAuthHandler();
 function Mount() {
   return (
     <IOSDevice width={402} height={874}>
-      <App />
+      <ErrorBoundary>
+        <App />
+      </ErrorBoundary>
     </IOSDevice>
   );
 }
