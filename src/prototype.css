@@ -1,0 +1,92 @@
+/* Cadence — feature prototypes page. Light paper base; one panel goes dark to demo theme. */
+
+html, body {
+  background:
+    radial-gradient(1200px 700px at 20% 10%, #F2EBDA, transparent 60%),
+    radial-gradient(900px 600px at 80% 90%, #E5D9C2, transparent 60%),
+    #DCD3C0;
+  min-height: 100vh;
+}
+body { display: block; }
+
+.proto-shell { min-height: 100vh; }
+
+@keyframes protoMove {
+  from { left: 0; }
+  to   { left: calc(100% - 18px); }
+}
+
+.proto-header {
+  position: sticky; top: 0; z-index: 50;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 28px;
+  background: rgba(246,241,232,0.8);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border-bottom: 0.5px solid rgba(31,27,22,0.08);
+}
+.proto-brand { display: flex; align-items: center; gap: 10px; font-size: 15px; color: var(--ink); }
+.proto-brand .dot { width: 10px; height: 10px; border-radius: 999px; background: var(--terra); box-shadow: 0 0 0 4px rgba(194,106,56,0.18); }
+.proto-brand em { color: rgba(31,27,22,0.5); font-style: normal; font-size: 13px; font-family: var(--serif); }
+.proto-pills { display: flex; gap: 8px; }
+.proto-pill { font-family: var(--mono); font-size: 11px; letter-spacing: 0.6px; padding: 7px 12px; border-radius: 999px; border: 0.5px solid rgba(31,27,22,0.15); background: var(--paper); color: var(--ink); text-decoration: none; cursor: pointer; }
+
+.proto-hero { max-width: 900px; margin: 0 auto; padding: 56px 28px 8px; }
+.proto-hero .kicker { font-family: var(--mono); font-size: 11px; letter-spacing: 1.6px; text-transform: uppercase; color: var(--terra); margin-bottom: 12px; }
+.proto-hero h1 { font-family: var(--serif); font-size: 52px; line-height: 1.02; letter-spacing: -0.8px; margin: 0 0 12px; color: var(--ink); }
+.proto-hero p { font-size: 16px; line-height: 1.55; color: rgba(31,27,22,0.62); margin: 0; max-width: 560px; }
+
+.proto-grid { max-width: 1180px; margin: 0 auto; padding: 32px 24px 96px; display: flex; flex-direction: column; gap: 28px; }
+
+.panel {
+  background: var(--card);
+  border: 0.5px solid rgba(31,27,22,0.08);
+  border-radius: 28px;
+  padding: 32px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 36px;
+  align-items: center;
+}
+.panel.reverse { grid-template-columns: 1fr 1fr; }
+.panel.reverse .panel-stage { order: -1; }
+.panel-copy .tag { font-family: var(--mono); font-size: 10px; letter-spacing: 1.4px; text-transform: uppercase; color: var(--sage); margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+.panel-copy .tag .num { color: rgba(31,27,22,0.4); }
+.panel-copy h2 { font-family: var(--serif); font-size: 34px; letter-spacing: -0.4px; line-height: 1.05; margin: 0 0 12px; color: var(--ink); }
+.panel-copy p { font-size: 14.5px; line-height: 1.6; color: rgba(31,27,22,0.68); margin: 0 0 16px; }
+.panel-copy ul { margin: 0; padding-left: 18px; }
+.panel-copy li { font-size: 13px; line-height: 1.7; color: rgba(31,27,22,0.6); }
+.panel-stage { display: flex; align-items: center; justify-content: center; min-height: 280px; }
+
+.status-row { display: inline-flex; align-items: center; gap: 8px; margin-top: 16px; font-size: 12px; font-family: var(--mono); color: rgba(31,27,22,0.55); }
+.status-dot { width: 8px; height: 8px; border-radius: 999px; }
+
+.ctl-btn {
+  font-family: var(--sans); font-size: 13px; font-weight: 500;
+  padding: 9px 16px; border-radius: 999px; cursor: pointer;
+  border: 0.5px solid rgba(31,27,22,0.18); background: var(--ink); color: var(--paper);
+  transition: all 160ms ease;
+}
+.ctl-btn.ghost { background: transparent; color: var(--ink); }
+.ctl-btn:active { transform: scale(0.97); }
+
+/* mini phone mock */
+.mini-phone {
+  width: 230px; border-radius: 34px; padding: 12px;
+  background: #15110d; box-shadow: 0 30px 60px -25px rgba(31,27,22,0.5);
+  transition: background 300ms ease;
+}
+.mini-phone .screen {
+  border-radius: 24px; overflow: hidden; height: 420px;
+  background: var(--paper); transition: background 300ms ease, color 300ms ease;
+  display: flex; flex-direction: column;
+}
+.mini-phone.dark .screen { background: #0E0D0C; color: #F2EAD7; }
+
+.footer-note { max-width: 900px; margin: 0 auto; padding: 0 28px 64px; font-size: 13px; color: rgba(31,27,22,0.5); }
+
+@media (max-width: 860px) {
+  .panel, .panel.reverse { grid-template-columns: 1fr; }
+  .panel.reverse .panel-stage { order: 0; }
+  .proto-hero h1 { font-size: 38px; }
+}

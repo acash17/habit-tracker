@@ -17,6 +17,7 @@ export default defineConfig({
       input: {
         main: resolve(__dirname, 'index.html'),
         demo: resolve(__dirname, 'demo.html'),
+        prototype: resolve(__dirname, 'prototype.html'),
         privacy: resolve(__dirname, 'privacy.html'),
       },
     },
