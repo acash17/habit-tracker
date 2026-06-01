@@ -1,6 +1,9 @@
 import React from 'react';
 import { Icon, Chip, Btn, Card, H } from './ui.jsx';
 import { newId } from './utils.js';
+import { PALETTE, paletteHex, cellColor } from './palette.js';
+import { Heatmap, HeatmapStats, LogTodayButton } from './heatmap.jsx';
+import { useHabitLog, cycleLevel, buildGrid } from './habit-log.js';
 
 // Goals / Library — list + inline detail navigation.
 // Tap a card → drill into a full goal detail page inside the same tab.
@@ -8,17 +11,9 @@ import { newId } from './utils.js';
 
 const CADENCE_LABEL = { daily: 'Daily', weekly: 'Weekly', monthly: 'Monthly', oneoff: 'Project' };
 
-const PALETTE = [
-  ['terracotta', 'var(--terra)'],
-  ['sage',       'var(--sage)'],
-  ['lavender',   'var(--lav)'],
-  ['butter',     '#c89a3a'],
-];
-function paletteHex(key) { return (PALETTE.find(([k]) => k === key) || PALETTE[0])[1]; }
-
 // ── List view ────────────────────────────────────────────────────────────────
 
-function GoalCard({ g, onOpen }) {
+function GoalCard({ g, onOpen, log }) {
   const done = g.sequence.filter(s => s.done).length;
   const total = g.sequence.length;
   const mins = g.sequence.reduce((s, x) => s + x.est, 0);
@@ -53,17 +48,29 @@ function GoalCard({ g, onOpen }) {
         <Icon name="chev" size={18} color="rgba(31,27,22,0.3)"/>
       </div>
 
-      {/* mini-progress bar of steps */}
-      <div style={{ display: 'flex', gap: 3, marginTop: 14 }}>
-        {g.sequence.map(s => (
-          <div key={s.id} style={{
-            flex: s.est, height: 6, borderRadius: 3,
-            background: s.done ? c : s.active ? c : 'rgba(31,27,22,0.08)',
-            opacity: s.done ? 1 : s.active ? 0.45 : 1,
-          }} />
-        ))}
-      </div>
+      {/* compact heatmap (last ~10 weeks) */}
+      {log && <MiniHeatmap log={log} goalId={g.id} colorKey={g.color} />}
     </Card>
+  );
+}
+
+// Small read-only heatmap strip for list cards (~10 weeks, no labels).
+function MiniHeatmap({ log, goalId, colorKey }) {
+  const { weeks } = React.useMemo(() => buildGrid(log, goalId, 10), [log, goalId]);
+  const C = 9, G = 2.5;
+  return (
+    <div style={{ display: 'flex', gap: G, marginTop: 14, overflow: 'hidden' }}>
+      {weeks.map((week, wi) => (
+        <div key={wi} style={{ display: 'flex', flexDirection: 'column', gap: G }}>
+          {week.map((cell, di) => (
+            <div key={di} style={{
+              width: C, height: C, borderRadius: 2,
+              background: cell ? cellColor(colorKey, cell.level) : 'transparent',
+            }} />
+          ))}
+        </div>
+      ))}
+    </div>
   );
 }
 
@@ -180,6 +187,7 @@ function SubHabitRow({ s, color, onChange, onDelete, onMoveUp, onMoveDown, canUp
 function GoalDetail({ goal, allGoals, onBack, onPrev, onNext, onUpdate, onDelete, indexLabel }) {
   const [confirmDel, setConfirmDel] = React.useState(false);
   const [titleEditing, setTitleEditing] = React.useState(false);
+  const [log, setLog] = useHabitLog();
   const titleRef = React.useRef(null);
   React.useEffect(() => { if (titleEditing && titleRef.current) titleRef.current.focus(); }, [titleEditing]);
   React.useEffect(() => { setConfirmDel(false); setTitleEditing(false); }, [goal.id]);
@@ -313,9 +321,23 @@ function GoalDetail({ goal, allGoals, onBack, onPrev, onNext, onUpdate, onDelete
         </div>
       </div>
 
+      {/* activity heatmap */}
+      <Section label="Activity">
+        <Heatmap log={log} goalId={goal.id} colorKey={goal.color} />
+        <HeatmapStats log={log} goalId={goal.id} />
+        <div style={{ marginTop: 12 }}>
+          <LogTodayButton
+            log={log}
+            goalId={goal.id}
+            colorKey={goal.color}
+            onCycle={() => setLog(prev => cycleLevel(prev, goal.id))}
+          />
+        </div>
+      </Section>
+
       {/* color picker */}
       <Section label="Color">
-        <div style={{ display: 'flex', gap: 8 }}>
+        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
           {PALETTE.map(([key, hex]) => (
             <button key={key} onClick={() => patch({ color: key })} aria-label={`color ${key}`} style={{
               width: 28, height: 28, borderRadius: 999, background: hex, cursor: 'pointer',
@@ -441,6 +463,7 @@ function Section({ label, children }) {
 
 function GoalsScreen({ goals, openNewGoal, openGoal, detailGoalId, setDetailGoalId, updateGoal, deleteGoal }) {
   const [filter, setFilter] = React.useState('all');
+  const [log] = useHabitLog();
 
   // Allow parent to drive detail mode via detailGoalId (used by demo bus).
   const activeIdx = React.useMemo(
@@ -544,7 +567,7 @@ function GoalsScreen({ goals, openNewGoal, openGoal, detailGoalId, setDetailGoal
             </div>
           </Card>
         ) : (
-          visible.map(g => <GoalCard key={g.id} g={g} onOpen={() => setDetailGoalId(g.id)} />)
+          visible.map(g => <GoalCard key={g.id} g={g} log={log} onOpen={() => setDetailGoalId(g.id)} />)
         )}
       </div>
 

@@ -2,22 +2,17 @@ import React from 'react';
 import { Icon, Btn, Card, H, Chip } from './ui.jsx';
 import { SheetShell, SheetFooter } from './planner.jsx';
 import { newId } from './utils.js';
+import { PALETTE } from './palette.js';
 
 // Intuitive goal editor — edit title, cadence, recurring, and add/edit/reorder/delete sub-habits.
 // Surfaces as a bottom sheet over the goals screen. Tap a sub-habit to edit inline.
+// NOTE: superseded at runtime by the inline GoalDetail in screen-goals.jsx; kept for reference.
 
 const CADENCES = [
   ['daily',   'Daily'],
   ['weekly',  'Weekly'],
   ['monthly', 'Monthly'],
   ['oneoff',  'Project'],
-];
-
-const PALETTE = [
-  ['terracotta', 'var(--terra)'],
-  ['sage',       'var(--sage)'],
-  ['lavender',   'var(--lav)'],
-  ['butter',     '#c89a3a'],
 ];
 
 const uid = (prefix = 's_') => newId(prefix);
