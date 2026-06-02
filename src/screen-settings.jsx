@@ -1,9 +1,10 @@
 import React from 'react';
 import { Icon, Chip, Btn, Card, H } from './ui.jsx';
-import { useAuth, signInWithGoogle, signOut } from './use-auth.js';
+import { useAuth, signOut } from './use-auth.js';
 import { cloudEnabled } from './supabase.js';
 import { toast } from './utils.js';
 import { exportMyData, eraseMyData } from './data-rights.js';
+import { requestSignIn } from './consent.js';
 
 // Settings — privacy-first, non-punitive controls
 
@@ -69,10 +70,9 @@ function ProfileCard() {
   const { user, ready } = useAuth();
   const [busy, setBusy] = React.useState(false);
 
-  async function onSignIn() {
-    try { setBusy(true); await signInWithGoogle(); }
-    catch (e) { toast(`Sign-in failed · ${(e?.message || 'unknown error').slice(0, 60)}`); }
-    finally { setBusy(false); }
+  function onSignIn() {
+    // Routes through the app-level ConsentGate (prompts for consent if needed).
+    requestSignIn();
   }
   async function onSignOut() {
     try { setBusy(true); await signOut(); }
@@ -232,7 +232,7 @@ function SettingsScreen({ onOpenEnergy, onReplay }) {
       <Section header="Privacy">
         <Row
           title="Local-first storage"
-          sub="Sequences live on this device. Sync is opt-in and end-to-end encrypted."
+          sub="Sequences live on this device. Sync is opt-in; your cloud data is encrypted in transit and at rest."
           control={<Toggle on={local} onChange={setLocal} />}
         />
         <Row
@@ -305,6 +305,19 @@ function SettingsScreen({ onOpenEnergy, onReplay }) {
           title="Privacy policy"
           sub="How your data is handled, under India's DPDP Act 2023."
           control={<a href="/privacy.html" target="_blank" rel="noreferrer" style={{ padding: 4, display: 'inline-flex' }}><Icon name="chev" size={16} color="rgba(31,27,22,0.3)"/></a>}
+        />
+        <Row
+          title="Terms of service"
+          sub="The terms you agree to when using Cadence."
+          control={<a href="/terms.html" target="_blank" rel="noreferrer" style={{ padding: 4, display: 'inline-flex' }}><Icon name="chev" size={16} color="rgba(31,27,22,0.3)"/></a>}
+        />
+        <Row
+          title="Grievance officer"
+          sub="Data-protection contact for access, correction, or complaints — also escalate to the Data Protection Board of India."
+          control={<a href="mailto:achaurasia994@gmail.com" style={{
+            padding: '7px 12px', borderRadius: 999, fontFamily: 'inherit', fontSize: 12,
+            color: 'var(--ink)', textDecoration: 'none', border: '0.5px solid rgba(31,27,22,0.15)',
+          }}>Email</a>}
         />
         <EraseDataRow />
       </Section>

@@ -19,6 +19,7 @@ export default defineConfig({
         demo: resolve(__dirname, 'demo.html'),
         prototype: resolve(__dirname, 'prototype.html'),
         privacy: resolve(__dirname, 'privacy.html'),
+        terms: resolve(__dirname, 'terms.html'),
       },
     },
   },
