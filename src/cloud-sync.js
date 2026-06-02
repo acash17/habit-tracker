@@ -7,6 +7,7 @@ import React from 'react';
 import { supabase, cloudEnabled } from './supabase.js';
 import { save as saveLocal } from './storage.js';
 import { clearLocalCloudCache } from './use-auth.js';
+import { habitLogRow, loadLog, saveLog, mergeCloudLogs } from './habit-log.js';
 
 const LAST_USER_KEY = 'cadence:last-user-id';
 
@@ -65,6 +66,55 @@ export async function deleteGoalCloud(userId, goalId) {
   if (error) console.warn('[cloud] delete failed:', error.message);
 }
 
+// ── habit_logs (completion events → heatmap + rhythm) ─────────────────────────
+
+const LOGS_TABLE = 'habit_logs';
+
+// Pull all of a user's completion rows so the heatmap is populated cross-device.
+// Returns minimal { goal_id, day, level } rows for mergeCloudLogs(), or null on failure.
+export async function pullHabitLogs(userId) {
+  if (!cloudEnabled) return null;
+  const { data, error } = await supabase
+    .from(LOGS_TABLE)
+    .select('goal_id, day, level')
+    .eq('user_id', userId);
+  if (error) { console.warn('[cloud] pull logs failed:', error.message); return null; }
+  return data;
+}
+
+// Upsert one completion row (immediate — volume is low). Conflict target is the
+// per-cell unique index (user_id, goal_id, day, coalesce(step_id,'')).
+export async function pushHabitLog(userId, row) {
+  if (!cloudEnabled) return;
+  const { error } = await supabase
+    .from(LOGS_TABLE)
+    .upsert(row, { onConflict: 'user_id,goal_id,day,step_id' });
+  if (error) console.warn('[cloud] push log failed:', error.message);
+}
+
+// Remove a completion row when a day is unlogged (level cycled back to 0).
+export async function deleteHabitLogCloud(userId, goalId, day) {
+  if (!cloudEnabled) return;
+  const { error } = await supabase
+    .from(LOGS_TABLE)
+    .delete()
+    .eq('user_id', userId).eq('goal_id', goalId).eq('day', day)
+    .eq('step_id', '');
+  if (error) console.warn('[cloud] delete log failed:', error.message);
+}
+
+// Mirror one local heatmap cell to the cloud after a tap-to-log.
+// level > 0 → upsert with the current timestamp (drives rhythm); level 0 → delete.
+// No-op when signed out (userId falsy) — local-only mode.
+export function syncCellToCloud(userId, goalId, day, level) {
+  if (!userId || !cloudEnabled) return;
+  if (level > 0) {
+    pushHabitLog(userId, habitLogRow(userId, goalId, day, level, new Date().toISOString()));
+  } else {
+    deleteHabitLogCloud(userId, goalId, day);
+  }
+}
+
 /**
  * useCloudSync — keeps the in-memory goals state mirrored to Supabase.
  * - On sign-in: pull cloud → if any rows, replace local; else seed cloud with current local.
@@ -100,6 +150,13 @@ export function useCloudSync({ user, goals, setGoals }) {
         // Only push local-only goals to cloud when this is the FIRST sign-in on this
         // device for this user (not a re-sign-in after switching accounts).
         await pushGoals(user.id, goals);
+      }
+
+      // Pull completion history into the local heatmap cache. Written straight to
+      // localStorage; useHabitLog re-reads it the next time a goal detail mounts.
+      const cloudLogs = await pullHabitLogs(user.id);
+      if (!cancelled && cloudLogs && cloudLogs.length > 0) {
+        saveLog(mergeCloudLogs(loadLog(), cloudLogs));
       }
       try {
         localStorage.setItem(syncedKey, '1');

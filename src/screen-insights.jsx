@@ -1,8 +1,16 @@
 import React from 'react';
 import { INSIGHTS } from './data.jsx';
 import { Icon, Bloom, Card, H } from './ui.jsx';
+import { cellColor } from './palette.js';
+import { useAuth } from './use-auth.js';
+import { cloudEnabled } from './supabase.js';
+import { requestSignIn } from './consent.js';
+import { getRhythm, bucketsToMatrix, deriveRhythmStats, DAYS, BINS, binLabel } from './rhythm.js';
 
-// Insights — non-punitive pattern surfaces
+// Insights — real rhythm from the user's own completion history (signed in),
+// computed by the rhythm_by_hour RPC. Non-punitive: peaks and slumps, not scores.
+
+const RHYTHM_COLOR = 'terracotta';
 
 function InsightCard({ i }) {
   const tone = i.kind === 'celebrate' ? 'lav' : 'terra';
@@ -33,43 +41,179 @@ function InsightCard({ i }) {
   );
 }
 
-// Lightweight bar chart for time-of-day completion
-function CompletionByHour() {
-  const data = [
-    { h: '6a', v: 0.92 }, { h: '8a', v: 0.86 }, { h: '10a', v: 0.78 },
-    { h: '12p', v: 0.52 }, { h: '2p', v: 0.61 }, { h: '4p', v: 0.48 },
-    { h: '6p', v: 0.41 }, { h: '8p', v: 0.32 },
-  ];
+// Discretize a raw bucket total into a 0..3 intensity for the cell color ramp,
+// relative to the busiest cell so the heatmap reads well at any data volume.
+function toLevel(total, max) {
+  if (!total || max <= 0) return 0;
+  return Math.max(1, Math.min(3, Math.ceil((total / max) * 3)));
+}
+
+function RhythmPanel({ matrix, stats }) {
+  const [day, setDay] = React.useState(stats.peakDay);
+  React.useEffect(() => { setDay(stats.peakDay); }, [stats.peakDay]);
+
+  const max = Math.max(1, ...matrix.flat());
+  const dayRow = matrix[day] || [];
+  const rowMax = Math.max(1, ...dayRow);
+
   return (
     <Card style={{ padding: 18 }}>
       <div style={{ fontSize: 11.5, fontWeight: 600, letterSpacing: 0.6, textTransform: 'uppercase', color: 'rgba(31,27,22,0.5)', marginBottom: 4 }}>
-        Last 28 days
+        Your rhythm
       </div>
-      <div style={{ fontFamily: 'var(--serif)', fontSize: 20, color: 'var(--ink)', letterSpacing: -0.3, marginBottom: 16 }}>
-        Completion by start hour
+      <div style={{ fontFamily: 'var(--serif)', fontSize: 20, color: 'var(--ink)', letterSpacing: -0.3, marginBottom: 14 }}>
+        When you actually show up
       </div>
-      <div style={{ display: 'flex', alignItems: 'flex-end', gap: 8, height: 110, padding: '0 4px' }}>
-        {data.map(d => (
-          <div key={d.h} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
-            <div style={{ flex: 1, width: '100%', display: 'flex', alignItems: 'flex-end' }}>
-              <div style={{
-                width: '100%', height: `${d.v * 100}%`,
-                background: d.v >= 0.7 ? 'var(--terra)' : d.v >= 0.5 ? 'rgba(200,96,47,0.4)' : 'rgba(31,27,22,0.12)',
-                borderRadius: 4,
+
+      {/* callouts */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 16 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: 'rgba(31,27,22,0.6)' }}>
+          <span style={{ width: 8, height: 8, borderRadius: 999, background: 'var(--terra)' }} />
+          Peak · <strong style={{ color: 'var(--ink)' }}>{DAYS[stats.peakDay]} {binLabel(stats.peakBin)}</strong>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: 'rgba(31,27,22,0.6)' }}>
+          <span style={{ width: 8, height: 8, borderRadius: 999, background: 'rgba(31,27,22,0.3)' }} />
+          Laziest · <strong style={{ color: 'var(--ink)' }}>daily {binLabel(stats.lazyBin)}</strong>
+        </div>
+      </div>
+
+      {/* day × bin matrix */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+        <div style={{ display: 'flex', gap: 4, paddingLeft: 30 }}>
+          {BINS.map(b => (
+            <span key={b} style={{ flex: 1, textAlign: 'center', fontFamily: 'var(--mono)', fontSize: 8, color: 'rgba(31,27,22,0.4)' }}>{b}</span>
+          ))}
+        </div>
+        {matrix.map((row, d) => (
+          <div key={d} onClick={() => setDay(d)} style={{
+            display: 'flex', alignItems: 'center', gap: 4, cursor: 'pointer',
+            opacity: day === d ? 1 : 0.8,
+          }}>
+            <span style={{
+              width: 26, fontFamily: 'var(--mono)', fontSize: 9,
+              color: day === d ? 'var(--ink)' : 'rgba(31,27,22,0.45)',
+              fontWeight: day === d ? 700 : 400,
+            }}>{DAYS[d]}</span>
+            {row.map((v, b) => (
+              <div key={b} style={{
+                flex: 1, height: 18, borderRadius: 3,
+                background: cellColor(RHYTHM_COLOR, toLevel(v, max)),
+                outline: (d === stats.peakDay && b === stats.peakBin) ? '1.5px solid var(--ink)' : 'none',
+                outlineOffset: -1,
               }} />
-            </div>
-            <div style={{ fontSize: 10, color: 'rgba(31,27,22,0.5)', fontFamily: 'var(--mono)' }}>{d.h}</div>
+            ))}
           </div>
         ))}
       </div>
-      <div style={{ fontSize: 12, color: 'rgba(31,27,22,0.55)', marginTop: 14, lineHeight: 1.4 }}>
-        Your mornings are pulling more weight than you think. No judgment on afternoons — just data.
+
+      {/* selected day hourly bars */}
+      <div style={{ marginTop: 16, borderTop: '0.5px solid rgba(31,27,22,0.08)', paddingTop: 12 }}>
+        <div style={{ fontFamily: 'var(--mono)', fontSize: 9.5, color: 'rgba(31,27,22,0.5)', textTransform: 'uppercase', letterSpacing: 0.6 }}>
+          {DAYS[day]} · by time of day
+        </div>
+        <div style={{ display: 'flex', alignItems: 'flex-end', gap: 5, height: 90, marginTop: 10 }}>
+          {dayRow.map((v, i) => (
+            <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 5 }}>
+              <div style={{
+                width: '100%', borderRadius: 4,
+                height: `${Math.max(6, (v / rowMax) * 76)}px`,
+                background: cellColor(RHYTHM_COLOR, toLevel(v, max)),
+                transition: 'height 200ms ease',
+              }} />
+              <span style={{ fontFamily: 'var(--mono)', fontSize: 8, color: 'rgba(31,27,22,0.45)' }}>{BINS[i]}</span>
+            </div>
+          ))}
+        </div>
       </div>
     </Card>
   );
 }
 
+// Empty / prompt cards keep the same Card language as the data view.
+function RhythmPrompt({ title, body, children }) {
+  return (
+    <Card style={{ padding: 18, display: 'flex', flexDirection: 'column', gap: 10 }}>
+      <div style={{ fontSize: 11.5, fontWeight: 600, letterSpacing: 0.6, textTransform: 'uppercase', color: 'rgba(31,27,22,0.5)' }}>
+        Your rhythm
+      </div>
+      <div style={{ fontFamily: 'var(--serif)', fontSize: 20, color: 'var(--ink)', letterSpacing: -0.3, lineHeight: 1.15 }}>
+        {title}
+      </div>
+      <div style={{ fontSize: 13, color: 'rgba(31,27,22,0.62)', lineHeight: 1.45 }}>{body}</div>
+      {children}
+    </Card>
+  );
+}
+
+function RhythmSection() {
+  const { user, ready } = useAuth();
+  const [state, setState] = React.useState({ loading: true, matrix: null, stats: null });
+
+  React.useEffect(() => {
+    if (!cloudEnabled || !user) { setState({ loading: false, matrix: null, stats: null }); return; }
+    let cancelled = false;
+    setState(s => ({ ...s, loading: true }));
+    getRhythm().then(buckets => {
+      if (cancelled) return;
+      const matrix = bucketsToMatrix(buckets || []);
+      setState({ loading: false, matrix, stats: deriveRhythmStats(matrix) });
+    });
+    return () => { cancelled = true; };
+  }, [user?.id]);
+
+  // Routes through the app-level ConsentGate (prompts for consent if needed).
+  function onSignIn() { requestSignIn(); }
+
+  // Cloud not configured — rhythm needs the backend.
+  if (!cloudEnabled) {
+    return (
+      <RhythmPrompt
+        title="Rhythm needs sync"
+        body="Time-of-day insights are computed in the cloud. Configure Supabase (docs/SUPABASE_SETUP.md) to unlock your rhythm." />
+    );
+  }
+
+  // Signed out — CTA.
+  if (!user) {
+    return (
+      <RhythmPrompt
+        title="See your rhythm"
+        body="Sign in to discover your peak and laziest hours, computed from your own completion history.">
+        <button
+          onClick={onSignIn}
+          disabled={!ready}
+          style={{
+            alignSelf: 'flex-start', display: 'inline-flex', alignItems: 'center', gap: 8,
+            padding: '10px 16px', borderRadius: 12, cursor: 'pointer',
+            background: '#fff', color: '#1F1B16', border: '0.5px solid rgba(31,27,22,0.18)',
+            boxShadow: '0 1px 2px rgba(31,27,22,0.05)', fontFamily: 'inherit', fontSize: 14,
+            fontWeight: 500, opacity: ready ? 1 : 0.6,
+          }}>
+          Continue with Google
+        </button>
+      </RhythmPrompt>
+    );
+  }
+
+  if (state.loading) {
+    return <RhythmPrompt title="Reading your rhythm…" body="Pulling your completion history." />;
+  }
+
+  // Signed in, no data yet.
+  if (!state.stats || !state.stats.hasData) {
+    return (
+      <RhythmPrompt
+        title="Log a few days"
+        body="Tap to log completions on your goals and your rhythm — peak and laziest hours — appears here." />
+    );
+  }
+
+  return <RhythmPanel matrix={state.matrix} stats={state.stats} />;
+}
+
 function InsightsScreen() {
+  // Keep one evergreen, effort-over-streaks message alongside the real rhythm.
+  const evergreen = INSIGHTS.find(i => i.kind === 'celebrate') || INSIGHTS[0];
   return (
     <div style={{ padding: '0 18px 32px', display: 'flex', flexDirection: 'column', gap: 18 }}>
       <div style={{ paddingTop: 8 }}>
@@ -86,28 +230,17 @@ function InsightsScreen() {
         </div>
       </div>
 
-      {/* Bloom hero */}
-      <Card style={{ padding: 22, display: 'flex', alignItems: 'center', gap: 18 }}>
-        <Bloom value={0.78} size={92} color="var(--terra)" />
-        <div style={{ flex: 1 }}>
-          <div style={{
-            fontFamily: 'var(--serif)', fontSize: 28, lineHeight: 1, color: 'var(--ink)', letterSpacing: -0.4,
-          }}>14 days</div>
-          <div style={{ fontSize: 13, color: 'rgba(31,27,22,0.6)', marginTop: 6, lineHeight: 1.4 }}>
-            of stacked effort. The bloom keeps growing whether you show up daily or not.
-          </div>
+      <RhythmSection />
+
+      {evergreen && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <InsightCard i={evergreen} />
         </div>
-      </Card>
-
-      <CompletionByHour />
-
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-        {INSIGHTS.map(i => <InsightCard key={i.id} i={i}/>)}
-      </div>
+      )}
     </div>
   );
 }
 
 Object.assign(window, { InsightsScreen });
 
-export { InsightCard, CompletionByHour, InsightsScreen };
+export { InsightCard, RhythmPanel, InsightsScreen };

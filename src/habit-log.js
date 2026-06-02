@@ -40,6 +40,37 @@ export function setLevel(log, goalId, level, date = dayKey()) {
   return { ...log, [goalId]: goalLog };
 }
 
+// ── Cloud bridge (habit_logs table) ──────────────────────────────────────────
+
+// Build an upsertable `habit_logs` row for a whole-goal completion.
+// step_id is '' (not null) so the composite unique constraint
+// (user_id, goal_id, day, step_id) can be a plain PostgREST onConflict target.
+export function habitLogRow(userId, goalId, day, level, at) {
+  return {
+    user_id: userId,
+    goal_id: goalId,
+    step_id: '',
+    day,
+    level,
+    done_at: at,
+  };
+}
+
+// Merge pulled `habit_logs` rows into the local day→level cache.
+// Cloud is the source of truth on bootstrap, so it wins on conflict.
+// A level-0 row clears that cell. Pure — never mutates `log`.
+export function mergeCloudLogs(log, rows) {
+  const out = {};
+  for (const gid of Object.keys(log)) out[gid] = { ...log[gid] };
+  for (const r of rows) {
+    const goalLog = out[r.goal_id] ? { ...out[r.goal_id] } : {};
+    if (r.level) goalLog[r.day] = r.level;
+    else delete goalLog[r.day];
+    out[r.goal_id] = goalLog;
+  }
+  return out;
+}
+
 // ── Stats over a goal's log ──────────────────────────────────────────────────
 
 export function goalStats(log, goalId) {

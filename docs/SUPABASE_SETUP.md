@@ -78,6 +78,21 @@ Supabase Dashboard → **Authentication → URL Configuration**
 3. Paste the entire file into the SQL editor → **Run**
 4. You should see "Success. No rows returned."
 5. Verify under **Table Editor**: there should now be a `goals` table with RLS enabled (small lock icon).
+6. Repeat for `002_full_schema.sql`, then `003_rhythm.sql`, then `004_rhythm_cron.sql`, in order.
+
+### Daily rhythm precompute (migration 004)
+
+`004_rhythm_cron.sql` schedules a nightly job that pre-aggregates each user's
+rhythm. It needs the **pg_cron** extension:
+
+1. Supabase → **Database → Extensions** → search **`pg_cron`** → enable.
+2. Then run `004_rhythm_cron.sql` in the SQL editor.
+3. Verify the job exists: `select * from cron.job;` — you should see
+   `refresh-rhythm-cache` scheduled `30 20 * * *` (daily at **20:30 UTC = 02:00 IST**
+   — pg_cron runs in UTC, so change the expression in the migration for a different
+   time/zone).
+4. Test it immediately without waiting for the schedule:
+   `select public.refresh_rhythm_cache();` then `select * from public.rhythm_cache;`.
 
 ---
 
