@@ -18,6 +18,7 @@ import { VoiceSheet } from './sheet-voice.jsx';
 import { RunningLongSheet, WhyOrderSheet } from './planner.jsx';
 import { OnboardingFlow } from './onboarding.jsx';
 import { TourOverlay } from './tour.jsx';
+import { ConsentGate } from './consent-sheet.jsx';
 
 // Cadence — app shell (with onboarding gate + all sheets wired)
 
@@ -383,6 +384,9 @@ function App() {
       )}
 
       {/* Goal editor is now inline inside GoalsScreen (no overlay sheet) */}
+
+      {/* DPDP consent gate — intercepts sign-in CTAs (cadence-request-signin) */}
+      <ConsentGate />
 
       {/* Onboarding gate */}
       {onboarding && <OnboardingFlow onDone={finishOnboarding}/>}
