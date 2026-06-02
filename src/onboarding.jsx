@@ -240,7 +240,7 @@ function PreviewScreen({ steps }) {
         <div style={{ display: 'flex', gap: 6, marginTop: 12 }}>
           <Chip tone="paper">{steps?.length || 0} steps</Chip>
           <Chip tone="paper">~{total} min</Chip>
-          <Chip tone="lav">AI-drafted</Chip>
+          <Chip tone="lav">Suggested</Chip>
         </div>
       </div>
 

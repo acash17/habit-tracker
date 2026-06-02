@@ -257,7 +257,7 @@ function InputStage({ goal, setGoal, hours, setHours, energy, setEnergy, deadlin
         <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
           <Icon name="lock" size={16} color="var(--lav)"/>
           <div style={{ fontSize: 12, color: 'rgba(31,27,22,0.65)', lineHeight: 1.45 }}>
-            Your goal text stays on this device unless you turn on sync. Sequence generation uses an encrypted request.
+            Your goal text stays on this device. Sequences are generated on-device — nothing is sent for this step.
           </div>
         </div>
       </Card>
@@ -295,7 +295,7 @@ function ResultStage({ goal, steps }) {
         <div style={{ display: 'flex', gap: 6, marginTop: 10 }}>
           <Chip tone="paper">{steps.length} steps</Chip>
           <Chip tone="paper">~{totalMin} min</Chip>
-          <Chip tone="lav">AI-drafted</Chip>
+          <Chip tone="lav">Suggested</Chip>
         </div>
       </div>
 

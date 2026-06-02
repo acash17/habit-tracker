@@ -51,7 +51,7 @@
   </ul>
 
   <h2>Optional AI sequence generation</h2>
-  <p>When you type a goal into “New goal → sequence” and press <em>Generate</em>, the goal text is sent to an LLM endpoint for a single, stateless request that returns a suggested sequence. We do not log the request, the response, or associate it with you. The request is sent over HTTPS. If the request fails, the app falls back to an on-device default sequence so the feature still works offline.</p>
+  <p>When you type a goal into “New goal → sequence” and press <em>Generate</em>, Cadence breaks it into a suggested micro-sequence. In the current released app this is produced <strong>on your device</strong> — your goal text does not leave your device for this feature. If a future version routes sequence generation to an external AI service, that request would be sent over HTTPS and we will update this notice before enabling it.</p>
 
   <h2>Optional sync</h2>
   <p>Signing in with Google enables optional cross-device sync. Your data is transmitted over HTTPS, stored encrypted at rest by our database provider (Supabase), and isolated to your account with row-level security. Sync is off until you sign in, and you can withdraw consent and erase everything at any time from Settings. Note: data is encrypted in transit and at rest, but not end-to-end — the database provider can technically access stored rows.</p>
