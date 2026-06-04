@@ -79,6 +79,6 @@ Type a goal. Get a real plan, broken down by your energy and time. Daily habits 
 - Data collected: none
 
 ## Contact details
-- Email: `achaurasia994@gmail.com`
+- Email: `grievance@vinkashis.com`
 - Website: `https://<your-vercel-url>/`
 - Privacy policy: `https://<your-vercel-url>/privacy.html`

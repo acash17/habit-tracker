@@ -8,19 +8,19 @@ describe('buildConsentRecord', () => {
   });
 
   test('records which consent items were agreed to', () => {
-    const rec = buildConsentRecord(2, '2026-06-02T10:00:00.000Z', ['privacy_tos', 'age_18_or_guardian']);
-    expect(rec.items).toEqual(['privacy_tos', 'age_18_or_guardian']);
+    const rec = buildConsentRecord(2, '2026-06-02T10:00:00.000Z', ['privacy_tos', 'age_18_plus']);
+    expect(rec.items).toEqual(['privacy_tos', 'age_18_plus']);
   });
 });
 
 describe('consentCloudRow', () => {
   test('maps a local record to an upsertable consents row', () => {
-    const rec = { policyVersion: 1, agreedAt: '2026-06-02T10:00:00.000Z', items: ['privacy_tos', 'age_18_or_guardian'] };
+    const rec = { policyVersion: 1, agreedAt: '2026-06-02T10:00:00.000Z', items: ['privacy_tos', 'age_18_plus'] };
     expect(consentCloudRow('u1', rec)).toEqual({
       user_id: 'u1',
       policy_version: 1,
       agreed_at: '2026-06-02T10:00:00.000Z',
-      items: ['privacy_tos', 'age_18_or_guardian'],
+      items: ['privacy_tos', 'age_18_plus'],
     });
   });
 

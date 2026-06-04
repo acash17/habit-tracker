@@ -8,7 +8,7 @@ import { load, save } from './storage.js';
 export const CONSENT_VERSION = 1;
 
 // The specific things a user agrees to in the consent gate (audit trail).
-export const CONSENT_ITEMS = ['privacy_tos', 'age_18_or_guardian'];
+export const CONSENT_ITEMS = ['privacy_tos', 'age_18_plus'];
 
 const KEY = 'consent';
 

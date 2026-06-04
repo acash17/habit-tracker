@@ -44,7 +44,7 @@ function ConsentSheet({ onClose, onAgree }) {
         <label style={checkboxRow}>
           <input type="checkbox" checked={age} onChange={e => setAge(e.target.checked)} style={checkboxInput} />
           <span style={checkboxText}>
-            I am <strong>18 or older</strong>, or I have my parent’s or legal guardian’s consent to use Cadence.
+            I confirm I am <strong>18 years of age or older</strong>. Cadence is intended only for adults.
           </span>
         </label>
 

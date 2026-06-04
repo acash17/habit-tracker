@@ -12,7 +12,7 @@ handling.
 ## 1. Roles & contacts
 
 - **Data Fiduciary:** the Cadence developer/operator.  **[ACTION]** confirm legal entity / registration.
-- **Grievance Officer / DPO contact:** achaurasia994@gmail.com  **[ACTION]** ensure this inbox is monitored.
+- **Grievance Officer / DPO contact:** grievance@vinkashis.com  **[ACTION]** ensure this inbox is monitored.
 - **Escalation:** Data Protection Board of India.
 
 ## 2. What personal data we process, and why
@@ -57,11 +57,14 @@ stays on-device (no LLM call in the shipped app).
 
 ## 5. Children (DPDP §9)
 
-- "Child" = under 18. App is not directed at children.
-- **Age assurance:** self-declaration checkbox at consent (18+ or guardian consent).
-  **[ACTION/RISK]** this is self-declared, not verifiable parental consent; acceptable
-  for a low-risk productivity tool but confirm risk appetite. No behavioural tracking
-  or targeted ads at any user.
+- "Child" = under 18. **Cadence is for users 18+ only** — it is not directed at, and not
+  to be used by, anyone under 18.
+- **Age assurance:** a required self-declaration checkbox at consent ("I am 18 years of
+  age or older"). Both the policy and terms state the 18+ restriction.
+  **[ACTION/RISK]** this is self-declared age assurance (industry norm for a low-risk
+  productivity app), not hard age verification. Because we admit no minors and process
+  no child data, DPDP §9's verifiable-parental-consent obligation is avoided by design.
+  If a minor is discovered, delete their data. No behavioural tracking or targeted ads.
 
 ## 6. Security (DPDP §8(5))
 
@@ -79,15 +82,18 @@ stays on-device (no LLM call in the shipped app).
 - On erasure/withdrawal: cloud rows deleted immediately; local data cleared.
 - Email-requested deletion: completed within **30 days** (`/delete-account.html`).
 
-## 8. Breach response runbook  **[ACTION — process, keep ready]**
+## 8. Breach response  **[ACTION — process, keep ready]**
 
-1. **Detect & contain** — identify scope (which tables/users), revoke keys, rotate
-   Supabase service credentials, disable affected access.
-2. **Assess** — what personal data, how many principals, likely harm.
-3. **Notify** — the **Data Protection Board of India** and affected Data Principals
-   in the form/time the Act and Board rules prescribe.
-4. **Record** — keep an incident log (timeline, cause, remediation).
-5. **Remediate** — fix root cause; add a regression test/control.
+Full plan: **`docs/BREACH_RESPONSE.md`** (detect → contain → assess → notify the
+Data Protection Board of India + affected users → remediate → review, with incident
+log and user-notification templates). Summary:
+
+1. **Detect & log** — open an incident log the moment a breach is suspected.
+2. **Contain** — rotate Supabase/GitHub keys, cut access, preserve logs.
+3. **Assess** — what data, whose, how, likely harm, is it reportable.
+4. **Notify** — Board of India + affected Data Principals, promptly.
+5. **Remediate** — fix root cause; add a control/test.
+6. **Review** — blameless post-incident review; update this doc.
 
 ## 9. Google Play Data Safety — declaration mapping
 
