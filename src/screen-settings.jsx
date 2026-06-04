@@ -319,6 +319,11 @@ function SettingsScreen({ onOpenEnergy, onReplay }) {
             color: 'var(--ink)', textDecoration: 'none', border: '0.5px solid rgba(31,27,22,0.15)',
           }}>Email</a>}
         />
+        <Row
+          title="How to delete my account"
+          sub="Step-by-step deletion options, including requesting erasure by email."
+          control={<a href="/delete-account.html" target="_blank" rel="noreferrer" style={{ padding: 4, display: 'inline-flex' }}><Icon name="chev" size={16} color="rgba(31,27,22,0.3)"/></a>}
+        />
         <EraseDataRow />
       </Section>
 
