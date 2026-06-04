@@ -8,6 +8,7 @@ import { supabase, cloudEnabled } from './supabase.js';
 import { save as saveLocal } from './storage.js';
 import { clearLocalCloudCache } from './use-auth.js';
 import { habitLogRow, loadLog, saveLog, mergeCloudLogs } from './habit-log.js';
+import { loadConsent, consentCloudRow } from './consent.js';
 
 const LAST_USER_KEY = 'cadence:last-user-id';
 
@@ -103,6 +104,21 @@ export async function deleteHabitLogCloud(userId, goalId, day) {
   if (error) console.warn('[cloud] delete log failed:', error.message);
 }
 
+// ── consents (Data Fiduciary's record of consent under the DPDP Act) ──────────
+
+// Persist the user's local consent record to the server-side ledger so the
+// fiduciary can demonstrate who consented, to which policy version, and when.
+// Upsert on (user_id, policy_version) — one row per user per policy version.
+export async function pushConsent(userId) {
+  if (!cloudEnabled || !userId) return;
+  const record = loadConsent();
+  if (!record) return;
+  const { error } = await supabase
+    .from('consents')
+    .upsert(consentCloudRow(userId, record), { onConflict: 'user_id,policy_version' });
+  if (error) console.warn('[cloud] push consent failed:', error.message);
+}
+
 // Mirror one local heatmap cell to the cloud after a tap-to-log.
 // level > 0 → upsert with the current timestamp (drives rhythm); level 0 → delete.
 // No-op when signed out (userId falsy) — local-only mode.
@@ -158,6 +174,10 @@ export function useCloudSync({ user, goals, setGoals }) {
       if (!cancelled && cloudLogs && cloudLogs.length > 0) {
         saveLog(mergeCloudLogs(loadLog(), cloudLogs));
       }
+
+      // Record consent server-side now that we know who the user is (the gate
+      // captured consent before the OAuth round-trip resolved their identity).
+      if (!cancelled) await pushConsent(user.id);
       try {
         localStorage.setItem(syncedKey, '1');
         localStorage.setItem(LAST_USER_KEY, user.id);

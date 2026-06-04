@@ -20,6 +20,7 @@ export default defineConfig({
         prototype: resolve(__dirname, 'prototype.html'),
         privacy: resolve(__dirname, 'privacy.html'),
         terms: resolve(__dirname, 'terms.html'),
+        deleteAccount: resolve(__dirname, 'delete-account.html'),
       },
     },
   },

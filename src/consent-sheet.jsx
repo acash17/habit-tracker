@@ -6,13 +6,23 @@ import { recordConsent, hasValidConsent } from './consent.js';
 import { toast } from './utils.js';
 
 // DPDP consent dialog shown before Google sign-in (first time, or after a policy
-// version bump). One required checkbox gates the Continue button.
+// version bump). Two required checkboxes gate the Continue button:
+// policy/terms agreement and an age declaration (DPDP "child" = under 18).
+const checkboxRow = {
+  display: 'flex', alignItems: 'flex-start', gap: 12, cursor: 'pointer',
+  padding: '14px 16px', borderRadius: 14, background: 'var(--card)',
+  border: '0.5px solid rgba(31,27,22,0.1)',
+};
+const checkboxInput = { width: 18, height: 18, marginTop: 1, accentColor: 'var(--terra)', flexShrink: 0 };
+const checkboxText = { fontSize: 13.5, color: 'var(--ink)', lineHeight: 1.5 };
+
 function ConsentSheet({ onClose, onAgree }) {
   const [agreed, setAgreed] = React.useState(false);
+  const [age, setAge] = React.useState(false);
 
   return (
     <SheetShell title="Before you sign in" onClose={onClose}>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
         <div style={{ fontSize: 14.5, color: 'rgba(31,27,22,0.78)', lineHeight: 1.55 }}>
           To sync across your devices, Cadence collects your <strong>name and email</strong> (via
           Google), your <strong>goals</strong>, and your <strong>completion history</strong> — only to
@@ -20,23 +30,21 @@ function ConsentSheet({ onClose, onAgree }) {
           and you can export or erase everything anytime in Settings.
         </div>
 
-        <label style={{
-          display: 'flex', alignItems: 'flex-start', gap: 12, cursor: 'pointer',
-          padding: '14px 16px', borderRadius: 14, background: 'var(--card)',
-          border: '0.5px solid rgba(31,27,22,0.1)',
-        }}>
-          <input
-            type="checkbox"
-            checked={agreed}
-            onChange={e => setAgreed(e.target.checked)}
-            style={{ width: 18, height: 18, marginTop: 1, accentColor: 'var(--terra)', flexShrink: 0 }}
-          />
-          <span style={{ fontSize: 13.5, color: 'var(--ink)', lineHeight: 1.5 }}>
+        <label style={checkboxRow}>
+          <input type="checkbox" checked={agreed} onChange={e => setAgreed(e.target.checked)} style={checkboxInput} />
+          <span style={checkboxText}>
             I agree to the{' '}
             <a href="/privacy.html" target="_blank" rel="noreferrer" style={{ color: 'var(--terra)' }}>Privacy Policy</a>
             {' '}and{' '}
             <a href="/terms.html" target="_blank" rel="noreferrer" style={{ color: 'var(--terra)' }}>Terms of Service</a>,
             and consent to Cadence storing my data to provide sync (DPDP Act 2023).
+          </span>
+        </label>
+
+        <label style={checkboxRow}>
+          <input type="checkbox" checked={age} onChange={e => setAge(e.target.checked)} style={checkboxInput} />
+          <span style={checkboxText}>
+            I am <strong>18 or older</strong>, or I have my parent’s or legal guardian’s consent to use Cadence.
           </span>
         </label>
 
@@ -47,7 +55,7 @@ function ConsentSheet({ onClose, onAgree }) {
 
         <SheetFooter>
           <Btn variant="ghost" size="lg" onClick={onClose}>Cancel</Btn>
-          <Btn variant="terra" size="lg" full disabled={!agreed} onClick={onAgree}>
+          <Btn variant="terra" size="lg" full disabled={!agreed || !age} onClick={onAgree}>
             Agree &amp; continue
           </Btn>
         </SheetFooter>

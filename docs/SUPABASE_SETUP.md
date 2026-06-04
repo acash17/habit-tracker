@@ -78,7 +78,9 @@ Supabase Dashboard → **Authentication → URL Configuration**
 3. Paste the entire file into the SQL editor → **Run**
 4. You should see "Success. No rows returned."
 5. Verify under **Table Editor**: there should now be a `goals` table with RLS enabled (small lock icon).
-6. Repeat for `002_full_schema.sql`, then `003_rhythm.sql`, then `004_rhythm_cron.sql`, in order.
+6. Repeat for `002_full_schema.sql`, then `003_rhythm.sql`, `004_rhythm_cron.sql`, and `005_consents.sql`, in order.
+   - `005_consents.sql` creates the consent ledger (the Data Fiduciary's record of who
+     consented, to which policy version, when) with row-level security.
 
 ### Daily rhythm precompute (migration 004)
 

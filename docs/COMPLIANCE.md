@@ -1,0 +1,105 @@
+# Cadence — Compliance record (India / DPDP Act 2023)
+
+This is the Data Fiduciary's operational compliance record for Cadence. Keep it
+current; review at least every 6 months and after any feature that changes data
+handling.
+
+> **Not legal advice.** Confirm posture with a qualified professional before/while
+> operating in market. Items marked **[ACTION]** require a human, not code.
+
+---
+
+## 1. Roles & contacts
+
+- **Data Fiduciary:** the Cadence developer/operator.  **[ACTION]** confirm legal entity / registration.
+- **Grievance Officer / DPO contact:** achaurasia994@gmail.com  **[ACTION]** ensure this inbox is monitored.
+- **Escalation:** Data Protection Board of India.
+
+## 2. What personal data we process, and why
+
+| Data | Source | Purpose | Legal basis |
+|---|---|---|---|
+| Account ID + email | Google sign-in | Account, sync | Consent |
+| Name (display) | Google sign-in | Personalisation | Consent |
+| Goals / sub-habits | User input | Core feature | Consent |
+| Completion history (+ timestamps) | User action | Heatmap, rhythm insights | Consent |
+| Profile / settings / timezone | User | Feature behaviour | Consent |
+| Consent record | Consent gate | Proof of consent | Legal obligation |
+
+**Not collected:** phone, precise location, contacts, photos, files, advertising ID,
+device identifiers. **No analytics/ads SDKs.** Goal text for sequence generation
+stays on-device (no LLM call in the shipped app).
+
+## 3. Consent (DPDP §6)
+
+- **Captured before collection:** the consent gate (`ConsentGate` / `ConsentSheet`)
+  appears before Google sign-in. Two required tick-boxes:
+  1. Agreement to Privacy Policy + Terms of Service.
+  2. Age declaration (18+, or parent/guardian consent).
+- **Recorded:** locally (`cadence:consent`) **and** server-side in the `consents`
+  table (`user_id, policy_version, items, agreed_at`) — the fiduciary's provable
+  ledger. Migration: `supabase/migrations/005_consents.sql`.
+- **Re-consent:** bump `CONSENT_VERSION` in `src/consent.js` after any material
+  policy change → all users are re-prompted.
+- **Withdrawal:** Settings → "Erase all my data" deletes everything incl. the
+  consent record — as easy to withdraw as to give.
+
+## 4. Data principal rights (DPDP §11–14)
+
+| Right | How it's served |
+|---|---|
+| Access | Settings → "Download my data" (JSON incl. cloud goals, logs, profile, consents) |
+| Correction | Edit any data in-app |
+| Erasure | Settings → "Erase all my data" + public page `/delete-account.html` |
+| Withdraw consent | Same as erasure |
+| Grievance | Settings → "Grievance officer" (email) + privacy/terms |
+| Nominate | Stated in Privacy Policy (email to register a nominee) |
+
+## 5. Children (DPDP §9)
+
+- "Child" = under 18. App is not directed at children.
+- **Age assurance:** self-declaration checkbox at consent (18+ or guardian consent).
+  **[ACTION/RISK]** this is self-declared, not verifiable parental consent; acceptable
+  for a low-risk productivity tool but confirm risk appetite. No behavioural tracking
+  or targeted ads at any user.
+
+## 6. Security (DPDP §8(5))
+
+- Transport: HTTPS everywhere.
+- At rest: encrypted by Supabase (managed Postgres).
+- Isolation: Row-Level Security — every table scoped to `auth.uid()` (migrations
+  002, 005). Verified: 14+ RLS policies.
+- Auth: Google OAuth via PKCE; deep-link `cadence://auth-callback`.
+- Android: `allowBackup=false` (auth tokens not auto-backed-up).
+- **Not** end-to-end encrypted (provider can read rows) — stated honestly in policy.
+
+## 7. Retention
+
+- Retained while the account is active and the purpose is served.
+- On erasure/withdrawal: cloud rows deleted immediately; local data cleared.
+- Email-requested deletion: completed within **30 days** (`/delete-account.html`).
+
+## 8. Breach response runbook  **[ACTION — process, keep ready]**
+
+1. **Detect & contain** — identify scope (which tables/users), revoke keys, rotate
+   Supabase service credentials, disable affected access.
+2. **Assess** — what personal data, how many principals, likely harm.
+3. **Notify** — the **Data Protection Board of India** and affected Data Principals
+   in the form/time the Act and Board rules prescribe.
+4. **Record** — keep an incident log (timeline, cause, remediation).
+5. **Remediate** — fix root cause; add a regression test/control.
+
+## 9. Google Play Data Safety — declaration mapping
+
+- Collects: Name, Email (Personal info); Goals + completion history (App activity →
+  other user-generated content). **Optional** (works local-first without sign-in).
+- Shared with third parties: **No.** Sold: **No.** Used for ads: **No.**
+- Encrypted in transit: **Yes.** User can request deletion: **Yes** → `/delete-account.html`.
+
+## 10. Open operational items  **[ACTION]**
+
+- [ ] Host privacy.html, terms.html, delete-account.html at a **public URL** (Vercel).
+- [ ] Confirm grievance inbox is monitored with response SLAs.
+- [ ] Legal entity / Data Fiduciary registration as applicable.
+- [ ] Decide final age-assurance stance; align with Play content rating.
+- [ ] Keep this document reviewed every 6 months.

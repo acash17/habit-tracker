@@ -33,16 +33,18 @@ export async function exportMyData() {
   if (cloudEnabled) {
     const { data: { user } } = await supabase.auth.getUser();
     if (user) {
-      const [goals, logs, profile] = await Promise.all([
+      const [goals, logs, profile, consents] = await Promise.all([
         supabase.from('goals').select('*').eq('user_id', user.id),
         supabase.from('habit_logs').select('*').eq('user_id', user.id),
         supabase.from('profiles').select('*').eq('user_id', user.id).maybeSingle(),
+        supabase.from('consents').select('*').eq('user_id', user.id),
       ]);
       payload.cloud = {
         user: { id: user.id, email: user.email },
         goals: goals.data || [],
         habit_logs: logs.data || [],
         profile: profile.data || null,
+        consents: consents.data || [],
       };
     }
   }
@@ -65,6 +67,7 @@ export async function eraseMyData() {
       // habit_logs + goals cascade on goal delete, but clear explicitly to be safe.
       await supabase.from('habit_logs').delete().eq('user_id', user.id);
       await supabase.from('goals').delete().eq('user_id', user.id);
+      await supabase.from('consents').delete().eq('user_id', user.id);
       await supabase.from('profiles').delete().eq('user_id', user.id);
       await supabase.auth.signOut();
     }
