@@ -314,7 +314,7 @@ function SettingsScreen({ onOpenEnergy, onReplay }) {
         <Row
           title="Grievance officer"
           sub="Data-protection contact for access, correction, or complaints — also escalate to the Data Protection Board of India."
-          control={<a href="mailto:achaurasia994@gmail.com" style={{
+          control={<a href="mailto:grievance@vinkashis.com" style={{
             padding: '7px 12px', borderRadius: 999, fontFamily: 'inherit', fontSize: 12,
             color: 'var(--ink)', textDecoration: 'none', border: '0.5px solid rgba(31,27,22,0.15)',
           }}>Email</a>}
