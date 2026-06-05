@@ -44,3 +44,24 @@ export function usePersistedState(key, initial) {
   React.useEffect(() => { save(key, value); }, [key, value]);
   return [value, setValue];
 }
+
+export function dayKey(d = new Date()) {
+  return d.toISOString().slice(0, 10);
+}
+
+export function setLastActiveDate(dateStr) {
+  save('lastActive', dateStr);
+}
+
+// Returns how many days the user skipped before today.
+// 0 = active today or yesterday; 1 = skipped yesterday; 2 = skipped two days; etc.
+export function missedDayCount() {
+  const last = load('lastActive', null);
+  if (!last) return 0;
+  const today = dayKey();
+  if (last >= today) return 0;
+  const diff = Math.round(
+    (new Date(today + 'T12:00:00') - new Date(last + 'T12:00:00')) / 86400000
+  );
+  return Math.max(0, diff - 1);
+}

@@ -2,6 +2,7 @@ import React from 'react';
 import { Icon, Btn, Card, H } from './ui.jsx';
 import { SheetShell, SheetFooter } from './planner.jsx';
 import { composite } from './data.jsx';
+import { load } from './storage.js';
 
 // "Life Happened" sheet — one-tap rescue with 4 options.
 // Attacks: rigidity, plan-collapse, shame after a bad day.
@@ -33,23 +34,20 @@ function LifeOption({ icon, color, title, sub, onClick }) {
   );
 }
 
-function LifeHappenedSheet({ blocks, onClose, onApply }) {
+function LifeHappenedSheet({ blocks, missedDays = 0, onClose, onApply }) {
   const [view, setView] = React.useState('menu'); // menu | recovery
   const remaining = blocks.filter(b => !b.done);
   const focusLeft = remaining.filter(b => b.kind === 'focus').length;
 
   function delay() {
-    // push every remaining block forward by 30 min
     const next = blocks.map(b => b.done ? b : { ...b, startMin: b.startMin + 30 });
     onApply(next, 'Delayed everything by 30 min');
   }
   function simplify() {
-    // shrink every focus block to 25 min, keep rest as-is
     const next = blocks.map(b => b.done || b.kind !== 'focus' ? b : { ...b, dur: Math.min(25, b.dur) });
     onApply(next, 'Simplified · focus blocks shrunk to 25m');
   }
   function swap() {
-    // drop the lowest-score optional block, replace nothing
     const opt = remaining.filter(b => b.optional && !b.active)
       .sort((a, b) => composite(a.scores) - composite(b.scores))[0];
     if (opt) {
@@ -60,8 +58,14 @@ function LifeHappenedSheet({ blocks, onClose, onApply }) {
   }
 
   if (view === 'recovery') {
-    return <RecoveryPlan onClose={onClose} onApply={onApply} blocks={blocks}/>;
+    return <RecoveryPlan onClose={onClose} onApply={onApply} blocks={blocks} missedDays={missedDays}/>;
   }
+
+  const intro = missedDays >= 5
+    ? "You've been away a while. No pressure — just pick the gentlest option."
+    : missedDays >= 2
+      ? "Real life happened. Pick the shape of today's recovery and I'll reshape the plan."
+      : "No explanation needed. Pick the shape of today's recovery — I'll reshape the plan around it.";
 
   return (
     <SheetShell title="Life happened" onClose={onClose}>
@@ -69,7 +73,7 @@ function LifeHappenedSheet({ blocks, onClose, onApply }) {
         <div>
           <H size={26}>What kind of "happened"?</H>
           <div style={{ fontSize: 13, color: 'rgba(31,27,22,0.6)', marginTop: 6, lineHeight: 1.45 }}>
-            No explanation needed. Pick the shape of today's recovery — I'll reshape the plan around it.
+            {intro}
           </div>
         </div>
 
@@ -117,13 +121,28 @@ function LifeHappenedSheet({ blocks, onClose, onApply }) {
   );
 }
 
-// Sub-view: gentle recovery sequence (3 tiny steps)
-function RecoveryPlan({ blocks, onClose, onApply }) {
-  const recoverySteps = [
-    { label: '2 min stretch', dur: 2, kind: 'body', why: 'Body before mind.' },
-    { label: 'Pick one open tab — close the rest', dur: 5, kind: 'self', why: 'Reduce ambient overwhelm.' },
-    { label: '15-min focus on that one thing', dur: 15, kind: 'focus', why: 'Tiny win.' },
-  ];
+// Sub-view: gentle recovery sequence (3 tiny steps, energy-adaptive)
+function RecoveryPlan({ blocks, onClose, onApply, missedDays = 0 }) {
+  const energy = load('energy', 3);
+
+  // Steps scale with energy level so low-energy days stay achievable
+  const recoverySteps = energy <= 2
+    ? [
+        { label: 'Slow breath — 4 counts in, 4 out', dur: 2, kind: 'body', why: 'Signal safety to your nervous system.' },
+        { label: 'Pick one thing you can close or put away', dur: 3, kind: 'self', why: 'Small order, big relief.' },
+        { label: '5 min on the easiest open task', dur: 5, kind: 'focus', why: 'Low bar, real progress.' },
+      ]
+    : energy >= 4
+      ? [
+          { label: '2 min stretch', dur: 2, kind: 'body', why: 'Body before mind.' },
+          { label: 'Pick one open tab — close the rest', dur: 5, kind: 'self', why: 'Reduce ambient overwhelm.' },
+          { label: '25-min deep focus sprint', dur: 25, kind: 'focus', why: 'Energy is there — use it.' },
+        ]
+      : [
+          { label: '2 min stretch', dur: 2, kind: 'body', why: 'Body before mind.' },
+          { label: 'Pick one open tab — close the rest', dur: 5, kind: 'self', why: 'Reduce ambient overwhelm.' },
+          { label: '15-min focus on that one thing', dur: 15, kind: 'focus', why: 'Tiny win.' },
+        ];
 
   function apply() {
     // replace remaining blocks with these three
@@ -149,13 +168,18 @@ function RecoveryPlan({ blocks, onClose, onApply }) {
     onApply([...done, ...fresh], 'Gentle recovery · 3 tiny steps');
   }
 
+  const planHeadline = missedDays >= 5 ? 'One step. That\'s it.' : 'Start with something tiny.';
+  const planSub = missedDays >= 5
+    ? 'After a long break, finishing even one thing resets the signal. No pressure beyond that.'
+    : 'Forget the rest of the day. Three small things to get something moving.';
+
   return (
     <SheetShell title="Gentle recovery" onClose={onClose}>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
         <div>
-          <H size={26}>Start with something tiny.</H>
+          <H size={26}>{planHeadline}</H>
           <div style={{ fontSize: 13, color: 'rgba(31,27,22,0.6)', marginTop: 6, lineHeight: 1.45 }}>
-            Forget the rest of the day. Three small things to get something moving.
+            {planSub}
           </div>
         </div>
 
