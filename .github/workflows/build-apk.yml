@@ -34,6 +34,11 @@ jobs:
         run: npm ci
 
       - name: Vite build
+        env:
+          # Public Supabase client config from encrypted GitHub Actions secrets
+          # (anon key is public by design; data is secured by RLS). Never in the repo.
+          VITE_SUPABASE_URL:      ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
         run: npm run build
 
       - name: Capacitor sync (android)
