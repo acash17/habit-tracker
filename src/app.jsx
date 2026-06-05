@@ -1,5 +1,5 @@
 import React from 'react';
-import { usePersistedState } from './storage.js';
+import { usePersistedState, missedDayCount, setLastActiveDate, dayKey } from './storage.js';
 import { newId } from './utils.js';
 import { useAuth } from './use-auth.js';
 import { useCloudSync, deleteGoalCloud } from './cloud-sync.js';
@@ -120,6 +120,10 @@ function App() {
   const [libraryOpen, setLibraryOpen] = React.useState(false);
   const [energyOpen, setEnergyOpen] = React.useState(false);
   const [editingGoalId, setEditingGoalId] = React.useState(null);
+
+  // Compute missed days once on mount (before we mark today as active).
+  const [missedDays] = React.useState(() => missedDayCount());
+  React.useEffect(() => { setLastActiveDate(dayKey()); }, []);
 
   // Cloud sync — no-op when env vars / Supabase not set up.
   const { user } = useAuth();
@@ -302,6 +306,7 @@ function App() {
             onLife={() => setLifeOpen(true)}
             onVoice={() => setVoiceOpen(true)}
             onLibrary={() => setLibraryOpen(true)}
+            missedDays={missedDays}
           />
         )}
         {tab === 'goals' && (
@@ -354,6 +359,7 @@ function App() {
       {lifeOpen && (
         <LifeHappenedSheet
           blocks={blocks}
+          missedDays={missedDays}
           onClose={() => setLifeOpen(false)}
           onApply={applyDayChange}
         />

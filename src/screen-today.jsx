@@ -4,6 +4,7 @@ import { ScoreDrawer } from './planner.jsx';
 import { minToTime } from './data.jsx';
 import { blocksToICS, icsFilename } from './calendar.js';
 import { exportICS } from './calendar-export.js';
+import { usePersistedState, load, save, dayKey } from './storage.js';
 
 // Today screen — visual timeline + energy + bloom
 
@@ -134,38 +135,55 @@ function QuickChip({ icon, label, tone = 'ink', emphasis, onClick }) {
   );
 }
 
-function RecoveryCard({ onAccept }) {
+function RecoveryCard({ missedDays, onAccept, onDismiss }) {
+  const headline =
+    missedDays === 1 ? 'You missed yesterday.' :
+    missedDays === 2 ? 'You took two days off.' :
+    missedDays <= 6  ? `You've been away for ${missedDays} days.` :
+                       "It's been a while.";
+  const sub =
+    missedDays >= 5
+      ? 'No rush, no judgment. One tiny step is enough to get going.'
+      : 'Three tiny steps. No streak penalty. Just enough to feel something move.';
+
   return (
     <Card style={{
       padding: 16,
       background: 'linear-gradient(180deg, rgba(155,138,196,0.08), rgba(155,138,196,0.16))',
       border: '0.5px solid rgba(155,138,196,0.25)',
     }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
-        <div style={{ flex: 1 }}>
-          <div style={{ fontSize: 10.5, fontWeight: 600, letterSpacing: 0.8, textTransform: 'uppercase', color: 'var(--lav)', marginBottom: 4 }}>
-            Welcome back
-          </div>
-          <div style={{ fontFamily: 'var(--serif)', fontSize: 19, color: 'var(--ink)', letterSpacing: -0.25, lineHeight: 1.2 }}>
-            You took two days off. Want a soft restart?
-          </div>
-          <div style={{ fontSize: 12, color: 'rgba(31,27,22,0.6)', marginTop: 6, lineHeight: 1.45 }}>
-            Three tiny steps. No streak penalty. Just enough to feel something move.
-          </div>
+      <div style={{ flex: 1 }}>
+        <div style={{ fontSize: 10.5, fontWeight: 600, letterSpacing: 0.8, textTransform: 'uppercase', color: 'var(--lav)', marginBottom: 4 }}>
+          Welcome back
+        </div>
+        <div style={{ fontFamily: 'var(--serif)', fontSize: 19, color: 'var(--ink)', letterSpacing: -0.25, lineHeight: 1.2 }}>
+          {headline} Want a soft restart?
+        </div>
+        <div style={{ fontSize: 12, color: 'rgba(31,27,22,0.6)', marginTop: 6, lineHeight: 1.45 }}>
+          {sub}
         </div>
       </div>
       <div style={{ marginTop: 12, display: 'flex', gap: 8 }}>
         <Btn variant="terra" size="sm" full onClick={onAccept}>Soft restart</Btn>
-        <Btn variant="ghost" size="sm">I'm fine</Btn>
+        <Btn variant="ghost" size="sm" onClick={onDismiss}>I'm fine</Btn>
       </div>
     </Card>
   );
 }
 
-function TodayScreen({ blocks, setBlocks, onAdapt, openNewGoal, onRunningLong, onWhy, onLife, onVoice, onLibrary }) {
-  const [energy, setEnergy] = React.useState(3);
+function TodayScreen({ blocks, setBlocks, onAdapt, openNewGoal, onRunningLong, onWhy, onLife, onVoice, onLibrary, missedDays = 0 }) {
+  const [energy, setEnergy] = usePersistedState('energy', 3);
   const [expanded, setExpanded] = React.useState(null);
-  const [showRecovery, setShowRecovery] = React.useState(false);
+  const [recoveryDismissed, setRecoveryDismissed] = React.useState(
+    () => load('recoveryDismissed', null) === dayKey()
+  );
+
+  const showRecovery = missedDays >= 1 && !recoveryDismissed;
+
+  function dismissRecovery() {
+    save('recoveryDismissed', dayKey());
+    setRecoveryDismissed(true);
+  }
 
   const done = blocks.filter(b => b.done).length;
   const total = blocks.length;
@@ -220,7 +238,7 @@ function TodayScreen({ blocks, setBlocks, onAdapt, openNewGoal, onRunningLong, o
         <QuickChip icon="leaf" label="Life happened" tone="terra" emphasis onClick={onLife} />
       </div>
 
-      {showRecovery && <RecoveryCard onAccept={onLife} />}
+      {showRecovery && <RecoveryCard missedDays={missedDays} onAccept={onLife} onDismiss={dismissRecovery} />}
 
       {/* Today progress strip */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '0 4px' }}>
