@@ -9,8 +9,11 @@ name: Build Signed Android App Bundle (AAB)
 #   KEYSTORE_PASSWORD         — store password
 #   KEY_ALIAS                 — usually `cadence`
 #   KEY_PASSWORD              — key password (same as store unless you set different)
+#   VITE_SUPABASE_URL         — your Supabase project URL
+#   VITE_SUPABASE_ANON_KEY    — your Supabase anon/public key (public by design; RLS secures data)
 #
-# If any secret is missing the job skips signing and exits.
+# If the keystore secret is missing the job fails fast. If the VITE_SUPABASE_*
+# secrets are missing the app still builds but ships local-only (no sign-in/sync).
 
 on:
   push:
@@ -57,6 +60,11 @@ jobs:
           echo "Decoded keystore size: $(stat -c%s $RUNNER_TEMP/keys/cadence-release.keystore) bytes"
 
       - name: Vite build
+        env:
+          # Supabase client config (public anon key; security is via RLS).
+          # Stored as encrypted GitHub Actions secrets — never in the repo.
+          VITE_SUPABASE_URL:      ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
         run: npm run build
 
       - name: Capacitor sync (android)
