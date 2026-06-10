@@ -101,11 +101,33 @@ jarsigner -verify -verbose -certs android/app/build/outputs/bundle/release/app-r
    - Tick declarations
 2. **App content** (left nav) — fill these required items:
    - [ ] Privacy policy URL → `https://<your-vercel-url>/privacy.html`
-   - [ ] App access (no login required → tick "All functionality available without restrictions")
+   - [ ] App access → the core planner works without login, but sign-in unlocks
+         sync. Tick "All or some functionality is restricted" and provide a
+         **test Google account** (email + password) so reviewers can exercise
+         sign-in and sync.
    - [ ] Ads → "No, my app does not contain ads"
    - [ ] Content rating → fill questionnaire (all "no" → likely Everyone)
-   - [ ] Target audience → 13+ (safest default)
-   - [ ] Data safety → declare "No data collected" (we don't send anything to a server)
+   - [ ] Target audience → **18 and over** (must match the in-app 18+ consent gate)
+   - [ ] Data safety → ⚠️ do **NOT** declare "No data collected" — optional
+         Google sign-in + Supabase sync collects data, and a false Data safety
+         form violates Play's User Data policy (rejection/removal). Declare:
+     - **Personal info → Email address**: collected (optional), purpose: account
+       management, encrypted in transit, deletion mechanism available
+     - **Personal info → Name**: collected (optional), purpose: account
+       management/personalisation, encrypted in transit, deletable
+     - **Personal info → User IDs**: collected (optional), purpose: account
+       management, encrypted in transit, deletable
+     - **App activity → Other user-generated content**: goals/sub-habits and
+       completion history, collected (optional), purpose: app functionality,
+       encrypted in transit, deletable
+     - Everything else (location, contacts, photos, device IDs, health,
+       financial, browsing, advertising ID): **not collected**
+     - Data shared with third parties: **No** (Supabase acts as a service
+       provider/processor, which is not "sharing" under Play's definition)
+   - [ ] Account deletion URL → `https://<your-vercel-url>/delete-account.html`
+         (required for any app that supports account creation; in-app path is
+         Settings → "Erase all my data", which now deletes the auth account too —
+         run `supabase/migrations/006_account_deletion.sql` first)
 3. **Main store listing**
    - Short description (≤ 80 chars): see `docs/play-store/copy.md`
    - Full description (≤ 4000 chars): see `docs/play-store/copy.md`
