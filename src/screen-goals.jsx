@@ -505,6 +505,16 @@ function GoalsScreen({ goals, openNewGoal, openGoal, detailGoalId, setDetailGoal
   }
   function backToList() { setDetailGoalId(null); }
 
+  // Per-cadence counts for the filter pills. Computed unconditionally and BEFORE
+  // the detail-view early return — React requires the same hooks to run on every
+  // render, so a useMemo placed after the `if (inDetail) return` would be skipped
+  // when entering detail mode and crash with "rendered fewer hooks than expected".
+  const counts = React.useMemo(() => {
+    const c = { all: goals.length, daily: 0, weekly: 0, monthly: 0, oneoff: 0 };
+    for (const g of goals) c[g.cadence || 'oneoff']++;
+    return c;
+  }, [goals]);
+
   // Detail view
   if (inDetail) {
     const goal = goals[activeIdx];
@@ -523,11 +533,6 @@ function GoalsScreen({ goals, openNewGoal, openGoal, detailGoalId, setDetailGoal
   }
 
   // List view
-  const counts = React.useMemo(() => {
-    const c = { all: goals.length, daily: 0, weekly: 0, monthly: 0, oneoff: 0 };
-    for (const g of goals) c[g.cadence || 'oneoff']++;
-    return c;
-  }, [goals]);
   const visible = filter === 'all' ? goals : goals.filter(g => (g.cadence || 'oneoff') === filter);
 
   const FILTERS = [

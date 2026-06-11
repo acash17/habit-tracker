@@ -156,3 +156,39 @@ blocked (ERR_FAILED / 403 host_not_allowed). All cloud-dependent scenarios are
 validated up to the point of the correctly-formed request; completing real Google
 login requires a device with network and the Supabase redirect allowlist
 configured._
+
+---
+
+## Execution results (2026-06-11, production build, Playwright)
+
+Driven against the production `dist/` build at phone viewport (430×932).
+
+**Launch-blocker found and fixed:**
+- **Opening any goal's detail crashed the entire Goals screen** to the error
+  boundary ("Something hiccupped", React "Rendered fewer hooks than expected").
+  Cause: in `GoalsScreen` (`src/screen-goals.jsx`) the `counts` `useMemo` was
+  placed *after* the `if (inDetail) return <GoalDetail/>` early return, so tapping
+  a goal skipped that hook and violated the rules of hooks. This hit the normal
+  list→detail tap on every goal, including the seeded demo goals. **Fixed** by
+  moving the `useMemo` above the conditional return. Re-verified: all tabs, goal
+  detail, prev/next/back navigation, and end-to-end delete now run with zero
+  page errors.
+
+**Also fixed (minor):**
+- Habit-completion circle buttons in `src/screen-today.jsx` had no accessible
+  name — added `aria-label` + `aria-pressed`.
+- `privacy.html` did not link to Terms of Service / deletion page — added footer
+  links so all legal pages cross-link.
+
+**Passed:** goal create (on-device sequence generation) and persistence;
+XSS-in-title (rendered as inert text, not executed); 25-goal + 600-char stress
+(no crash); goal delete end-to-end; Today/Insights render with and without
+seeded data; Settings sections present; **data export** (valid JSON with
+`exportedAt`/`app`/`local`/`cloud`, includes seeded data); **local erase**
+(all `cadence:*` keys wiped); valid stored session auto-restores signed-in
+profile; consent gate gating + PKCE redirect (from prior runs); CSP, no source
+maps, self-hosted fonts, Android manifest hardening (from prior runs).
+
+**Open items for a device/manual pass:** complete real Google login (needs
+network + Supabase redirect allowlist); header still shows "Local" chip while
+signed in (cosmetic); custom-scheme `autoVerify` is a no-op by design (not a bug).

@@ -84,7 +84,11 @@ function TimelineBlock({ b, expanded, onToggle, onDone, allBlocks, onRunningLong
           </div>
 
           {/* complete button */}
-          <button onClick={(e) => { e.stopPropagation(); onDone(); }} style={{
+          <button
+            onClick={(e) => { e.stopPropagation(); onDone(); }}
+            aria-label={b.done ? `Mark ${b.label} not done` : `Mark ${b.label} done`}
+            aria-pressed={b.done}
+            style={{
             width: 28, height: 28, borderRadius: 999, padding: 0,
             background: b.done ? 'var(--sage)' : 'transparent',
             border: b.done ? 'none' : '1.5px solid rgba(31,27,22,0.2)',
