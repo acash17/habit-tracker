@@ -54,6 +54,7 @@ export default defineConfig({
         main: resolve(__dirname, 'index.html'),
         demo: resolve(__dirname, 'demo.html'),
         prototype: resolve(__dirname, 'prototype.html'),
+        finance: resolve(__dirname, 'finance.html'),
         privacy: resolve(__dirname, 'privacy.html'),
         terms: resolve(__dirname, 'terms.html'),
         deleteAccount: resolve(__dirname, 'delete-account.html'),
