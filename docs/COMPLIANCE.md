@@ -50,7 +50,7 @@ stays on-device (no LLM call in the shipped app).
 |---|---|
 | Access | Settings → "Download my data" (JSON incl. cloud goals, logs, profile, consents) |
 | Correction | Edit any data in-app |
-| Erasure | Settings → "Erase all my data" + public page `/delete-account.html` |
+| Erasure | Settings → "Erase all my data" deletes the **account itself** (`delete_my_account()` RPC, migration 006 — cascades to goals, logs, profile, consents, rhythm_cache, and the auth user/email) + public page `/delete-account.html` |
 | Withdraw consent | Same as erasure |
 | Grievance | Settings → "Grievance officer" (email) + privacy/terms |
 | Nominate | Stated in Privacy Policy (email to register a nominee) |
@@ -68,18 +68,29 @@ stays on-device (no LLM call in the shipped app).
 
 ## 6. Security (DPDP §8(5))
 
-- Transport: HTTPS everywhere.
+- Transport: HTTPS everywhere; Android manifest additionally sets
+  `usesCleartextTraffic=false`.
 - At rest: encrypted by Supabase (managed Postgres).
 - Isolation: Row-Level Security — every table scoped to `auth.uid()` (migrations
-  002, 005). Verified: 14+ RLS policies.
-- Auth: Google OAuth via PKCE; deep-link `cadence://auth-callback`.
+  002, 005, 006). Verified: 15+ RLS policies.
+- Auth: Google OAuth via PKCE **only**; deep-link `cadence://auth-callback`. The
+  legacy `#access_token` implicit-flow handler was removed — a forged deep link
+  from another app can no longer set a session (session-fixation defence).
+- WebView hardening: a build-time Content-Security-Policy on the app shell limits
+  network egress to the app + Supabase, blocks foreign scripts/objects.
+- No production source maps in the APK; release builds are minified.
+- Fonts are bundled in the app (no runtime requests to Google Fonts from the APK,
+  so no IP/user-agent leak to a third party on launch).
 - Android: `allowBackup=false` (auth tokens not auto-backed-up).
+- Known limitation: the Supabase session token lives in WebView `localStorage`
+  (app-sandboxed, not OS-encrypted). Acceptable for non-sensitive data; consider a
+  secure-storage adapter if data sensitivity grows.
 - **Not** end-to-end encrypted (provider can read rows) — stated honestly in policy.
 
 ## 7. Retention
 
 - Retained while the account is active and the purpose is served.
-- On erasure/withdrawal: cloud rows deleted immediately; local data cleared.
+- On erasure/withdrawal: account + all cloud rows deleted immediately (single transaction); local data cleared.
 - Email-requested deletion: completed within **30 days** (`/delete-account.html`).
 
 ## 8. Breach response  **[ACTION — process, keep ready]**

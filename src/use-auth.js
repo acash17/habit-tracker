@@ -117,19 +117,18 @@ export async function initNativeAuthHandler() {
     // signInWithOAuth — a malicious app that intercepts the same scheme can grab the
     // code but cannot exchange it without the verifier.
     //
-    // We still handle the legacy implicit-flow case (#access_token=...) for safety so
-    // we don't break if a deployment hasn't switched.
+    // Deliberately NO `#access_token=` handling: the client is PKCE-only, so a
+    // token-bearing callback can only come from another app firing a forged
+    // `cadence://` intent. Calling setSession() with attacker-supplied tokens
+    // would silently log the user into the attacker's account (session
+    // fixation), so such URLs are ignored.
     let code = null;
-    let access_token = null;
-    let refresh_token = null;
     try {
       const queryIdx = url.indexOf('?');
       const hashIdx  = url.indexOf('#');
       const query  = queryIdx >= 0 ? new URLSearchParams(url.slice(queryIdx + 1, hashIdx >= 0 ? hashIdx : undefined)) : new URLSearchParams();
       const hash   = hashIdx  >= 0 ? new URLSearchParams(url.slice(hashIdx + 1)) : new URLSearchParams();
-      code          = query.get('code');
-      access_token  = hash.get('access_token');
-      refresh_token = hash.get('refresh_token');
+      code = query.get('code');
       const errDesc = query.get('error_description') || hash.get('error_description') || query.get('error') || hash.get('error');
       if (errDesc) {
         console.warn('[auth] OAuth error:', errDesc);
@@ -144,14 +143,6 @@ export async function initNativeAuthHandler() {
       const { error } = await supabase.auth.exchangeCodeForSession(code);
       if (error) {
         console.warn('[auth] exchangeCodeForSession failed:', error.message);
-        toast(`Sign-in failed · ${error.message.slice(0, 60)}`);
-      } else {
-        toast('Signed in');
-      }
-    } else if (access_token && refresh_token) {
-      const { error } = await supabase.auth.setSession({ access_token, refresh_token });
-      if (error) {
-        console.warn('[auth] setSession failed:', error.message);
         toast(`Sign-in failed · ${error.message.slice(0, 60)}`);
       } else {
         toast('Signed in');

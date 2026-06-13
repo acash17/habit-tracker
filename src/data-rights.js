@@ -59,16 +59,27 @@ export async function exportMyData() {
   toast('Your data exported');
 }
 
-// RIGHT TO ERASURE — delete all cloud rows (if signed in) + wipe local, then sign out.
+// RIGHT TO ERASURE — delete the cloud ACCOUNT (if signed in) + wipe local.
+// Play's account-deletion policy and DPDP §12 require removing the account
+// itself (auth.users row holds the email), not just its data rows. The
+// delete_my_account() RPC (006_account_deletion.sql) does that in one
+// transaction; FK cascades remove goals, habit_logs, profiles, consents and
+// rhythm_cache with it.
 export async function eraseMyData() {
   if (cloudEnabled) {
     const { data: { user } } = await supabase.auth.getUser();
     if (user) {
-      // habit_logs + goals cascade on goal delete, but clear explicitly to be safe.
-      await supabase.from('habit_logs').delete().eq('user_id', user.id);
-      await supabase.from('goals').delete().eq('user_id', user.id);
-      await supabase.from('consents').delete().eq('user_id', user.id);
-      await supabase.from('profiles').delete().eq('user_id', user.id);
+      const { error } = await supabase.rpc('delete_my_account');
+      if (error) {
+        // Migration not applied yet — fall back to row-level deletes so the
+        // user is never left with LESS erasure than before. (rhythm_cache and
+        // the auth user can't be removed this way; apply 006 to fix that.)
+        console.warn('[data-rights] delete_my_account failed, falling back:', error.message);
+        await supabase.from('habit_logs').delete().eq('user_id', user.id);
+        await supabase.from('goals').delete().eq('user_id', user.id);
+        await supabase.from('consents').delete().eq('user_id', user.id);
+        await supabase.from('profiles').delete().eq('user_id', user.id);
+      }
       await supabase.auth.signOut();
     }
   }
