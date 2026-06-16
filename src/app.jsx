@@ -93,7 +93,7 @@ function CadenceHeader() {
           <circle cx="12" cy="12" r="10" fill="none" stroke="var(--terra)" strokeWidth="1.5"/>
           <path d="M12 6v6l4 2.5" stroke="var(--terra)" strokeWidth="1.5" strokeLinecap="round" fill="none"/>
         </svg>
-        Cadence
+        Pacely
       </div>
       <div style={{ pointerEvents: 'auto' }}>
         <Chip tone="paper" size="sm">

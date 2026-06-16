@@ -22,7 +22,7 @@ export async function exportICS(ics, filename = 'cadence.ics') {
       const { uri } = await Filesystem.getUri({ path: filename, directory: Directory.Cache });
       await Share.share({
         title: 'Add to calendar',
-        text: 'Cadence schedule',
+        text: 'Pacely schedule',
         url: uri,
         dialogTitle: 'Add to calendar',
       });

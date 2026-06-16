@@ -1,13 +1,13 @@
 import React from 'react';
 
-// Guided product tour overlay. Activated via ?tour=1 on Cadence.html
+// Guided product tour overlay. Activated via ?tour=1 on Pacely.html
 // Steps walk investors through the key value props in 60-90 seconds.
 
 const TOUR_STEPS = [
   {
     target: null, // intro modal
     title: 'A 60-second tour.',
-    body: "Cadence turns goals into ordered micro-sequences, reshapes the day in real time, and never punishes a missed day. Let's walk through it.",
+    body: "Pacely turns goals into ordered micro-sequences, reshapes the day in real time, and never punishes a missed day. Let's walk through it.",
     cta: 'Start tour',
     placement: 'center',
   },
@@ -41,7 +41,7 @@ const TOUR_STEPS = [
   {
     target: null,
     title: 'And the AI is real.',
-    body: 'Speak or type any goal — gym, deadline, novel, anything. Cadence generates 5–7 ordered micro-steps with realistic time estimates and a rationale for each. Try it with the + button.',
+    body: 'Speak or type any goal — gym, deadline, novel, anything. Pacely generates 5–7 ordered micro-steps with realistic time estimates and a rationale for each. Try it with the + button.',
     placement: 'center',
     action: 'go-today',
   },

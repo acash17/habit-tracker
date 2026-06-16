@@ -125,7 +125,7 @@ function ProfileCard() {
           <span>{busy ? 'Redirecting…' : 'Continue with Google'}</span>
         </button>
         <div style={{ fontSize: 10.5, color: 'rgba(31,27,22,0.5)', lineHeight: 1.5, marginTop: 2 }}>
-          By continuing you consent to Cadence storing your goals and completion history to
+          By continuing you consent to Pacely storing your goals and completion history to
           provide sync, per our{' '}
           <a href="/privacy.html" target="_blank" rel="noreferrer" style={{ color: 'var(--terra)' }}>Privacy Policy</a>
           {' '}(DPDP Act 2023). Withdraw anytime via “Erase all my data”.
@@ -294,7 +294,7 @@ function SettingsScreen({ onOpenEnergy, onReplay }) {
       <Section header="Your data & privacy">
         <Row
           title="Download my data"
-          sub="Export everything Cadence holds about you as JSON (right to access)."
+          sub="Export everything Pacely holds about you as JSON (right to access)."
           control={<button onClick={() => exportMyData().catch(() => toast('Export failed'))} style={{
             background: 'transparent', border: '0.5px solid rgba(31,27,22,0.15)',
             padding: '7px 12px', borderRadius: 999, fontFamily: 'inherit', fontSize: 12,
@@ -308,7 +308,7 @@ function SettingsScreen({ onOpenEnergy, onReplay }) {
         />
         <Row
           title="Terms of service"
-          sub="The terms you agree to when using Cadence."
+          sub="The terms you agree to when using Pacely."
           control={<a href="/terms.html" target="_blank" rel="noreferrer" style={{ padding: 4, display: 'inline-flex' }}><Icon name="chev" size={16} color="rgba(31,27,22,0.3)"/></a>}
         />
         <Row
@@ -331,7 +331,7 @@ function SettingsScreen({ onOpenEnergy, onReplay }) {
         fontSize: 11.5, color: 'rgba(31,27,22,0.45)', textAlign: 'center',
         padding: '8px 24px', lineHeight: 1.5, letterSpacing: -0.05,
       }}>
-        Cadence v0.4 · Local-first by default<br/>
+        Pacely v0.5.0 · Local-first by default<br/>
         Built for real brains and real life.
       </div>
     </div>

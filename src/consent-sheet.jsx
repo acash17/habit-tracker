@@ -24,7 +24,7 @@ function ConsentSheet({ onClose, onAgree }) {
     <SheetShell title="Before you sign in" onClose={onClose}>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
         <div style={{ fontSize: 14.5, color: 'rgba(31,27,22,0.78)', lineHeight: 1.55 }}>
-          To sync across your devices, Cadence collects your <strong>name and email</strong> (via
+          To sync across your devices, Pacely collects your <strong>name and email</strong> (via
           Google), your <strong>goals</strong>, and your <strong>completion history</strong> — only to
           create and sync your sequences and show your rhythm. We <strong>never sell your data</strong>,
           and you can export or erase everything anytime in Settings.
@@ -37,14 +37,14 @@ function ConsentSheet({ onClose, onAgree }) {
             <a href="/privacy.html" target="_blank" rel="noreferrer" style={{ color: 'var(--terra)' }}>Privacy Policy</a>
             {' '}and{' '}
             <a href="/terms.html" target="_blank" rel="noreferrer" style={{ color: 'var(--terra)' }}>Terms of Service</a>,
-            and consent to Cadence storing my data to provide sync (DPDP Act 2023).
+            and consent to Pacely storing my data to provide sync (DPDP Act 2023).
           </span>
         </label>
 
         <label style={checkboxRow}>
           <input type="checkbox" checked={age} onChange={e => setAge(e.target.checked)} style={checkboxInput} />
           <span style={checkboxText}>
-            I confirm I am <strong>18 years of age or older</strong>. Cadence is intended only for adults.
+            I confirm I am <strong>18 years of age or older</strong>. Pacely is intended only for adults.
           </span>
         </label>
 

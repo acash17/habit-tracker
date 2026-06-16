@@ -377,7 +377,7 @@ function GoalDetail({ goal, allGoals, onBack, onPrev, onNext, onUpdate, onDelete
       </Section>
 
       {/* cadence */}
-      <Section label="Cadence">
+      <Section label="Frequency">
         <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
           {cadenceList.map(([k, label]) => {
             const active = (goal.cadence || 'oneoff') === k;
