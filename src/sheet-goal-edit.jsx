@@ -213,7 +213,7 @@ function GoalEditSheet({ goal, onClose, onSave, onDelete }) {
         {/* Cadence */}
         <div>
           <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: 0.6, textTransform: 'uppercase', color: 'rgba(31,27,22,0.5)', marginBottom: 8 }}>
-            Cadence
+            Frequency
           </div>
           <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
             {CADENCES.map(([k, label]) => {

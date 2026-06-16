@@ -67,7 +67,7 @@ function wrap(events) {
   return [
     'BEGIN:VCALENDAR',
     'VERSION:2.0',
-    'PRODID:-//Cadence//Habit Planner//EN',
+    'PRODID:-//Pacely//Habit Planner//EN',
     'CALSCALE:GREGORIAN',
     'METHOD:PUBLISH',
     ...events,
@@ -91,7 +91,7 @@ export function blocksToICS(blocks, date = new Date()) {
     uidSeed: b.id || `block${i}`,
     start: atMinute(b.startMin, date),
     durMin: b.dur || 30,
-    summary: b.label || 'Cadence block',
+    summary: b.label || 'Pacely block',
     description: [b.goalTitle, b.why].filter(Boolean).join(' — '),
     alarmMin: 5,
   }));
@@ -110,7 +110,7 @@ export function goalToICS(goal, opts = {}) {
     uidSeed: goal.id || 'goal',
     start,
     durMin: totalMin,
-    summary: goal.title || 'Cadence goal',
+    summary: goal.title || 'Pacely goal',
     description: steps,
     rrule,
     alarmMin: 10,

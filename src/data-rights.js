@@ -25,7 +25,7 @@ function collectLocal() {
 export async function exportMyData() {
   const payload = {
     exportedAt: new Date().toISOString(),
-    app: 'Cadence',
+    app: 'Pacely',
     local: collectLocal(),
     cloud: null,
   };

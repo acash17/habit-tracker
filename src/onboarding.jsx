@@ -318,7 +318,7 @@ function WinScreen({ onStart }) {
         Start whenever feels right. The bloom only grows — even on the days you don't.
       </div>
       <div style={{ width: '100%', marginTop: 16, paddingBottom: 16 }}>
-        <Btn variant="terra" size="lg" full onClick={onStart}>Start using Cadence</Btn>
+        <Btn variant="terra" size="lg" full onClick={onStart}>Start using Pacely</Btn>
       </div>
     </div>
   );

@@ -210,7 +210,7 @@ function InputStage({ goal, setGoal, hours, setHours, energy, setEnergy, deadlin
 
       <div>
         <div style={{ fontSize: 12, fontWeight: 600, color: 'rgba(31,27,22,0.55)', marginBottom: 10, letterSpacing: 0.4, textTransform: 'uppercase' }}>
-          Cadence
+          Frequency
         </div>
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
           {[['daily','Daily'], ['weekly','Weekly'], ['monthly','Monthly'], ['oneoff','One-off project']].map(([k,l]) => (
