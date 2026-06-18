@@ -19,6 +19,7 @@ import { RunningLongSheet, WhyOrderSheet } from './planner.jsx';
 import { OnboardingFlow } from './onboarding.jsx';
 import { TourOverlay } from './tour.jsx';
 import { ConsentGate } from './consent-sheet.jsx';
+import { ProfileGate } from './profile-chat.jsx';
 
 // Cadence — app shell (with onboarding gate + all sheets wired)
 
@@ -387,6 +388,9 @@ function App() {
 
       {/* DPDP consent gate — intercepts sign-in CTAs (cadence-request-signin) */}
       <ConsentGate />
+
+      {/* Profile chat — collects name/email/phone once after sign-in (?profile=1 to force) */}
+      <ProfileGate />
 
       {/* Onboarding gate */}
       {onboarding && <OnboardingFlow onDone={finishOnboarding}/>}
