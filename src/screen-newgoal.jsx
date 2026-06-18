@@ -1,7 +1,8 @@
 import React from 'react';
 import { Icon, Bloom, Chip, Btn, Card, H } from './ui.jsx';
+import { generateSequence } from './sequence-gen.js';
 
-// New Goal sheet — the showcase: goal + constraints → AI-generated micro-sequence
+// New Goal sheet — the showcase: goal + constraints → on-device micro-sequence
 
 function ConstraintChip({ active, children, onClick }) {
   return (
@@ -27,44 +28,14 @@ function NewGoalSheet({ onClose, onCommit, onOpenLibrary }) {
   const [sequence, setSequence] = React.useState(null);
   const [err, setErr] = React.useState(null);
 
-  async function generate() {
+  function generate() {
     setStage('thinking');
     setErr(null);
-    const prompt = `You are a calm planning assistant for someone with ADHD-flavored attention. Break this goal into an ordered sequence of tiny, concrete micro-steps with realistic minute estimates and a one-line rationale each.
-
-Goal: ${goal}
-Available time today: ${hours} hours
-Energy: ${energy}
-Deadline: ${deadline}
-
-Constraints:
-- 5 to 7 steps total
-- First step must be tiny (<= 5 minutes) to reduce initiation cost
-- Mix focus and lighter steps to avoid back-to-back fatigue
-- Include one rest or movement break if total > 60 min
-- Each rationale should be under 12 words, plain language, no shame
-
-Respond ONLY with raw JSON in this exact shape:
-{"steps":[{"label":"...","est":12,"kind":"focus|rest|body|self|reading","why":"..."}]}`;
-    try {
-      const raw = await window.claude.complete(prompt);
-      const m = raw.match(/\{[\s\S]*\}/);
-      const parsed = JSON.parse(m ? m[0] : raw);
-      if (!parsed.steps || !parsed.steps.length) throw new Error('no steps');
-      setSequence(parsed.steps);
-      setStage('result');
-    } catch (e) {
-      // graceful fallback so prototype always works
-      setSequence([
-        { label: 'Open the project folder', est: 2, kind: 'self', why: 'Tiny first step.' },
-        { label: 'List the 5 sections still missing copy', est: 10, kind: 'focus', why: 'Visible scope reduces overwhelm.' },
-        { label: 'Draft hero copy only', est: 25, kind: 'focus', why: 'Hardest piece while energy is fresh.' },
-        { label: 'Stand up + water', est: 5, kind: 'rest', why: 'Protects focus for the next block.' },
-        { label: 'Wire one project case study', est: 30, kind: 'focus', why: 'Concrete win to end on.' },
-        { label: 'Push to staging URL', est: 8, kind: 'self', why: 'Ship, then iterate tomorrow.' },
-      ]);
-      setStage('result');
-    }
+    // Fully on-device: derives goal-relevant steps from the goal text + your time
+    // and energy. No network, no AI service. The short delay keeps the
+    // "thinking…" beat so the result doesn't pop in jarringly.
+    const steps = generateSequence(goal, { hours, energy, deadline });
+    setTimeout(() => { setSequence(steps); setStage('result'); }, 600);
   }
 
   return (
