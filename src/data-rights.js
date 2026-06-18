@@ -66,21 +66,32 @@ export async function exportMyData() {
 // transaction; FK cascades remove goals, habit_logs, profiles, consents and
 // rhythm_cache with it.
 export async function eraseMyData() {
+  // The local wipe must ALWAYS happen — even if the cloud step fails or the
+  // device is offline. So the cloud deletion is best-effort inside try/catch,
+  // and clearAllLocal() runs unconditionally afterwards. We also read the user
+  // from getSession() (local, no network round-trip) rather than getUser(),
+  // which would throw when unreachable and skip the local erase entirely.
   if (cloudEnabled) {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (user) {
-      const { error } = await supabase.rpc('delete_my_account');
-      if (error) {
-        // Migration not applied yet — fall back to row-level deletes so the
-        // user is never left with LESS erasure than before. (rhythm_cache and
-        // the auth user can't be removed this way; apply 006 to fix that.)
-        console.warn('[data-rights] delete_my_account failed, falling back:', error.message);
-        await supabase.from('habit_logs').delete().eq('user_id', user.id);
-        await supabase.from('goals').delete().eq('user_id', user.id);
-        await supabase.from('consents').delete().eq('user_id', user.id);
-        await supabase.from('profiles').delete().eq('user_id', user.id);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const user = session?.user;
+      if (user) {
+        const { error } = await supabase.rpc('delete_my_account');
+        if (error) {
+          // Migration not applied yet — fall back to row-level deletes so the
+          // user is never left with LESS erasure than before. (rhythm_cache and
+          // the auth user can't be removed this way; apply 006 to fix that.)
+          console.warn('[data-rights] delete_my_account failed, falling back:', error.message);
+          await supabase.from('habit_logs').delete().eq('user_id', user.id);
+          await supabase.from('goals').delete().eq('user_id', user.id);
+          await supabase.from('consents').delete().eq('user_id', user.id);
+          await supabase.from('profiles').delete().eq('user_id', user.id);
+        }
+        await supabase.auth.signOut();
       }
-      await supabase.auth.signOut();
+    } catch (e) {
+      // Cloud unreachable — proceed with the local wipe regardless.
+      console.warn('[data-rights] cloud erase failed, wiping local anyway:', e?.message || e);
     }
   }
   clearAllLocal();
