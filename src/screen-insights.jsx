@@ -1,6 +1,7 @@
 import React from 'react';
 import { INSIGHTS } from './data.jsx';
 import { Icon, Bloom, Card, H } from './ui.jsx';
+import { analyzeBreakpoints } from './breakpoints.js';
 import { cellColor } from './palette.js';
 import { useAuth } from './use-auth.js';
 import { cloudEnabled } from './supabase.js';
@@ -211,7 +212,65 @@ function RhythmSection() {
   return <RhythmPanel matrix={state.matrix} stats={state.stats} />;
 }
 
-function InsightsScreen() {
+// ── "Where your sequences stall" — chain break-point insight ─────────────────
+// Computed from local per-step data, so it works offline (no cloud needed).
+function StallDots({ total, stallIndex }) {
+  return (
+    <div style={{ display: 'flex', gap: 4, marginTop: 8, flexWrap: 'wrap' }}>
+      {Array.from({ length: total }).map((_, i) => {
+        const done = i < stallIndex;
+        const isStall = i === stallIndex;
+        return (
+          <div key={i} title={`Step ${i + 1}`} style={{
+            width: 14, height: 14, borderRadius: 999,
+            background: done ? 'var(--sage)' : isStall ? 'transparent' : 'rgba(31,27,22,0.08)',
+            border: isStall ? '2px solid var(--terra)' : 'none',
+            boxShadow: isStall ? '0 0 0 3px rgba(194,106,56,0.15)' : 'none',
+          }} />
+        );
+      })}
+    </div>
+  );
+}
+
+function BreakpointInsight({ goals }) {
+  const analysis = React.useMemo(() => analyzeBreakpoints(goals || []), [goals]);
+  if (!analysis.hasSignal) return null; // nothing stalled → don't nag
+
+  const { stalled, commonStep, commonCount } = analysis;
+  const headline = commonStep && commonCount >= 2
+    ? `Your sequences tend to stall at step ${commonStep}.`
+    : 'Here’s where your sequences are paused right now.';
+
+  return (
+    <Card style={{ padding: 18 }}>
+      <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: 1.1, textTransform: 'uppercase', color: 'rgba(31,27,22,0.5)', marginBottom: 6 }}>
+        Where momentum dips
+      </div>
+      <div style={{ fontFamily: 'var(--serif)', fontSize: 20, color: 'var(--ink)', letterSpacing: -0.3, lineHeight: 1.2 }}>
+        {headline}
+      </div>
+      <div style={{ fontSize: 13, color: 'rgba(31,27,22,0.6)', marginTop: 6, lineHeight: 1.5 }}>
+        Not a failure — usually the next step just needs to be smaller. Tap a goal to shrink it.
+      </div>
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginTop: 14 }}>
+        {stalled.slice(0, 4).map(g => (
+          <div key={g.goalId} style={{ padding: 12, background: 'var(--paper-2)', borderRadius: 12 }}>
+            <div style={{ fontSize: 14, color: 'var(--ink)', fontWeight: 500 }}>{g.title}</div>
+            <div style={{ fontSize: 12.5, color: 'rgba(31,27,22,0.6)', marginTop: 3 }}>
+              Stuck at step {g.stallIndex + 1}: <span style={{ color: 'var(--terra)', fontWeight: 500 }}>{g.stallStep}</span>
+              {g.stallEst ? ` · ${g.stallEst}m` : ''} — {g.doneBefore}/{g.total} done
+            </div>
+            <StallDots total={g.total} stallIndex={g.stallIndex} />
+          </div>
+        ))}
+      </div>
+    </Card>
+  );
+}
+
+function InsightsScreen({ goals }) {
   // Keep one evergreen, effort-over-streaks message alongside the real rhythm.
   const evergreen = INSIGHTS.find(i => i.kind === 'celebrate') || INSIGHTS[0];
   return (
@@ -230,6 +289,8 @@ function InsightsScreen() {
         </div>
       </div>
 
+      <BreakpointInsight goals={goals} />
+
       <RhythmSection />
 
       {evergreen && (
@@ -243,4 +304,4 @@ function InsightsScreen() {
 
 Object.assign(window, { InsightsScreen });
 
-export { InsightCard, RhythmPanel, InsightsScreen };
+export { InsightCard, RhythmPanel, BreakpointInsight, InsightsScreen };

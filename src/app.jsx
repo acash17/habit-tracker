@@ -321,7 +321,7 @@ function App() {
             }}
           />
         )}
-        {tab === 'insights' && <InsightsScreen />}
+        {tab === 'insights' && <InsightsScreen goals={goals} />}
         {tab === 'settings' && <SettingsScreen onOpenEnergy={() => setEnergyOpen(true)} onReplay={replayOnboarding}/>}
       </div>
 
