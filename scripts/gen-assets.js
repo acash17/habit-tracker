@@ -41,21 +41,13 @@ function splashSvg(bgColor, inkColor) {
   return `
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2732 2732">
   <rect width="2732" height="2732" fill="${bgColor}"/>
-  <g transform="translate(1366 1180)">
-    <g transform="scale(2.4)">
-      <path d="
-        M 220 -200
-        A 240 260 0 1 0 220 200
-        L 160 130
-        A 170 190 0 1 1 160 -130
-        Z
-      " fill="${inkColor}"/>
-    </g>
-  </g>
+  <text x="1366" y="1500" text-anchor="middle"
+    font-family="Georgia, 'Times New Roman', serif" font-style="italic" font-weight="700"
+    font-size="1040" fill="${inkColor}">P</text>
   <g transform="translate(1366 2090)">
     <text x="0" y="0" text-anchor="middle"
       font-family="Georgia, serif" font-size="120" fill="${inkColor}"
-      font-style="italic" opacity="0.85">Cadence</text>
+      font-style="italic" opacity="0.85">Pacely</text>
   </g>
 </svg>`;
 }

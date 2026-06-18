@@ -21,16 +21,10 @@
     <circle cx="668" cy="780" r="42" fill="#8E7CB8"/>
   </g>
 
-  <!-- Cadence "C" — Instrument Serif feel via custom path: open arc -->
-  <g transform="translate(512 420)">
-    <path d="
-      M 220 -200
-      A 240 260 0 1 0 220 200
-      L 160 130
-      A 170 190 0 1 1 160 -130
-      Z
-    " fill="url(#terraGrad)"/>
-  </g>
+  <!-- Pacely "P" — serif italic, matches the wordmark -->
+  <text x="496" y="600" text-anchor="middle"
+    font-family="Georgia, 'Times New Roman', serif" font-style="italic" font-weight="700"
+    font-size="560" fill="url(#terraGrad)">P</text>
 
   <!-- Subtle ink underline -->
   <rect x="356" y="868" width="312" height="3" rx="1.5" fill="#1F1B16" opacity="0.18"/>
