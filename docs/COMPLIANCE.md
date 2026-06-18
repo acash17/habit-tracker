@@ -20,13 +20,14 @@ handling.
 | Data | Source | Purpose | Legal basis |
 |---|---|---|---|
 | Account ID + email | Google sign-in | Account, sync | Consent |
-| Name (display) | Google sign-in | Personalisation | Consent |
+| Name (first/last) | Google sign-in + profile chat | Personalisation, account | Consent |
+| Phone number | Profile chat (user input) | Account contact | Consent |
 | Goals / sub-habits | User input | Core feature | Consent |
 | Completion history (+ timestamps) | User action | Heatmap, rhythm insights | Consent |
 | Profile / settings / timezone | User | Feature behaviour | Consent |
 | Consent record | Consent gate | Proof of consent | Legal obligation |
 
-**Not collected:** phone, precise location, contacts, photos, files, advertising ID,
+**Not collected:** precise location, contacts, photos, files, advertising ID,
 device identifiers. **No analytics/ads SDKs.** Goal text for sequence generation
 stays on-device (no LLM call in the shipped app).
 
@@ -108,8 +109,9 @@ log and user-notification templates). Summary:
 
 ## 9. Google Play Data Safety — declaration mapping
 
-- Collects: Name, Email (Personal info); Goals + completion history (App activity →
-  other user-generated content). **Optional** (works local-first without sign-in).
+- Collects: Name, Email, **Phone number** (Personal info); Goals + completion history
+  (App activity → other user-generated content). **Optional** (works local-first
+  without sign-in; phone is collected in the post-sign-in profile chat).
 - Shared with third parties: **No.** Sold: **No.** Used for ads: **No.**
 - Encrypted in transit: **Yes.** User can request deletion: **Yes** → `/delete-account.html`.
 

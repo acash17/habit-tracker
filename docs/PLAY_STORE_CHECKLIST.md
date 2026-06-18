@@ -117,6 +117,8 @@ jarsigner -verify -verbose -certs android/app/build/outputs/bundle/release/app-r
        management/personalisation, encrypted in transit, deletable
      - **Personal info → User IDs**: collected (optional), purpose: account
        management, encrypted in transit, deletable
+     - **Personal info → Phone number**: collected (optional), purpose: account
+       management, encrypted in transit, deletable (collected in the profile chat)
      - **App activity → Other user-generated content**: goals/sub-habits and
        completion history, collected (optional), purpose: app functionality,
        encrypted in transit, deletable

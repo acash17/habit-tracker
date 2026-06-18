@@ -24,8 +24,9 @@ function ConsentSheet({ onClose, onAgree }) {
     <SheetShell title="Before you sign in" onClose={onClose}>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
         <div style={{ fontSize: 14.5, color: 'rgba(31,27,22,0.78)', lineHeight: 1.55 }}>
-          To sync across your devices, Pacely collects your <strong>name and email</strong> (via
-          Google), your <strong>goals</strong>, and your <strong>completion history</strong> — only to
+          To sync across your devices, Pacely collects your <strong>name, email and phone
+          number</strong> (name and email via Google; phone you provide), your <strong>goals</strong>,
+          and your <strong>completion history</strong> — only to
           create and sync your sequences and show your rhythm. We <strong>never sell your data</strong>,
           and you can export or erase everything anytime in Settings.
         </div>
