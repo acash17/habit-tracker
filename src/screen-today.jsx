@@ -4,8 +4,33 @@ import { ScoreDrawer } from './planner.jsx';
 import { minToTime } from './data.jsx';
 import { blocksToICS, icsFilename } from './calendar.js';
 import { exportICS } from './calendar-export.js';
+import { useAuth } from './use-auth.js';
+import { loadProfile } from './profile.js';
 
 // Today screen — visual timeline + energy + bloom
+
+// Personalised, time-aware greeting helpers.
+function timeGreeting(d = new Date()) {
+  const h = d.getHours();
+  if (h < 12) return 'Good morning';
+  if (h < 17) return 'Good afternoon';
+  return 'Good evening';
+}
+const WEEKDAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+function todayLabel(d = new Date()) {
+  return `${WEEKDAYS[d.getDay()]} · ${MONTHS[d.getMonth()]} ${d.getDate()}`;
+}
+// First name from (in order): the profile chat, Google account metadata, email.
+function firstNameOf(user, profile) {
+  const fromProfile = (profile?.first_name || '').trim();
+  if (fromProfile) return fromProfile;
+  const meta = user?.user_metadata || {};
+  const full = (meta.full_name || meta.name || '').trim();
+  if (full) return full.split(/\s+/)[0];
+  if (user?.email) return user.email.split('@')[0];
+  return '';
+}
 
 function EnergyDots({ value, onChange }) {
   return (
@@ -167,6 +192,9 @@ function RecoveryCard({ onAccept }) {
 }
 
 function TodayScreen({ blocks, setBlocks, onAdapt, openNewGoal, onRunningLong, onWhy, onLife, onVoice, onLibrary }) {
+  const { user } = useAuth();
+  const greeting = `${timeGreeting()}${firstNameOf(user, loadProfile()) ? `, ${firstNameOf(user, loadProfile())}` : ''}.`;
+  const dateLabel = todayLabel();
   const [energy, setEnergy] = React.useState(3);
   const [expanded, setExpanded] = React.useState(null);
   const [showRecovery, setShowRecovery] = React.useState(false);
@@ -184,14 +212,13 @@ function TodayScreen({ blocks, setBlocks, onAdapt, openNewGoal, onRunningLong, o
         <div style={{
           fontSize: 11, fontWeight: 600, letterSpacing: 1.2,
           color: 'rgba(31,27,22,0.5)', textTransform: 'uppercase', marginBottom: 6,
-        }}>Saturday · May 23</div>
-        <H size={32}>Good morning, Alex.</H>
+        }}>{dateLabel}</div>
+        <H size={32}>{greeting}</H>
         <div style={{
           marginTop: 6, fontSize: 14, color: 'rgba(31,27,22,0.62)',
           lineHeight: 1.4, textWrap: 'pretty',
         }}>
-          Today’s sequence is built around two focus blocks and a body break.
-          You logged a 3 yesterday — I kept things gentle.
+          Your day, in gentle order. Start anywhere — I’ll rebalance the rest.
         </div>
       </div>
 
