@@ -23,6 +23,8 @@ function GoalCard({ g, onOpen, log }) {
   const mins = g.sequence.reduce((s, x) => s + x.est, 0);
   const c = paletteHex(g.color);
   const cad = g.cadence || 'oneoff';
+  const complete = total > 0 && done === total;   // all sub-habits done
+  const started  = done > 0;
   return (
     <Card onClick={onOpen} style={{ padding: 18, cursor: 'pointer' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 10 }}>
@@ -39,14 +41,31 @@ function GoalCard({ g, onOpen, log }) {
               {CADENCE_LABEL[cad]}{g.recurring ? ' · ↻' : ''}
             </div>
           </div>
-          <div style={{
-            fontFamily: 'var(--serif)', fontSize: 20, color: 'var(--ink)',
-            lineHeight: 1.15, letterSpacing: -0.3, marginBottom: 10,
-          }}>{g.title}</div>
-          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: 6, marginBottom: 10 }}>
+            {complete && <Icon name="check" size={16} color="var(--sage)" />}
+            <div style={{
+              fontFamily: 'var(--serif)', fontSize: 20,
+              color: complete ? 'rgba(31,27,22,0.55)' : 'var(--ink)',
+              lineHeight: 1.15, letterSpacing: -0.3,
+            }}>{g.title}</div>
+          </div>
+          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', alignItems: 'center' }}>
             <Chip tone="paper">{total} sub-habit{total === 1 ? '' : 's'}</Chip>
             <Chip tone="paper">{mins}m total</Chip>
-            <Chip tone="sage">{done}/{total} done</Chip>
+            {/* Clear completion status so users know what's done vs not */}
+            {complete ? (
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 11, fontWeight: 600, padding: '3px 9px', borderRadius: 999, background: 'var(--sage)', color: '#fff' }}>
+                <Icon name="check" size={12} color="#fff" /> Done
+              </span>
+            ) : started ? (
+              <span style={{ fontSize: 11, fontWeight: 600, padding: '3px 9px', borderRadius: 999, background: 'rgba(194,106,56,0.12)', color: 'var(--terra)' }}>
+                In progress · {done}/{total}
+              </span>
+            ) : (
+              <span style={{ fontSize: 11, fontWeight: 600, padding: '3px 9px', borderRadius: 999, background: 'rgba(31,27,22,0.06)', color: 'rgba(31,27,22,0.55)' }}>
+                Not started
+              </span>
+            )}
           </div>
         </div>
         <Icon name="chev" size={18} color="rgba(31,27,22,0.3)"/>
@@ -509,9 +528,10 @@ function GoalsScreen({ goals, openNewGoal, openGoal, detailGoalId, setDetailGoal
   // the detail-view early return — React requires the same hooks to run on every
   // render, so a useMemo placed after the `if (inDetail) return` would be skipped
   // when entering detail mode and crash with "rendered fewer hooks than expected".
+  const isComplete = (g) => (g.sequence?.length || 0) > 0 && g.sequence.every(s => s.done);
   const counts = React.useMemo(() => {
-    const c = { all: goals.length, daily: 0, weekly: 0, monthly: 0, oneoff: 0 };
-    for (const g of goals) c[g.cadence || 'oneoff']++;
+    const c = { all: goals.length, daily: 0, weekly: 0, monthly: 0, oneoff: 0, completed: 0 };
+    for (const g of goals) { c[g.cadence || 'oneoff']++; if (isComplete(g)) c.completed++; }
     return c;
   }, [goals]);
 
@@ -533,14 +553,18 @@ function GoalsScreen({ goals, openNewGoal, openGoal, detailGoalId, setDetailGoal
   }
 
   // List view
-  const visible = filter === 'all' ? goals : goals.filter(g => (g.cadence || 'oneoff') === filter);
+  const visible =
+    filter === 'all'       ? goals :
+    filter === 'completed' ? goals.filter(isComplete) :
+    goals.filter(g => (g.cadence || 'oneoff') === filter);
 
   const FILTERS = [
-    ['all',     'All'],
-    ['daily',   'Daily'],
-    ['weekly',  'Weekly'],
-    ['monthly', 'Monthly'],
-    ['oneoff',  'Projects'],
+    ['all',       'All'],
+    ['completed', 'Completed'],
+    ['daily',     'Daily'],
+    ['weekly',    'Weekly'],
+    ['monthly',   'Monthly'],
+    ['oneoff',    'Projects'],
   ];
 
   return (
