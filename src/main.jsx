@@ -5,11 +5,15 @@ import { IOSDevice } from './ios-frame.jsx';
 import { App } from './app.jsx';
 import { ErrorBoundary } from './error-boundary.jsx';
 import { initNativeAuthHandler } from './use-auth.js';
+import { rescheduleOnLaunch } from './notifications.js';
 import './styles.css';
 
 // Arm Capacitor deep-link handler before mount so the OAuth callback isn't dropped.
 // No-op on web (and when cloud env vars aren't set).
 initNativeAuthHandler();
+
+// Re-arm the daily reminder on launch if the user enabled it (native only; no-op on web).
+rescheduleOnLaunch();
 
 // In the installed app (Capacitor native) the device IS the phone, so render the
 // app full-screen — no simulated phone frame, no marketing blurb beside it. The

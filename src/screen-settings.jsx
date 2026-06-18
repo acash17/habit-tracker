@@ -5,6 +5,9 @@ import { cloudEnabled } from './supabase.js';
 import { toast } from './utils.js';
 import { exportMyData, eraseMyData } from './data-rights.js';
 import { requestSignIn } from './consent.js';
+import { getReminder, saveReminder, enableReminder, disableReminder } from './notifications.js';
+
+const fmtTime = (h, m) => `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
 
 // Settings — privacy-first, non-punitive controls
 
@@ -215,6 +218,27 @@ function SettingsScreen({ onOpenEnergy, onReplay }) {
   const [streaks, setStreaks] = React.useState(false);
   const [haptics, setHaptics] = React.useState(true);
   const [paused, setPaused] = React.useState(false);
+  const [reminder, setReminder] = React.useState(() => getReminder());
+
+  async function toggleReminder(on) {
+    if (on) {
+      const res = await enableReminder(reminder.hour, reminder.minute);
+      if (!res.ok) { toast('Allow notifications in system settings to enable'); return; }
+      setReminder(r => ({ ...r, enabled: true }));
+      toast(res.native ? 'Daily reminder on' : 'Saved — reminders fire in the installed app');
+    } else {
+      await disableReminder();
+      setReminder(r => ({ ...r, enabled: false }));
+      toast('Daily reminder off');
+    }
+  }
+  function changeReminderTime(value) {
+    const [h, m] = (value || '09:00').split(':').map(Number);
+    const next = { ...reminder, hour: h, minute: m };
+    setReminder(next);
+    saveReminder(next);
+    if (next.enabled) enableReminder(h, m); // reschedule at the new time
+  }
 
   return (
     <div style={{ padding: '0 18px 32px', display: 'flex', flexDirection: 'column', gap: 22 }}>
@@ -253,6 +277,28 @@ function SettingsScreen({ onOpenEnergy, onReplay }) {
           title="Calendar integration"
           sub="Avoid double-booking with Google or Apple Calendar."
           control={<Toggle on={calendar} onChange={setCalendar} />}
+        />
+        <Row
+          title="Daily reminder"
+          sub={reminder.enabled ? `A gentle nudge every day at ${fmtTime(reminder.hour, reminder.minute)}.` : 'A gentle daily nudge to open your plan.'}
+          control={
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              {reminder.enabled && (
+                <input
+                  type="time"
+                  value={fmtTime(reminder.hour, reminder.minute)}
+                  onChange={(e) => changeReminderTime(e.target.value)}
+                  aria-label="reminder time"
+                  style={{
+                    fontFamily: 'inherit', fontSize: 13, color: 'var(--ink)',
+                    background: 'rgba(31,27,22,0.04)', border: '0.5px solid rgba(31,27,22,0.12)',
+                    borderRadius: 8, padding: '4px 6px', outline: 'none',
+                  }}
+                />
+              )}
+              <Toggle on={reminder.enabled} onChange={toggleReminder} />
+            </div>
+          }
         />
         <Row
           title="Voice input"
