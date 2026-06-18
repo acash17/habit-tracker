@@ -377,7 +377,7 @@ function SettingsScreen({ onOpenEnergy, onReplay }) {
         fontSize: 11.5, color: 'rgba(31,27,22,0.45)', textAlign: 'center',
         padding: '8px 24px', lineHeight: 1.5, letterSpacing: -0.05,
       }}>
-        Pacely v0.5.1 · Local-first by default<br/>
+        Pacely v0.5.2 · Local-first by default<br/>
         Built for real brains and real life.
       </div>
     </div>
