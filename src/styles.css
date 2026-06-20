@@ -1,4 +1,4 @@
-/* Cadence — global styles, extracted from Cadence.html */
+/* Pacely — global styles, extracted from the original prototype. */
   :root {
     --paper:   #F6F1E8;
     --paper-2: #EFE8DA;
@@ -7,9 +7,11 @@
     --terra:   #C26A38;
     --sage:    #6B8E5A;
     --lav:     #8E7CB8;
-    --serif:   'Instrument Serif', Georgia, serif;
+    /* One font everywhere: Geist. --serif / --mono are kept as aliases so existing
+       var(--serif) / var(--mono) usages all resolve to the single family. */
     --sans:    'Geist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-    --mono:    'Geist Mono', ui-monospace, monospace;
+    --serif:   var(--sans);
+    --mono:    var(--sans);
   }
   html, body { margin: 0; padding: 0; height: 100%; background: #E8E2D5; }
   body {

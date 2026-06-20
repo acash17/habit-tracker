@@ -9,7 +9,7 @@ import './demo.css';
 const CHAPTERS = [
   {
     id: 'welcome',
-    title: 'Meet Cadence',
+    title: 'Meet Pacely',
     body: 'A habit-sequence planner for real brains and real life. Turns vague goals into tiny, time-estimated steps you can actually start.',
     action: { close: 'all', tab: 'today', dismissOnboarding: true },
     cta: 'Start at Today',
@@ -38,7 +38,7 @@ const CHAPTERS = [
   {
     id: 'life',
     title: 'When life happens',
-    body: 'Missed a day? Slept badly? Cadence rebalances the rest — no guilt, no broken streaks.',
+    body: 'Missed a day? Slept badly? Pacely rebalances the rest — no guilt, no broken streaks.',
     action: { tab: 'today', sheet: 'life' },
     cta: 'Life happened',
   },
@@ -52,7 +52,7 @@ const CHAPTERS = [
   {
     id: 'voice',
     title: 'Speak your intent',
-    body: 'No typing. "I want to write more." Cadence catches the verb, names a goal, drafts a sequence.',
+    body: 'No typing. "I want to write more." Pacely catches the verb, names a goal, drafts a sequence.',
     action: { tab: 'today', sheet: 'voice' },
     cta: 'Use voice',
   },
@@ -104,7 +104,7 @@ const CHAPTERS = [
   {
     id: 'energy',
     title: 'Your energy, drawn',
-    body: 'A literal curve, not a vibes-based morning person/night owl toggle. Cadence sequences against it.',
+    body: 'A literal curve, not a vibes-based morning person/night owl toggle. Pacely sequences against it.',
     action: { tab: 'settings', sheet: 'energy' },
     cta: 'Edit profile',
   },
@@ -197,7 +197,7 @@ function Demo() {
       <header className="demo-header">
         <div className="brand">
           <div className="brand-dot" />
-          <span>Cadence</span>
+          <span>Pacely</span>
           <em>· interactive prototype</em>
         </div>
         <div className="demo-controls">
@@ -225,7 +225,7 @@ function Demo() {
 
         <main className="narrative">
           <div className="hero">
-            <div className="kicker">Cadence · v0.4 prototype</div>
+            <div className="kicker">Pacely · v0.4 prototype</div>
             <h1>The planner that plans for you.</h1>
             <p>Scroll, or hit autoplay. The phone follows along.</p>
           </div>

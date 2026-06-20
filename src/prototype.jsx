@@ -356,7 +356,7 @@ function ActiveHoursPanel() {
       <div className="panel-copy">
         <div className="tag"><span className="num">05</span> · Rhythm insights</div>
         <h2>Know your best — and worst — hours.</h2>
-        <p>A time-of-day heatmap across the week shows exactly when you get things done. Tap a day for its hourly breakdown. Cadence biases new sequences toward your peak and protects your slump.</p>
+        <p>A time-of-day heatmap across the week shows exactly when you get things done. Tap a day for its hourly breakdown. Pacely biases new sequences toward your peak and protects your slump.</p>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 16 }}>
           <div className="status-row" style={{ marginTop: 0 }}>
             <span className="status-dot" style={{ background: paletteHex(colorKey) }} />
@@ -421,7 +421,7 @@ function Prototype() {
     <div className="proto-shell">
       <header className="proto-header">
         <div className="proto-brand">
-          <span className="dot" /> Cadence <em>· feature prototypes</em>
+          <span className="dot" /> Pacely <em>· feature prototypes</em>
         </div>
         <div className="proto-pills">
           <a className="proto-pill" href="/">App</a>
@@ -431,7 +431,7 @@ function Prototype() {
       </header>
 
       <div className="proto-hero">
-        <div className="kicker">Cadence · proposed · v0.6</div>
+        <div className="kicker">Pacely · proposed · v0.6</div>
         <h1>Five features, prototyped.</h1>
         <p>Interactive mockups of what's next. Play with each one, then tell me which to build for real. Nothing here is wired to your data yet.</p>
       </div>
@@ -445,7 +445,7 @@ function Prototype() {
       </div>
 
       <div className="footer-note">
-        These are visual prototypes — interactive but not connected to the live app or cloud. Pick the ones worth building and they'll get wired into the real Cadence.
+        These are visual prototypes — interactive but not connected to the live app or cloud. Pick the ones worth building and they'll get wired into the real Pacely.
       </div>
     </div>
   );

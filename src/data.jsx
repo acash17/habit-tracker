@@ -1,6 +1,6 @@
 import React from 'react';
 
-// Sample data + helpers for Cadence
+// Sample data + helpers for Pacely
 
 const INITIAL_GOALS = [
   {

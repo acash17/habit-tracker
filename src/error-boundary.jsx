@@ -11,7 +11,7 @@ export class ErrorBoundary extends React.Component {
     return { error };
   }
   componentDidCatch(error, info) {
-    console.error('[Cadence] render error:', error, info?.componentStack);
+    console.error('[Pacely] render error:', error, info?.componentStack);
   }
   reset = () => {
     this.setState({ error: null });

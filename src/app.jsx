@@ -21,7 +21,7 @@ import { TourOverlay } from './tour.jsx';
 import { ConsentGate } from './consent-sheet.jsx';
 import { ProfileGate } from './profile-chat.jsx';
 
-// Cadence — app shell (with onboarding gate + all sheets wired)
+// Pacely — app shell (with onboarding gate + all sheets wired)
 
 function TabBar({ tab, setTab, onAdd }) {
   const tabs = [
@@ -76,7 +76,7 @@ function TabBar({ tab, setTab, onAdd }) {
   );
 }
 
-function CadenceHeader() {
+function PacelyHeader() {
   return (
     <div style={{
       position: 'absolute', top: 0, left: 0, right: 0, zIndex: 30,
@@ -290,7 +290,7 @@ function App() {
       background: 'var(--paper)', overflow: 'hidden',
       fontFamily: 'var(--sans)', color: 'var(--ink)',
     }}>
-      <CadenceHeader/>
+      <PacelyHeader/>
 
       <div style={{ position: 'absolute', inset: 0, overflowY: 'auto', paddingTop: 92, paddingBottom: 110 }}>
         {tab === 'today' && (
@@ -416,4 +416,4 @@ function App() {
 
 Object.assign(window, { App });
 
-export { TabBar, CadenceHeader, App };
+export { TabBar, PacelyHeader, App };

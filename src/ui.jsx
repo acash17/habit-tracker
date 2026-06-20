@@ -1,6 +1,6 @@
 import React from 'react';
 
-// Cadence shared UI primitives
+// Pacely shared UI primitives
 
 // Color tokens come from CSS vars defined in index.html.
 
@@ -156,7 +156,7 @@ function H({ children, size = 28, style = {} }) {
   return (
     <h1 style={{
       fontFamily: 'var(--serif)',
-      fontSize: size, fontWeight: 400,
+      fontSize: size, fontWeight: 600,
       lineHeight: 1.05, letterSpacing: -0.4,
       margin: 0, color: 'var(--ink)',
       textWrap: 'pretty',
