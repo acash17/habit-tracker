@@ -1,5 +1,8 @@
 import React from 'react';
 import { Icon, Bloom, Chip, Btn, Card, H } from './ui.jsx';
+import { useAuth } from './use-auth.js';
+import { requestSignIn } from './consent.js';
+import { cloudEnabled } from './supabase.js';
 
 // Kind → color styling. Mirrors the helper in screen-today.jsx (kept local to avoid
 // a cross-screen import; the set is tiny and stable).
@@ -14,8 +17,10 @@ function blockKindStyle(kind) {
   }
 }
 
-// 6-screen onboarding flow (per MVP roadmap PDF)
-// 1. Welcome  2. Energy profile  3. First goals  4. Sequence preview  5. Tour  6. First win
+// 7-screen onboarding flow
+// 1. Welcome  2. Sign in (required)  3. Energy  4. First goals  5. Preview  6. Tour  7. First win
+// Sign-in sits right after "Get started" and is a HARD GATE — you cannot advance to
+// the rest of the app until you sign in (no skip, no "maybe later").
 
 function OnboardingFlow({ onDone }) {
   const [step, setStep] = React.useState(0);
@@ -23,7 +28,7 @@ function OnboardingFlow({ onDone }) {
   const [goalText, setGoalText] = React.useState('Gym, 2 hours deep work, emails');
   const [generated, setGenerated] = React.useState(null);
 
-  const steps = ['welcome', 'energy', 'goals', 'preview', 'tour', 'win'];
+  const steps = ['welcome', 'signin', 'energy', 'goals', 'preview', 'tour', 'win'];
   const screen = steps[step];
 
   function next() { setStep(s => Math.min(steps.length - 1, s + 1)); }
@@ -64,9 +69,9 @@ function OnboardingFlow({ onDone }) {
         ))}
       </div>
 
-      {/* Skip button */}
+      {/* Skip button — hidden on the sign-in step so login can't be bypassed. */}
       <div style={{ position: 'absolute', top: 60, right: 18, zIndex: 10 }}>
-        {step > 0 && step < steps.length - 1 && (
+        {step > 0 && step < steps.length - 1 && screen !== 'signin' && (
           <button onClick={onDone} style={{
             background: 'transparent', border: 'none', padding: 6,
             fontFamily: 'inherit', fontSize: 13, color: 'rgba(31,27,22,0.5)',
@@ -77,6 +82,7 @@ function OnboardingFlow({ onDone }) {
 
       <div style={{ flex: 1, overflowY: 'auto', padding: '0 24px' }}>
         {screen === 'welcome'  && <WelcomeScreen onNext={next}/>}
+        {screen === 'signin'   && <SignInScreen onAuthed={next}/>}
         {screen === 'energy'   && <EnergyScreen value={energy} onChange={setEnergy}/>}
         {screen === 'goals'    && <GoalsScreenOnboard value={goalText} onChange={setGoalText}/>}
         {screen === 'preview'  && <PreviewScreen steps={generated}/>}
@@ -84,8 +90,8 @@ function OnboardingFlow({ onDone }) {
         {screen === 'win'      && <WinScreen onStart={onDone}/>}
       </div>
 
-      {/* Footer CTA */}
-      {screen !== 'welcome' && screen !== 'win' && (
+      {/* Footer CTA — sign-in has its own CTA (and no Back, so users can't slip past). */}
+      {screen !== 'welcome' && screen !== 'win' && screen !== 'signin' && (
         <div style={{
           padding: '12px 24px 34px', display: 'flex', gap: 10,
           background: 'var(--paper)', borderTop: '0.5px solid rgba(31,27,22,0.05)',
@@ -114,14 +120,77 @@ function WelcomeScreen({ onNext }) {
       <div style={{ width: '100%', marginTop: 24, paddingBottom: 34 }}>
         <Btn variant="terra" size="lg" full onClick={onNext}>Get started</Btn>
         <div style={{ fontSize: 11.5, color: 'rgba(31,27,22,0.45)', marginTop: 14 }}>
-          Local-first · no account required
+          Set up in under a minute
         </div>
       </div>
     </div>
   );
 }
 
-// ─── Step 2: Energy profile ──────────────────────────────────
+// Brand-accurate 4-color Google "G" (mirrors the one in screen-settings.jsx).
+function GoogleLogo({ size = 20 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 48 48" aria-hidden>
+      <path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3c-1.6 4.6-6 8-11.3 8-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/>
+      <path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.6 16.1 19 13 24 13c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/>
+      <path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2c-2 1.5-4.5 2.4-7.2 2.4-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/>
+      <path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.3-2.3 4.3-4.1 5.6l6.2 5.2C41.2 36.3 44 30.6 44 24c0-1.3-.1-2.4-.4-3.5z"/>
+    </svg>
+  );
+}
+
+// ─── Step 2: Sign in (required, right after "Get started") ───
+// HARD GATE: no skip, no "maybe later". The only way forward is to sign in.
+// When auth succeeds (user becomes set), we auto-advance to the next step.
+function SignInScreen({ onAuthed }) {
+  const { user, ready } = useAuth();
+
+  // Auto-advance the moment we're authenticated (e.g. after the OAuth round-trip).
+  React.useEffect(() => { if (user) onAuthed(); }, [user]);
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', paddingTop: 48, gap: 24 }}>
+      <Bloom value={0.6} size={108} color="var(--lav)"/>
+      <div>
+        <H size={36} style={{ maxWidth: 320 }}>Create your account to continue.</H>
+        <div style={{ fontSize: 14.5, color: 'rgba(31,27,22,0.65)', marginTop: 12, lineHeight: 1.55, maxWidth: 300, marginLeft: 'auto', marginRight: 'auto' }}>
+          Sign in to save your goals and sync them across your devices. It takes one tap.
+        </div>
+      </div>
+
+      <div style={{ width: '100%', marginTop: 8, display: 'flex', flexDirection: 'column', gap: 12 }}>
+        {cloudEnabled ? (
+          <button
+            onClick={() => requestSignIn()}
+            disabled={!ready}
+            style={{
+              display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 10,
+              width: '100%', padding: '14px 18px', height: 52, borderRadius: 999,
+              background: '#fff', color: '#1F1B16', border: '0.5px solid rgba(31,27,22,0.18)',
+              boxShadow: '0 1px 2px rgba(31,27,22,0.06)', cursor: ready ? 'pointer' : 'wait',
+              fontFamily: 'inherit', fontSize: 16, fontWeight: 500, opacity: ready ? 1 : 0.6,
+            }}>
+            <GoogleLogo size={20}/>
+            <span>Continue with Google</span>
+          </button>
+        ) : (
+          // Safety hatch: if cloud isn't configured there's no way to sign in, so we
+          // must not brick onboarding. Let the user continue local-only.
+          <Btn variant="terra" size="lg" full onClick={onAuthed}>Continue</Btn>
+        )}
+
+        <div style={{ fontSize: 11.5, color: 'rgba(31,27,22,0.5)', marginTop: 2, lineHeight: 1.5 }}>
+          By continuing you agree to our{' '}
+          <a href="/terms.html" target="_blank" rel="noreferrer" style={{ color: 'var(--terra)' }}>Terms</a>
+          {' '}&amp;{' '}
+          <a href="/privacy.html" target="_blank" rel="noreferrer" style={{ color: 'var(--terra)' }}>Privacy Policy</a>.
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Step 3: Energy profile ──────────────────────────────────
 function EnergyScreen({ value, onChange }) {
   const periods = [
     { id: 'morning',   label: 'Morning',   sub: '6am – 12pm' },
@@ -353,4 +422,4 @@ function Confetti() {
 
 Object.assign(window, { OnboardingFlow });
 
-export { OnboardingFlow, WelcomeScreen, EnergyScreen, GoalsScreenOnboard, PreviewScreen, TourScreen, WinScreen, Confetti };
+export { OnboardingFlow, WelcomeScreen, SignInScreen, EnergyScreen, GoalsScreenOnboard, PreviewScreen, TourScreen, WinScreen, Confetti };

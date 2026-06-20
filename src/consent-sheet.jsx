@@ -21,7 +21,7 @@ function ConsentSheet({ onClose, onAgree }) {
   const [age, setAge] = React.useState(false);
 
   return (
-    <SheetShell title="Before you sign in" onClose={onClose}>
+    <SheetShell title="Before you sign in" onClose={onClose} zIndex={600}>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
         <div style={{ fontSize: 14.5, color: 'rgba(31,27,22,0.78)', lineHeight: 1.55 }}>
           To sync across your devices, Pacely collects your <strong>name, email and phone

@@ -15,13 +15,16 @@ initNativeAuthHandler();
 // Re-arm the daily reminder on launch if the user enabled it (native only; no-op on web).
 rescheduleOnLaunch();
 
-// In the installed app (Capacitor native) the device IS the phone, so render the
-// app full-screen — no simulated phone frame, no marketing blurb beside it. The
-// framed/blurb layout is only for the web/demo landing page.
+// The app fills the whole screen — like a real phone app — both in the installed
+// Capacitor build AND in the browser. The old framed phone-on-a-landing-page view
+// (simulated bezel + marketing blurb) is now opt-in via ?frame=1, kept only for
+// marketing screenshots.
 const isNative = (() => { try { return Capacitor.isNativePlatform(); } catch { return false; } })();
+const wantsFrame = (() => { try { return new URLSearchParams(location.search).get('frame') === '1'; } catch { return false; } })();
+const fullScreen = isNative || !wantsFrame;
 
 function Mount() {
-  if (isNative) {
+  if (fullScreen) {
     return (
       <ErrorBoundary>
         <App />
@@ -37,18 +40,18 @@ function Mount() {
   );
 }
 
-// Hide the marketing blurb on native (or ?bare=1 for web parity).
-if (isNative || new URLSearchParams(location.search).get('bare') === '1') {
+// Drop the marketing blurb whenever we're full-screen (or ?bare=1).
+if (fullScreen || new URLSearchParams(location.search).get('bare') === '1') {
   const b = document.querySelector('.blurb');
   if (b) b.remove();
   const s = document.querySelector('.stage');
   if (s) s.style.justifyContent = 'center';
 }
 
-// Native: make the stage + mount fill the whole screen so the app is edge-to-edge.
-if (isNative) {
+// Full-screen: make the stage + mount fill the whole viewport so the app is edge-to-edge.
+if (fullScreen) {
   const s = document.querySelector('.stage');
-  if (s) { s.style.padding = '0'; s.style.gap = '0'; }
+  if (s) { s.style.padding = '0'; s.style.gap = '0'; s.style.minHeight = '100dvh'; }
   const m = document.getElementById('phone-mount');
   if (m) {
     m.style.position = 'fixed';

@@ -350,10 +350,10 @@ function ReasonCard({ n, tone, title, body }) {
 // ─────────────────────────────────────────────────────────────
 // Generic sheet shell (used by both sheets above)
 // ─────────────────────────────────────────────────────────────
-function SheetShell({ title, children, onClose }) {
+function SheetShell({ title, children, onClose, zIndex = 200 }) {
   return (
     <div style={{
-      position: 'absolute', inset: 0, zIndex: 200,
+      position: 'absolute', inset: 0, zIndex,
       background: 'rgba(31,27,22,0.35)',
       backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)',
       display: 'flex', alignItems: 'flex-end',
