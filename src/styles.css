@@ -7,11 +7,11 @@
     --terra:   #C26A38;
     --sage:    #6B8E5A;
     --lav:     #8E7CB8;
-    /* One font everywhere: Geist. --serif / --mono are kept as aliases so existing
-       var(--serif) / var(--mono) usages all resolve to the single family. */
-    --sans:    'Geist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-    --serif:   var(--sans);
-    --mono:    var(--sans);
+    /* One font everywhere: Instrument Serif. --sans / --mono are aliases so every
+       existing var(--sans)/var(--mono) usage resolves to the single serif family. */
+    --serif:   'Instrument Serif', Georgia, serif;
+    --sans:    var(--serif);
+    --mono:    var(--serif);
   }
   html, body { margin: 0; padding: 0; height: 100%; background: #E8E2D5; }
   body {
