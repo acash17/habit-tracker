@@ -83,7 +83,7 @@ function NewGoalSheet({ onClose, onCommit, onOpenLibrary }) {
             />
           )}
           {stage === 'thinking' && <ThinkingStage goal={goal}/>}
-          {stage === 'result' && <ResultStage goal={goal} steps={sequence} />}
+          {stage === 'result' && <ResultStage goal={goal} steps={sequence} setSteps={setSequence} />}
         </div>
 
         {/* sticky CTA */}
@@ -256,17 +256,26 @@ function ThinkingStage({ goal }) {
   );
 }
 
-function ResultStage({ goal, steps }) {
+function ResultStage({ goal, steps, setSteps }) {
   const totalMin = steps.reduce((s, x) => s + (x.est || 0), 0);
+
+  // Edit the suggested plan in place before adding it.
+  const updateStep = (idx, patch) =>
+    setSteps(prev => prev.map((s, i) => (i === idx ? { ...s, ...patch } : s)));
+  const deleteStep = (idx) =>
+    setSteps(prev => prev.filter((_, i) => i !== idx));
+  const addStep = () =>
+    setSteps(prev => [...prev, { label: '', est: 10, kind: 'focus', why: 'Your own step.' }]);
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16, paddingTop: 6 }}>
       <div>
         <div style={{ fontSize: 12.5, color: 'rgba(31,27,22,0.55)', marginBottom: 4 }}>Goal</div>
         <H size={22}>{goal}</H>
         <div style={{ display: 'flex', gap: 6, marginTop: 10 }}>
-          <Chip tone="paper">{steps.length} steps</Chip>
+          <Chip tone="paper">{steps.length} step{steps.length === 1 ? '' : 's'}</Chip>
           <Chip tone="paper">~{totalMin} min</Chip>
-          <Chip tone="lav">Suggested</Chip>
+          <Chip tone="lav">Edit before adding</Chip>
         </div>
       </div>
 
@@ -286,25 +295,78 @@ function ResultStage({ goal, steps }) {
                 fontFamily: 'var(--serif)', fontSize: 14, letterSpacing: -0.2,
               }}>{idx + 1}</div>
               <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10, alignItems: 'flex-start' }}>
-                  <div style={{ fontSize: 14.5, color: 'var(--ink)', fontWeight: 500, lineHeight: 1.3 }}>{s.label}</div>
-                  <div style={{ fontFamily: 'var(--mono)', fontSize: 12, color: 'rgba(31,27,22,0.55)', flexShrink: 0, paddingTop: 2 }}>{s.est}m</div>
+                <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
+                  {/* editable label */}
+                  <textarea
+                    value={s.label}
+                    onChange={(e) => updateStep(idx, { label: e.target.value })}
+                    rows={1}
+                    placeholder="Describe this step…"
+                    style={{
+                      flex: 1, minWidth: 0, resize: 'none', overflow: 'hidden',
+                      background: 'transparent', border: 'none', outline: 'none', padding: 0,
+                      fontFamily: 'inherit', fontSize: 14.5, color: 'var(--ink)', fontWeight: 500,
+                      lineHeight: 1.3,
+                    }}
+                  />
+                  {/* editable minutes */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 2, flexShrink: 0 }}>
+                    <input
+                      type="number" min={1} max={120}
+                      value={s.est}
+                      onChange={(e) => updateStep(idx, { est: Math.max(1, Math.min(120, parseInt(e.target.value, 10) || 1)) })}
+                      aria-label={`minutes for step ${idx + 1}`}
+                      style={{
+                        width: 40, textAlign: 'right',
+                        background: 'rgba(31,27,22,0.04)', border: '0.5px solid rgba(31,27,22,0.12)',
+                        borderRadius: 8, padding: '3px 5px', outline: 'none',
+                        fontFamily: 'var(--mono)', fontSize: 12, color: 'var(--ink)',
+                      }}
+                    />
+                    <span style={{ fontFamily: 'var(--mono)', fontSize: 12, color: 'rgba(31,27,22,0.45)' }}>m</span>
+                  </div>
+                  {/* delete step */}
+                  <button
+                    onClick={() => deleteStep(idx)}
+                    aria-label={`delete step ${idx + 1}`}
+                    style={{
+                      flexShrink: 0, background: 'transparent', border: 'none', cursor: 'pointer',
+                      padding: 2, color: 'rgba(31,27,22,0.35)', display: 'flex',
+                    }}
+                  >
+                    <Icon name="x" size={16} />
+                  </button>
                 </div>
-                <div style={{ fontSize: 12, color: 'rgba(31,27,22,0.55)', marginTop: 6, lineHeight: 1.4 }}>
-                  <span style={{ color: k.bar, fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.4, fontSize: 10 }}>{k.label || s.kind} · </span>
-                  {s.why}
-                </div>
+                {s.why && (
+                  <div style={{ fontSize: 12, color: 'rgba(31,27,22,0.55)', marginTop: 6, lineHeight: 1.4 }}>
+                    <span style={{ color: k.bar, fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.4, fontSize: 10 }}>{k.label || s.kind} · </span>
+                    {s.why}
+                  </div>
+                )}
               </div>
             </div>
           );
         })}
+
+        {/* add a step */}
+        <button
+          onClick={addStep}
+          style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+            padding: '12px 14px', borderRadius: 14, cursor: 'pointer', width: '100%',
+            background: 'transparent', border: '1px dashed rgba(31,27,22,0.2)',
+            fontFamily: 'inherit', fontSize: 13.5, color: 'rgba(31,27,22,0.7)',
+          }}
+        >
+          <Icon name="plus" size={15} /> Add step
+        </button>
       </div>
 
       <Card style={{ padding: 14, background: 'rgba(107,142,90,0.08)' }}>
         <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
           <Icon name="leaf" size={16} color="var(--sage)"/>
           <div style={{ fontSize: 12, color: 'rgba(31,27,22,0.7)', lineHeight: 1.5 }}>
-            Reality check: I sized this for your <b>medium energy</b>. If today turns out lower, hit “Adapt for today” on Today — I’ll shrink the focus blocks.
+            This is a suggestion — tweak any step’s wording or minutes, delete what doesn’t fit, or add your own before you save.
           </div>
         </div>
       </Card>
