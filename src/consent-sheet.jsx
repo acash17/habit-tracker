@@ -27,7 +27,7 @@ function ConsentSheet({ onClose, onAgree }) {
           To sync across your devices, Pacely collects your <strong>name, email and phone
           number</strong> (name and email via Google; phone you provide), your <strong>goals</strong>,
           and your <strong>completion history</strong> — only to
-          create and sync your sequences and show your rhythm. We <strong>never sell your data</strong>,
+          create and sync your plans and show your rhythm. We <strong>never sell your data</strong>,
           and you can export or erase everything anytime in Settings.
         </div>
 

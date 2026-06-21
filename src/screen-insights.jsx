@@ -239,8 +239,8 @@ function BreakpointInsight({ goals }) {
 
   const { stalled, commonStep, commonCount } = analysis;
   const headline = commonStep && commonCount >= 2
-    ? `Your sequences tend to stall at step ${commonStep}.`
-    : 'Here’s where your sequences are paused right now.';
+    ? `Your plans tend to stall at step ${commonStep}.`
+    : 'Here’s where your plans are paused right now.';
 
   return (
     <Card style={{ padding: 18 }}>

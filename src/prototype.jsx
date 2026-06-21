@@ -356,7 +356,7 @@ function ActiveHoursPanel() {
       <div className="panel-copy">
         <div className="tag"><span className="num">05</span> · Rhythm insights</div>
         <h2>Know your best — and worst — hours.</h2>
-        <p>A time-of-day heatmap across the week shows exactly when you get things done. Tap a day for its hourly breakdown. Pacely biases new sequences toward your peak and protects your slump.</p>
+        <p>A time-of-day heatmap across the week shows exactly when you get things done. Tap a day for its hourly breakdown. Pacely biases new plans toward your peak and protects your slump.</p>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 16 }}>
           <div className="status-row" style={{ marginTop: 0 }}>
             <span className="status-dot" style={{ background: paletteHex(colorKey) }} />

@@ -99,7 +99,7 @@ function LifeHappenedSheet({ blocks, onClose, onApply }) {
             icon="sparkle"
             color={{ bg: 'rgba(155,138,196,0.18)', fg: 'var(--lav)' }}
             title="Gentle recovery plan"
-            sub="Start over with a tiny, easy sequence. Just enough to feel something move."
+            sub="Start over with a tiny, easy plan. Just enough to feel something move."
             onClick={() => setView('recovery')}
           />
         </div>

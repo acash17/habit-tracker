@@ -157,12 +157,12 @@ function LibrarySheet({ onClose, onApply }) {
   }
 
   return (
-    <SheetShell title="Sequence library" onClose={onClose}>
+    <SheetShell title="Plan library" onClose={onClose}>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 16, paddingTop: 4 }}>
         <div>
           <H size={26}>Start from a tested shape.</H>
           <div style={{ fontSize: 13, color: 'rgba(31,27,22,0.6)', marginTop: 6, lineHeight: 1.45 }}>
-            Sequences refined across thousands of completions. Tap one to preview — adjust before adding.
+            Plans refined across thousands of completions. Tap one to preview — adjust before adding.
           </div>
         </div>
 
@@ -206,7 +206,7 @@ function TemplatePreview({ t, onBack, onApply }) {
           background: 'transparent', border: 'none', padding: 0, cursor: 'pointer',
           display: 'flex', alignItems: 'center', gap: 6,
           color: 'rgba(31,27,22,0.6)', fontSize: 13, fontFamily: 'inherit',
-        }}><Icon name="back" size={14}/> All sequences</button>
+        }}><Icon name="back" size={14}/> All plans</button>
 
         <div>
           <H size={26}>{t.title}</H>

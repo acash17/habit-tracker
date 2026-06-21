@@ -239,7 +239,7 @@ function App({ requireAuth = true }) {
 
   function adapt() {
     setBlocks(prev => prev.map(b => b.done ? b : { ...b, dur: Math.max(8, Math.round(b.dur * 0.75)) }));
-    flash('Sequence rebalanced · lighter blocks first');
+    flash('Day reorganised · lighter blocks first');
   }
   function commitNewGoal(goalTitle, sequence, opts) {
     setSheetOpen(false);

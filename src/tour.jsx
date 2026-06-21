@@ -7,14 +7,14 @@ const TOUR_STEPS = [
   {
     target: null, // intro modal
     title: 'A 60-second tour.',
-    body: "Pacely turns goals into ordered micro-sequences, reshapes the day in real time, and never punishes a missed day. Let's walk through it.",
+    body: "Pacely turns goals into organised daily plans, reshapes the day in real time, and never punishes a missed day. Let's walk through it.",
     cta: 'Start tour',
     placement: 'center',
   },
   {
     target: 'energy-card',
     title: 'Today, in a glance.',
-    body: "Every day opens to a visual sequence — blocks, not lists. The energy check-in rebalances the rest of the day in one tap.",
+    body: "Every day opens to a visual plan — blocks, not lists. The energy check-in rebalances the rest of the day in one tap.",
     placement: 'bottom',
   },
   {

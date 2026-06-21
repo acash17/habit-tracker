@@ -84,8 +84,8 @@ function composite(s) {
 const INSIGHTS = [
   {
     id: 'i1',
-    headline: 'You complete 82% of sequences started before 10am.',
-    detail: 'Across the last 28 days. Your evening blocks land at 41%. Want me to bias new sequences toward mornings?',
+    headline: 'You complete 82% of plans started before 10am.',
+    detail: 'Across the last 28 days. Your evening blocks land at 41%. Want me to bias new plans toward mornings?',
     kind: 'pattern',
   },
   {

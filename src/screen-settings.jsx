@@ -106,7 +106,7 @@ function ProfileCard() {
       <Card style={{ padding: 16, display: 'flex', flexDirection: 'column', gap: 12 }}>
         <div>
           <div style={{ fontFamily: 'var(--serif)', fontSize: 20, color: 'var(--ink)', letterSpacing: -0.3, lineHeight: 1.1 }}>
-            Sync your sequences
+            Sync your plans
           </div>
           <div style={{ fontSize: 12.5, color: 'rgba(31,27,22,0.6)', marginTop: 6, lineHeight: 1.5 }}>
             Sign in to back up your goals and pick them up on any device. Local data stays on this device; signing in only mirrors it.
@@ -256,12 +256,12 @@ function SettingsScreen({ onOpenEnergy, onReplay }) {
       <Section header="Privacy">
         <Row
           title="Local-first storage"
-          sub="Sequences live on this device. Sync is opt-in; your cloud data is encrypted in transit and at rest."
+          sub="Plans live on this device. Sync is opt-in; your cloud data is encrypted in transit and at rest."
           control={<Toggle on={local} onChange={setLocal} />}
         />
         <Row
           title="Self-hosted AI"
-          sub="Route sequence generation to your own server. Lifetime plan only."
+          sub="Route plan generation to your own server. Lifetime plan only."
           control={<Chip tone="lav">Lifetime</Chip>}
           last
         />
@@ -307,7 +307,7 @@ function SettingsScreen({ onOpenEnergy, onReplay }) {
         />
         <Row
           title="Pause everything"
-          sub={paused ? 'All sequences paused. Resume anytime.' : 'Take a break without losing your bloom.'}
+          sub={paused ? 'All plans paused. Resume anytime.' : 'Take a break without losing your bloom.'}
           control={<Toggle on={paused} onChange={setPaused} />}
           last
         />

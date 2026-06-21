@@ -574,17 +574,17 @@ function GoalsScreen({ goals, openNewGoal, openGoal, detailGoalId, setDetailGoal
           fontSize: 11, fontWeight: 600, letterSpacing: 1.2,
           color: 'rgba(31,27,22,0.5)', textTransform: 'uppercase', marginBottom: 6,
         }}>{goals.length} active</div>
-        <H size={32}>Sequences</H>
+        <H size={32}>Plans</H>
         <div style={{
           marginTop: 6, fontSize: 14, color: 'rgba(31,27,22,0.62)',
           lineHeight: 1.4, textWrap: 'pretty',
         }}>
-          Each goal becomes a sequence of micro-steps. Tap any card to edit it inline.
+          Each goal becomes a plan of micro-steps. Tap any card to edit it inline.
         </div>
       </div>
 
       <Btn variant="primary" size="md" onClick={openNewGoal} full>
-        <Icon name="sparkle" size={16}/> New goal → sequence
+        <Icon name="sparkle" size={16}/> New goal → plan
       </Btn>
 
       {/* Cadence filter pills */}

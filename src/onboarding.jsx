@@ -98,7 +98,7 @@ function OnboardingFlow({ onDone }) {
         }}>
           <Btn variant="ghost" size="lg" onClick={back}><Icon name="back" size={14}/></Btn>
           <Btn variant="terra" size="lg" full onClick={next}>
-            {screen === 'goals' ? 'Create my sequence' : screen === 'preview' ? 'Looks good · save it' : screen === 'tour' ? 'Got it' : 'Next'}
+            {screen === 'goals' ? 'Organise my day' : screen === 'preview' ? 'Looks good · save it' : screen === 'tour' ? 'Got it' : 'Next'}
           </Btn>
         </div>
       )}
@@ -114,7 +114,7 @@ function WelcomeScreen({ onNext }) {
       <div>
         <H size={44} style={{ maxWidth: 320 }}>Finally, a planner that plans for you.</H>
         <div style={{ fontSize: 15, color: 'rgba(31,27,22,0.65)', marginTop: 14, lineHeight: 1.5, maxWidth: 300, marginLeft: 'auto', marginRight: 'auto' }}>
-          Tell us your goals. We'll create a realistic daily sequence that actually survives real life.
+          Tell us your goals. We'll organise your day into a realistic plan that survives real life.
         </div>
       </div>
       <div style={{ width: '100%', marginTop: 24, paddingBottom: 34 }}>
@@ -243,7 +243,7 @@ function GoalsScreenOnboard({ value, onChange }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 22, paddingTop: 12 }}>
       <div>
-        <H size={32}>What would you like help sequencing?</H>
+        <H size={32}>What would you like help organising?</H>
         <div style={{ fontSize: 14, color: 'rgba(31,27,22,0.6)', marginTop: 10, lineHeight: 1.5 }}>
           One sentence. Goals, tasks, energy, time available — say it however you want.
         </div>
@@ -381,7 +381,7 @@ function WinScreen({ onStart }) {
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', paddingTop: 36, gap: 22, paddingBottom: 24 }}>
       <Confetti/>
       <Bloom value={1} size={130} color="var(--terra)"/>
-      <H size={36} style={{ maxWidth: 300 }}>Your first sequence is ready.</H>
+      <H size={36} style={{ maxWidth: 300 }}>Your first plan is ready.</H>
       <div style={{ fontSize: 14.5, color: 'rgba(31,27,22,0.65)', maxWidth: 280, lineHeight: 1.5 }}>
         Start whenever feels right. The bloom only grows — even on the days you don't.
       </div>

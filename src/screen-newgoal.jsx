@@ -61,7 +61,7 @@ function NewGoalSheet({ onClose, onCommit, onOpenLibrary }) {
         {/* header */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 18px 6px' }}>
           <div style={{ fontSize: 13, fontWeight: 500, color: 'rgba(31,27,22,0.55)' }}>
-            {stage === 'result' ? 'Your sequence' : 'New goal'}
+            {stage === 'result' ? 'Your plan' : 'New goal'}
           </div>
           <button onClick={onClose} style={{
             background: 'transparent', border: 'none', padding: 4, cursor: 'pointer',
@@ -95,7 +95,7 @@ function NewGoalSheet({ onClose, onCommit, onOpenLibrary }) {
         }}>
           {stage === 'input' && (
             <Btn variant="primary" size="lg" full onClick={generate}>
-              <Icon name="sparkle" size={16}/> Generate sequence
+              <Icon name="sparkle" size={16}/> Organise tasks
             </Btn>
           )}
           {stage === 'thinking' && (
@@ -149,7 +149,7 @@ function InputStage({ goal, setGoal, hours, setHours, energy, setEnergy, deadlin
           <Icon name="goals" size={16} color="var(--sage)"/>
           <div style={{ flex: 1 }}>
             <div style={{ fontSize: 13.5, color: 'var(--ink)', fontWeight: 500 }}>Or start from the library</div>
-            <div style={{ fontSize: 11.5, color: 'rgba(31,27,22,0.55)', marginTop: 2 }}>Pre-built sequences for common goals.</div>
+            <div style={{ fontSize: 11.5, color: 'rgba(31,27,22,0.55)', marginTop: 2 }}>Pre-built plans for common goals.</div>
           </div>
           <Icon name="chev" size={14} color="rgba(31,27,22,0.3)"/>
         </button>
@@ -228,7 +228,7 @@ function InputStage({ goal, setGoal, hours, setHours, energy, setEnergy, deadlin
         <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
           <Icon name="lock" size={16} color="var(--lav)"/>
           <div style={{ fontSize: 12, color: 'rgba(31,27,22,0.65)', lineHeight: 1.45 }}>
-            Your goal text stays on this device. Sequences are generated on-device — nothing is sent for this step.
+            Your goal text stays on this device. Plans are generated on-device — nothing is sent for this step.
           </div>
         </div>
       </Card>
@@ -242,7 +242,7 @@ function ThinkingStage({ goal }) {
       <Bloom value={0.35} size={120} color="var(--lav)" />
       <H size={22} style={{ maxWidth: 280 }}>Breaking “{goal.length > 32 ? goal.slice(0, 30) + '…' : goal}” into doable steps…</H>
       <div style={{ fontSize: 13, color: 'rgba(31,27,22,0.55)', maxWidth: 260, lineHeight: 1.5 }}>
-        Considering your time, energy and how you finished sequences last week.
+        Considering your time, energy and how you finished plans last week.
       </div>
       <div style={{ display: 'flex', gap: 6, marginTop: 4 }}>
         {[0,1,2].map(i => (

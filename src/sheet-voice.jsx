@@ -91,7 +91,7 @@ function VoiceSheet({ onClose, onApply }) {
         {stage === 'parsing' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 14, paddingTop: 32, alignItems: 'center', textAlign: 'center' }}>
             <Bloom value={0.4} size={110} color="var(--lav)" />
-            <H size={22} style={{ maxWidth: 280 }}>Parsing constraints & sequencing…</H>
+            <H size={22} style={{ maxWidth: 280 }}>Parsing constraints & organising…</H>
             <div style={{ fontSize: 12.5, color: 'rgba(31,27,22,0.55)', maxWidth: 260, lineHeight: 1.5 }}>
               gym · 2h deep work · lunch · emails · medium energy · 4h
             </div>
