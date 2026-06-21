@@ -24,6 +24,28 @@ import { cloudEnabled } from './supabase.js';
 
 // Pacely — app shell (with onboarding gate + all sheets wired)
 
+// One-time cleanup: strip the old sample data (demo goals g1–g3, demo blocks
+// b1–b8) from existing installs so nobody keeps seeing the confusing demo tasks.
+// Anything the user actually made (different ids) is left untouched. Runs at
+// module load, before the persisted state is first read.
+(function purgeDemoSeed() {
+  try {
+    if (typeof localStorage === 'undefined') return;
+    if (localStorage.getItem('cadence:demo-purged-v1')) return;
+    const seedGoals = new Set(['g1', 'g2', 'g3']);
+    const seedBlocks = new Set(['b1', 'b2', 'b3', 'b4', 'b5', 'b6', 'b7', 'b8']);
+    const prune = (key, seedIds) => {
+      const raw = localStorage.getItem(key);
+      if (!raw) return;
+      const arr = JSON.parse(raw);
+      if (Array.isArray(arr)) localStorage.setItem(key, JSON.stringify(arr.filter(x => !seedIds.has(x && x.id))));
+    };
+    prune('cadence:goals', seedGoals);
+    prune('cadence:blocks', seedBlocks);
+    localStorage.setItem('cadence:demo-purged-v1', '1');
+  } catch { /* storage off — nothing to purge */ }
+})();
+
 function TabBar({ tab, setTab, onAdd }) {
   const tabs = [
     { id: 'today', label: 'Today', icon: 'today' },
@@ -130,8 +152,9 @@ function AuthGate() {
 
 function App({ requireAuth = true }) {
   const [tab, setTab] = React.useState('today');
-  const [blocks, setBlocks] = usePersistedState('blocks', TIMELINE_BLOCKS);
-  const [goals, setGoals] = usePersistedState('goals', INITIAL_GOALS);
+  // Start empty — no demo tasks. Users build their own plan from the empty state.
+  const [blocks, setBlocks] = usePersistedState('blocks', []);
+  const [goals, setGoals] = usePersistedState('goals', []);
   const [toast, setToast] = React.useState(null);
 
   // Sheets
@@ -272,6 +295,24 @@ function App({ requireAuth = true }) {
       })),
     };
     setGoals(prev => [newGoal, ...prev]);
+
+    // "Add to today" should actually put the plan on Today's timeline — append the
+    // steps as blocks after whatever's already there (or from 9am on an empty day).
+    setBlocks(prev => {
+      let cursor = prev.length ? Math.max(...prev.map(b => b.startMin + b.dur)) : 9 * 60;
+      const newBlocks = newGoal.sequence.map((s, i) => {
+        const b = {
+          id: `${newGoal.id}-${i}`, startMin: cursor, dur: s.est, label: s.label,
+          kind: s.kind, done: false, active: false, goal: newGoal.id,
+          scores: { urgency: 0.5, importance: 0.6, energyMatch: 0.7, success: 0.8, effort: 0.4 },
+          optional: false, deps: [],
+        };
+        cursor += s.est;
+        return b;
+      });
+      return [...prev, ...newBlocks];
+    });
+
     flash(`Added · ${title.length > 28 ? title.slice(0, 28) + '…' : title}`);
   }
 
@@ -320,6 +361,7 @@ function App({ requireAuth = true }) {
             blocks={blocks}
             setBlocks={setBlocks}
             onAdapt={adapt}
+            openNewGoal={() => setSheetOpen(true)}
             onRunningLong={() => setRunningLongOpen(true)}
             onWhy={() => setWhyOpen(true)}
             onLife={() => setLifeOpen(true)}

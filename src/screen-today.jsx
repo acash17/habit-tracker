@@ -218,10 +218,32 @@ function TodayScreen({ blocks, setBlocks, onAdapt, openNewGoal, onRunningLong, o
           marginTop: 6, fontSize: 14, color: 'rgba(31,27,22,0.62)',
           lineHeight: 1.4, textWrap: 'pretty',
         }}>
-          Your day, in gentle order. Start anywhere — I’ll rebalance the rest.
+          {total === 0
+            ? 'A clean slate. Create your first plan to get going.'
+            : 'Your day, in gentle order. Start anywhere — I’ll rebalance the rest.'}
         </div>
       </div>
 
+      {total === 0 ? (
+        /* Empty state — no demo tasks, just a clear way to create the first plan. */
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: 18, paddingTop: 24 }}>
+          <Bloom value={0.45} size={120} color="var(--terra)" />
+          <div>
+            <H size={26}>Nothing planned yet.</H>
+            <div style={{ fontSize: 14, color: 'rgba(31,27,22,0.6)', marginTop: 8, lineHeight: 1.5, maxWidth: 280 }}>
+              No demo, no clutter. Create your first plan — its steps land here, in order.
+            </div>
+          </div>
+          <Btn variant="terra" size="lg" full onClick={openNewGoal}>
+            <Icon name="plus" size={16} /> Create a plan
+          </Btn>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <QuickChip icon="mic" label="Voice plan" tone="lav" onClick={onVoice} />
+            <QuickChip icon="goals" label="From library" tone="sage" onClick={onLibrary} />
+          </div>
+        </div>
+      ) : (
+      <>
       {/* Energy + adapt */}
       <Card style={{ padding: 16, display: 'flex', flexDirection: 'column', gap: 12 }} data-tour="energy-card">
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -301,6 +323,8 @@ function TodayScreen({ blocks, setBlocks, onAdapt, openNewGoal, onRunningLong, o
           </div>
         </div>
       </Card>
+      </>
+      )}
     </div>
   );
 }
