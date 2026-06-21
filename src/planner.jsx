@@ -298,22 +298,24 @@ function WhyOrderSheet({ blocks, onClose }) {
           body="Run intervals and Read 1 chapter are flagged optional. If anything overruns, they're the first to move to tomorrow — never the deadline work."
         />
 
-        <Card style={{ padding: 16 }}>
-          <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: 0.6, textTransform: 'uppercase', color: 'rgba(31,27,22,0.5)', marginBottom: 8 }}>
-            Top-ranked block right now
-          </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <div>
-              <div style={{ fontFamily: 'var(--serif)', fontSize: 20, color: 'var(--ink)', letterSpacing: -0.3 }}>
-                {top?.label}
-              </div>
-              <div style={{ fontSize: 11.5, color: 'rgba(31,27,22,0.55)', marginTop: 4 }}>
-                Composite {Math.round(composite(top?.scores || {}) * 100)} · {minToTime(top?.startMin || 0)}
-              </div>
+        {top && (
+          <Card style={{ padding: 16 }}>
+            <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: 0.6, textTransform: 'uppercase', color: 'rgba(31,27,22,0.5)', marginBottom: 8 }}>
+              Top-ranked block right now
             </div>
-            <Bloom value={composite(top?.scores || {})} size={48} color="var(--terra)"/>
-          </div>
-        </Card>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div>
+                <div style={{ fontFamily: 'var(--serif)', fontSize: 20, color: 'var(--ink)', letterSpacing: -0.3 }}>
+                  {top.label}
+                </div>
+                <div style={{ fontSize: 11.5, color: 'rgba(31,27,22,0.55)', marginTop: 4 }}>
+                  Composite {Math.round(composite(top.scores) * 100)} · {minToTime(top.startMin || 0)}
+                </div>
+              </div>
+              <Bloom value={composite(top.scores)} size={48} color="var(--terra)"/>
+            </div>
+          </Card>
+        )}
       </div>
 
       <SheetFooter>

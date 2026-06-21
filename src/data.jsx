@@ -71,14 +71,9 @@ const TIMELINE_BLOCKS = [
 
 // Composite score (0..1). Effort is inverted — easier tasks score higher.
 function composite(s) {
-  if (!s) return 0;
-  return (
-    s.urgency * 0.30 +
-    s.importance * 0.25 +
-    s.energyMatch * 0.20 +
-    s.success * 0.15 +
-    (1 - s.effort) * 0.10
-  );
+  if (!s || typeof s.urgency !== 'number') return 0;
+  const v = s.urgency * 0.30 + s.importance * 0.25 + s.energyMatch * 0.20 + s.success * 0.15 + (1 - s.effort) * 0.10;
+  return isNaN(v) ? 0 : v;
 }
 
 const INSIGHTS = [
