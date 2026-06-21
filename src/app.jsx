@@ -24,24 +24,37 @@ import { cloudEnabled } from './supabase.js';
 
 // Pacely — app shell (with onboarding gate + all sheets wired)
 
-// One-time cleanup: strip the old sample data (demo goals g1–g3, demo blocks
-// b1–b8) from existing installs so nobody keeps seeing the confusing demo tasks.
-// Anything the user actually made (different ids) is left untouched. Runs at
-// module load, before the persisted state is first read.
+// One-time cleanup: remove ONLY the original, unedited demo seed so nobody keeps
+// seeing the sample tasks. This never deletes user data:
+//   - items the user created have prefixed ids (g_…), never g1-g3 / b1-b8, and
+//   - items the user *edited* (same demo id but a changed title/label) are kept.
+// Runs at module load, before the persisted state is first read.
 (function purgeDemoSeed() {
   try {
     if (typeof localStorage === 'undefined') return;
     if (localStorage.getItem('cadence:demo-purged-v1')) return;
-    const seedGoals = new Set(['g1', 'g2', 'g3']);
-    const seedBlocks = new Set(['b1', 'b2', 'b3', 'b4', 'b5', 'b6', 'b7', 'b8']);
-    const prune = (key, seedIds) => {
+    const demoGoals = {
+      g1: 'Finish Q3 design review',
+      g2: 'Run a 5K by August',
+      g3: 'Read “Thinking in Systems”',
+    };
+    const demoBlocks = {
+      b1: 'Morning check-in', b2: 'Design review · sort feedback', b3: 'Walk + water',
+      b4: 'Draft nav-bar reply', b5: 'Lunch · phone away', b6: 'Run intervals',
+      b7: 'Decision summary', b8: 'Read 1 chapter',
+    };
+    // Only drop an item when its id is a known demo id AND its content is still the
+    // original — i.e. genuinely untouched sample data.
+    const prune = (key, originals, field) => {
       const raw = localStorage.getItem(key);
       if (!raw) return;
       const arr = JSON.parse(raw);
-      if (Array.isArray(arr)) localStorage.setItem(key, JSON.stringify(arr.filter(x => !seedIds.has(x && x.id))));
+      if (!Array.isArray(arr)) return;
+      const kept = arr.filter(x => !(x && originals[x.id] !== undefined && x[field] === originals[x.id]));
+      localStorage.setItem(key, JSON.stringify(kept));
     };
-    prune('cadence:goals', seedGoals);
-    prune('cadence:blocks', seedBlocks);
+    prune('cadence:goals', demoGoals, 'title');
+    prune('cadence:blocks', demoBlocks, 'label');
     localStorage.setItem('cadence:demo-purged-v1', '1');
   } catch { /* storage off — nothing to purge */ }
 })();

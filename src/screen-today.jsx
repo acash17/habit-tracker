@@ -1,5 +1,5 @@
 import React from 'react';
-import { Icon, Bloom, Chip, Btn, Card, H } from './ui.jsx';
+import { Icon, Bloom, Chip, Btn, Card, H, blockKindStyle } from './ui.jsx';
 import { ScoreDrawer } from './planner.jsx';
 import { minToTime } from './data.jsx';
 import { blocksToICS, icsFilename } from './calendar.js';
@@ -46,17 +46,6 @@ function EnergyDots({ value, onChange }) {
       ))}
     </div>
   );
-}
-
-function blockKindStyle(kind) {
-  switch (kind) {
-    case 'focus':   return { bg: 'rgba(200,96,47,0.10)',  bar: 'var(--terra)', label: 'Focus' };
-    case 'rest':    return { bg: 'rgba(107,142,90,0.12)', bar: 'var(--sage)',  label: 'Rest' };
-    case 'body':    return { bg: 'rgba(232,194,107,0.22)',bar: '#c89a3a',      label: 'Body' };
-    case 'reading': return { bg: 'rgba(155,138,196,0.16)',bar: 'var(--lav)',   label: 'Read' };
-    case 'self':    return { bg: 'rgba(31,27,22,0.05)',   bar: '#6b6359',      label: 'Self' };
-    default:        return { bg: 'rgba(31,27,22,0.05)',   bar: '#6b6359',      label: '' };
-  }
 }
 
 function TimelineBlock({ b, expanded, onToggle, onDone, allBlocks, onRunningLong }) {
