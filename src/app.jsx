@@ -120,7 +120,7 @@ function AuthGate() {
       <div style={{ height: 54, flexShrink: 0 }} />
       <div style={{
         flex: 1, overflowY: 'auto', padding: '0 24px',
-        display: 'flex', flexDirection: 'column', justifyContent: 'center',
+        display: 'flex', flexDirection: 'column',
       }}>
         <SignInScreen onAuthed={() => {}} />
       </div>

@@ -149,16 +149,34 @@ function SignInScreen({ onAuthed }) {
   React.useEffect(() => { if (user) onAuthed(); }, [user]);
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', paddingTop: 48, gap: 24 }}>
-      <Bloom value={0.6} size={108} color="var(--lav)"/>
-      <div>
-        <H size={36} style={{ maxWidth: 320 }}>Create your account to continue.</H>
-        <div style={{ fontSize: 14.5, color: 'rgba(31,27,22,0.65)', marginTop: 12, lineHeight: 1.55, maxWidth: 300, marginLeft: 'auto', marginRight: 'auto' }}>
+    <div style={{
+      display: 'flex', flexDirection: 'column', minHeight: '100%',
+      paddingTop: 8, paddingBottom: 24, textAlign: 'left',
+    }}>
+      {/* Pacely lockup — same mark + placement as the app header */}
+      <div style={{
+        display: 'flex', alignItems: 'center', gap: 8,
+        fontFamily: 'var(--serif)', fontSize: 22, color: 'var(--ink)', letterSpacing: -0.3,
+      }}>
+        <svg width="24" height="24" viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="10" fill="none" stroke="var(--terra)" strokeWidth="1.5"/>
+          <path d="M12 6v6l4 2.5" stroke="var(--terra)" strokeWidth="1.5" strokeLinecap="round" fill="none"/>
+        </svg>
+        Pacely
+      </div>
+
+      {/* Left-aligned heading block — mirrors Today / Goals / Settings */}
+      <div style={{ marginTop: 'auto', paddingTop: 40 }}>
+        <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: 1.2, textTransform: 'uppercase', color: 'rgba(31,27,22,0.5)', marginBottom: 8 }}>
+          Welcome
+        </div>
+        <H size={40} style={{ maxWidth: 340 }}>Create your account to continue.</H>
+        <div style={{ fontSize: 15, color: 'rgba(31,27,22,0.65)', marginTop: 14, lineHeight: 1.5, maxWidth: 320 }}>
           Sign in to save your goals and sync them across your devices. It takes one tap.
         </div>
       </div>
 
-      <div style={{ width: '100%', marginTop: 8, display: 'flex', flexDirection: 'column', gap: 12 }}>
+      <div style={{ width: '100%', marginTop: 28, display: 'flex', flexDirection: 'column', gap: 12 }}>
         {cloudEnabled ? (
           <button
             onClick={() => requestSignIn()}
