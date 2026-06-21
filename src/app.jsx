@@ -16,10 +16,11 @@ import { LibrarySheet } from './sheet-library.jsx';
 import { LifeHappenedSheet } from './sheet-life-happened.jsx';
 import { VoiceSheet } from './sheet-voice.jsx';
 import { RunningLongSheet, WhyOrderSheet } from './planner.jsx';
-import { OnboardingFlow } from './onboarding.jsx';
+import { OnboardingFlow, SignInScreen } from './onboarding.jsx';
 import { TourOverlay } from './tour.jsx';
 import { ConsentGate } from './consent-sheet.jsx';
 import { ProfileGate } from './profile-chat.jsx';
+import { cloudEnabled } from './supabase.js';
 
 // Pacely — app shell (with onboarding gate + all sheets wired)
 
@@ -106,7 +107,28 @@ function PacelyHeader() {
   );
 }
 
-function App() {
+// App-level login wall. When cloud sync is on and nobody is signed in, this covers
+// the whole app so it can't be used without logging in — including via the
+// ?skip=1 / ?tour=1 / bare=1 onboarding bypasses. Reuses the onboarding sign-in
+// screen; it auto-dismisses (unmounts) the moment a user session appears.
+function AuthGate() {
+  return (
+    <div style={{
+      position: 'absolute', inset: 0, zIndex: 480,
+      background: 'var(--paper)', display: 'flex', flexDirection: 'column',
+    }}>
+      <div style={{ height: 54, flexShrink: 0 }} />
+      <div style={{
+        flex: 1, overflowY: 'auto', padding: '0 24px',
+        display: 'flex', flexDirection: 'column', justifyContent: 'center',
+      }}>
+        <SignInScreen onAuthed={() => {}} />
+      </div>
+    </div>
+  );
+}
+
+function App({ requireAuth = true }) {
   const [tab, setTab] = React.useState('today');
   const [blocks, setBlocks] = usePersistedState('blocks', TIMELINE_BLOCKS);
   const [goals, setGoals] = usePersistedState('goals', INITIAL_GOALS);
@@ -123,7 +145,7 @@ function App() {
   const [editingGoalId, setEditingGoalId] = React.useState(null);
 
   // Cloud sync — no-op when env vars / Supabase not set up.
-  const { user } = useAuth();
+  const { user, ready } = useAuth();
   useCloudSync({ user, goals, setGoals });
 
   // Tour gate: ?tour=1 starts the guided investor tour; closes when finished.
@@ -394,6 +416,11 @@ function App() {
 
       {/* Onboarding gate */}
       {onboarding && <OnboardingFlow onDone={finishOnboarding}/>}
+
+      {/* App-level login wall — locks the app (and the ?skip / ?tour / bare
+          bypasses) behind sign-in whenever cloud sync is on and nobody is signed
+          in. No-op when cloud is disabled, or for the marketing demo (requireAuth=false). */}
+      {requireAuth && !onboarding && cloudEnabled && !(ready && user) && <AuthGate />}
 
       {/* Guided investor tour overlay */}
       {tourOn && <TourOverlay onExit={() => setTourOn(false)} />}

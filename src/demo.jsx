@@ -215,7 +215,7 @@ function Demo() {
       <div className="demo-body">
         <aside className="phone-stage">
           <IOSDevice width={402} height={874}>
-            <App />
+            <App requireAuth={false} />
           </IOSDevice>
           <div className="phone-caption">
             Chapter <strong>{String(active + 1).padStart(2, '0')}</strong> / {String(CHAPTERS.length).padStart(2, '0')}
