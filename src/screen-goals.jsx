@@ -629,7 +629,7 @@ function GoalsScreen({ goals, openNewGoal, openGoal, detailGoalId, setDetailGoal
 
       <Card style={{ padding: 16, background: 'var(--paper-2)' }}>
         <div style={{ fontSize: 12.5, color: 'rgba(31,27,22,0.6)', lineHeight: 1.5 }}>
-          Tip: it’s fine to have many. Filter by cadence to focus, or drill into any card to edit sub-habits.
+          Tip: it’s fine to have many. Filter by frequency to focus, or drill into any card to edit sub-habits.
         </div>
       </Card>
     </div>
