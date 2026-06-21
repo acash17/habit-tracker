@@ -161,19 +161,17 @@ function SignInScreen({ onAuthed }) {
       </div>
       <div style={{ width: '100%', marginTop: 24, paddingBottom: 34 }}>
         {cloudEnabled ? (
-          <button
-            onClick={() => requestSignIn()}
-            disabled={!ready}
-            style={{
-              display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 10,
-              width: '100%', padding: '14px 18px', height: 52, borderRadius: 999,
-              background: '#fff', color: '#1F1B16', border: '0.5px solid rgba(31,27,22,0.18)',
-              boxShadow: '0 1px 2px rgba(31,27,22,0.06)', cursor: ready ? 'pointer' : 'wait',
-              fontFamily: 'inherit', fontSize: 16, fontWeight: 500, opacity: ready ? 1 : 0.6,
+          // Same terra button as "Get started"; the Google "G" sits in a white chip
+          // so it stays legible on the orange fill.
+          <Btn variant="terra" size="lg" full onClick={() => requestSignIn()} disabled={!ready}>
+            <span style={{
+              display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+              width: 24, height: 24, borderRadius: 999, background: '#fff', flexShrink: 0,
             }}>
-            <GoogleLogo size={20}/>
-            <span>Continue with Google</span>
-          </button>
+              <GoogleLogo size={16}/>
+            </span>
+            Continue with Google
+          </Btn>
         ) : (
           // Safety hatch: if cloud isn't configured there's no way to sign in, so we
           // must not brick onboarding. Let the user continue local-only.
