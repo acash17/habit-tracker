@@ -2,7 +2,20 @@ import React from 'react';
 import { Bloom, Chip, Btn, H } from './ui.jsx';
 import { SheetShell, SheetFooter } from './planner.jsx';
 
-// Voice planning sheet — natural language → full day sequence.
+// Kind → color styling (local copy; mirrors screen-today / sheet-library). Without
+// it, the result view referenced an undefined `blockKindStyle` and crashed the sheet.
+function blockKindStyle(kind) {
+  switch (kind) {
+    case 'focus':   return { bg: 'rgba(200,96,47,0.10)',  bar: 'var(--terra)', label: 'Focus' };
+    case 'rest':    return { bg: 'rgba(107,142,90,0.12)', bar: 'var(--sage)',  label: 'Rest' };
+    case 'body':    return { bg: 'rgba(232,194,107,0.22)',bar: '#c89a3a',      label: 'Body' };
+    case 'reading': return { bg: 'rgba(155,138,196,0.16)',bar: 'var(--lav)',   label: 'Read' };
+    case 'self':    return { bg: 'rgba(31,27,22,0.05)',   bar: '#6b6359',      label: 'Self' };
+    default:        return { bg: 'rgba(31,27,22,0.05)',   bar: '#6b6359',      label: '' };
+  }
+}
+
+// Voice planning sheet — natural language → full day plan.
 // Simulates a voice capture, shows live transcript, then parses into a plan.
 
 function VoiceSheet({ onClose, onApply }) {
