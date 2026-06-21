@@ -1,20 +1,6 @@
 import React from 'react';
-import { Icon, Chip, Btn, Card, H } from './ui.jsx';
+import { Icon, Chip, Btn, Card, H, blockKindStyle, EditableSteps } from './ui.jsx';
 import { SheetShell, SheetFooter } from './planner.jsx';
-
-// Kind → color styling (local copy; mirrors screen-today / onboarding). Without
-// this, TemplateCard referenced an undefined `blockKindStyle` and crashed the
-// whole library sheet.
-function blockKindStyle(kind) {
-  switch (kind) {
-    case 'focus':   return { bg: 'rgba(200,96,47,0.10)',  bar: 'var(--terra)', label: 'Focus' };
-    case 'rest':    return { bg: 'rgba(107,142,90,0.12)', bar: 'var(--sage)',  label: 'Rest' };
-    case 'body':    return { bg: 'rgba(232,194,107,0.22)',bar: '#c89a3a',      label: 'Body' };
-    case 'reading': return { bg: 'rgba(155,138,196,0.16)',bar: 'var(--lav)',   label: 'Read' };
-    case 'self':    return { bg: 'rgba(31,27,22,0.05)',   bar: '#6b6359',      label: 'Self' };
-    default:        return { bg: 'rgba(31,27,22,0.05)',   bar: '#6b6359',      label: '' };
-  }
-}
 
 // Pre-built plan templates for common goals.
 // Especially powerful for ADHD users: zero decision cost to start.
@@ -198,10 +184,13 @@ function LibrarySheet({ onClose, onApply }) {
 }
 
 function TemplatePreview({ t, onBack, onApply }) {
-  const totalMin = t.steps.reduce((s, x) => s + x.est, 0);
+  // Local editable copy of the template — tweak wording/minutes, delete or add
+  // steps before adding to today. The original template is never mutated.
+  const [steps, setSteps] = React.useState(() => t.steps.map(s => ({ ...s })));
+  const totalMin = steps.reduce((s, x) => s + (x.est || 0), 0);
   function add() {
     let cursor = 10 * 60 + 50;
-    const blocks = t.steps.map((s, i) => {
+    const blocks = steps.map((s, i) => {
       const b = {
         id: t.id + '-' + i, startMin: cursor, dur: s.est, label: s.label, kind: s.kind, done: false,
         active: false,
@@ -226,45 +215,17 @@ function TemplatePreview({ t, onBack, onApply }) {
           <H size={26}>{t.title}</H>
           <div style={{ fontSize: 13, color: 'rgba(31,27,22,0.6)', marginTop: 6 }}>{t.sub}</div>
           <div style={{ display: 'flex', gap: 6, marginTop: 12 }}>
-            <Chip tone="paper">{t.steps.length} steps</Chip>
+            <Chip tone="paper">{steps.length} step{steps.length === 1 ? '' : 's'}</Chip>
             <Chip tone="paper">{totalMin} min</Chip>
-            <Chip tone="sage">tested</Chip>
+            <Chip tone="lav">Edit before adding</Chip>
           </div>
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-          {t.steps.map((s, i) => {
-            const k = blockKindStyle(s.kind);
-            return (
-              <div key={i} style={{
-                display: 'flex', gap: 12, padding: 14,
-                background: 'var(--card)', borderRadius: 16,
-                border: '0.5px solid rgba(31,27,22,0.06)',
-              }}>
-                <div style={{
-                  width: 26, height: 26, borderRadius: 999, flexShrink: 0,
-                  background: k.bar, color: '#fff',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontFamily: 'var(--serif)', fontSize: 13,
-                }}>{i + 1}</div>
-                <div style={{ flex: 1 }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10 }}>
-                    <div style={{ fontSize: 14.5, color: 'var(--ink)', fontWeight: 500 }}>{s.label}</div>
-                    <div style={{ fontFamily: 'var(--mono)', fontSize: 12, color: 'rgba(31,27,22,0.55)' }}>{s.est}m</div>
-                  </div>
-                  <div style={{ fontSize: 11.5, color: 'rgba(31,27,22,0.55)', marginTop: 4 }}>
-                    <span style={{ color: k.bar, fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.4, fontSize: 10 }}>{k.label} · </span>
-                    {s.why}
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
+        <EditableSteps steps={steps} setSteps={setSteps} />
 
         <SheetFooter>
           <Btn variant="ghost" size="lg" onClick={onBack}>Back</Btn>
-          <Btn variant="terra" size="lg" full onClick={add}>Add to today</Btn>
+          <Btn variant="terra" size="lg" full onClick={add} disabled={steps.length === 0}>Add to today</Btn>
         </SheetFooter>
       </div>
     </SheetShell>

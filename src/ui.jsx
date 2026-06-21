@@ -178,6 +178,105 @@ function blockKindStyle(kind) {
   }
 }
 
-Object.assign(window, { Icon, Bloom, Chip, Btn, Card, H, blockKindStyle });
+// Editable plan steps — shared by the New Goal sheet, onboarding preview, the
+// voice plan result and the library template preview so EVERY generated plan can
+// be edited (reword a step, change its minutes, delete it) or extended (add a
+// step) before it's saved. One implementation, identical affordances everywhere.
+function EditableSteps({ steps, setSteps, showWhy = true }) {
+  const list = steps || [];
+  const updateStep = (idx, patch) =>
+    setSteps(prev => (prev || []).map((s, i) => (i === idx ? { ...s, ...patch } : s)));
+  const deleteStep = (idx) =>
+    setSteps(prev => (prev || []).filter((_, i) => i !== idx));
+  const addStep = () =>
+    setSteps(prev => [...(prev || []), { label: '', est: 10, kind: 'focus', why: 'Your own step.' }]);
 
-export { Icon, Bloom, Chip, Btn, Card, H, blockKindStyle };
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+      {list.map((s, idx) => {
+        const k = blockKindStyle(s.kind);
+        return (
+          <div key={idx} style={{
+            display: 'flex', gap: 12, alignItems: 'flex-start',
+            padding: 14, background: 'var(--card)', borderRadius: 16,
+            border: '0.5px solid rgba(31,27,22,0.06)',
+          }}>
+            <div style={{
+              width: 28, height: 28, borderRadius: 999, flexShrink: 0,
+              background: k.bar, color: '#fff',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontFamily: 'var(--serif)', fontSize: 14, letterSpacing: -0.2,
+            }}>{idx + 1}</div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
+                {/* editable label */}
+                <textarea
+                  value={s.label}
+                  onChange={(e) => updateStep(idx, { label: e.target.value })}
+                  rows={1}
+                  placeholder="Describe this step…"
+                  style={{
+                    flex: 1, minWidth: 0, resize: 'none', overflow: 'hidden',
+                    background: 'transparent', border: 'none', outline: 'none', padding: 0,
+                    fontFamily: 'inherit', fontSize: 14.5, color: 'var(--ink)', fontWeight: 500,
+                    lineHeight: 1.3,
+                  }}
+                />
+                {/* editable minutes */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 2, flexShrink: 0 }}>
+                  <input
+                    type="number" min={1} max={120}
+                    value={s.est}
+                    onChange={(e) => updateStep(idx, { est: Math.max(1, Math.min(120, parseInt(e.target.value, 10) || 1)) })}
+                    aria-label={`minutes for step ${idx + 1}`}
+                    style={{
+                      width: 40, textAlign: 'right',
+                      background: 'rgba(31,27,22,0.04)', border: '0.5px solid rgba(31,27,22,0.12)',
+                      borderRadius: 8, padding: '3px 5px', outline: 'none',
+                      fontFamily: 'var(--mono)', fontSize: 12, color: 'var(--ink)',
+                    }}
+                  />
+                  <span style={{ fontFamily: 'var(--mono)', fontSize: 12, color: 'rgba(31,27,22,0.45)' }}>m</span>
+                </div>
+                {/* delete step */}
+                <button
+                  onClick={() => deleteStep(idx)}
+                  aria-label={`delete step ${idx + 1}`}
+                  style={{
+                    flexShrink: 0, background: 'transparent', border: 'none', cursor: 'pointer',
+                    padding: 2, color: 'rgba(31,27,22,0.35)', display: 'flex',
+                  }}
+                >
+                  <Icon name="x" size={16} />
+                </button>
+              </div>
+              {showWhy && s.why && (
+                <div style={{ fontSize: 12, color: 'rgba(31,27,22,0.55)', marginTop: 6, lineHeight: 1.4 }}>
+                  <span style={{ color: k.bar, fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.4, fontSize: 10 }}>{k.label || s.kind} · </span>
+                  {s.why}
+                </div>
+              )}
+            </div>
+          </div>
+        );
+      })}
+
+      {/* add a step */}
+      <button
+        onClick={addStep}
+        style={{
+          display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+          padding: '12px 14px', borderRadius: 14, cursor: 'pointer', width: '100%',
+          background: 'transparent', border: '1px dashed rgba(31,27,22,0.2)',
+          fontFamily: 'inherit', fontSize: 13.5, color: 'rgba(31,27,22,0.7)',
+        }}
+      >
+        <Icon name="plus" size={15} /> Add step
+      </button>
+    </div>
+  );
+}
+
+Object.assign(window, { Icon, Bloom, Chip, Btn, Card, H, blockKindStyle, EditableSteps });
+
+export { Icon, Bloom, Chip, Btn, Card, H, blockKindStyle, EditableSteps };

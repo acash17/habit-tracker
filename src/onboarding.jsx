@@ -1,5 +1,5 @@
 import React from 'react';
-import { Icon, Bloom, Chip, Btn, Card, H, blockKindStyle } from './ui.jsx';
+import { Icon, Bloom, Chip, Btn, Card, H, EditableSteps } from './ui.jsx';
 import { useAuth } from './use-auth.js';
 import { requestSignIn } from './consent.js';
 import { cloudEnabled } from './supabase.js';
@@ -72,7 +72,7 @@ function OnboardingFlow({ onDone }) {
         {screen === 'signin'   && <SignInScreen onAuthed={next}/>}
         {screen === 'energy'   && <EnergyScreen value={energy} onChange={setEnergy}/>}
         {screen === 'goals'    && <GoalsScreenOnboard value={goalText} onChange={setGoalText}/>}
-        {screen === 'preview'  && <PreviewScreen steps={generated}/>}
+        {screen === 'preview'  && <PreviewScreen steps={generated} setSteps={setGenerated}/>}
         {screen === 'tour'     && <TourScreen/>}
         {screen === 'win'      && <WinScreen onStart={onDone}/>}
       </div>
@@ -282,45 +282,26 @@ function GoalsScreenOnboard({ value, onChange }) {
   );
 }
 
-// ─── Step 4: Sequence preview ──────────────────────────────
-function PreviewScreen({ steps }) {
-  const total = (steps || []).reduce((s, x) => s + x.est, 0);
+// ─── Step 4: Sequence preview — editable before saving ──────
+function PreviewScreen({ steps, setSteps }) {
+  const list = steps || [];
+  const total = list.reduce((s, x) => s + (x.est || 0), 0);
+
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 18, paddingTop: 12 }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 16, paddingTop: 12 }}>
       <div>
         <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: 1.2, textTransform: 'uppercase', color: 'rgba(31,27,22,0.5)', marginBottom: 6 }}>
           Drafted in 3 seconds
         </div>
         <H size={32}>Your day, in order.</H>
         <div style={{ display: 'flex', gap: 6, marginTop: 12 }}>
-          <Chip tone="paper">{steps?.length || 0} steps</Chip>
+          <Chip tone="paper">{list.length} step{list.length === 1 ? '' : 's'}</Chip>
           <Chip tone="paper">~{total} min</Chip>
-          <Chip tone="lav">Suggested</Chip>
+          <Chip tone="lav">Edit before saving</Chip>
         </div>
       </div>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-        {(steps || []).map((s, i) => {
-          const k = blockKindStyle(s.kind);
-          return (
-            <div key={i} style={{
-              display: 'flex', gap: 12, padding: 12,
-              background: 'var(--card)', borderRadius: 14,
-              border: '0.5px solid rgba(31,27,22,0.06)',
-              animation: `slideup 320ms cubic-bezier(.2,.8,.2,1) ${i * 60}ms both`,
-            }}>
-              <div style={{ width: 4, borderRadius: 2, background: k.bar, flexShrink: 0 }}/>
-              <div style={{ flex: 1 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10 }}>
-                  <div style={{ fontSize: 14, color: 'var(--ink)', fontWeight: 500 }}>{s.label}</div>
-                  <div style={{ fontFamily: 'var(--mono)', fontSize: 11.5, color: 'rgba(31,27,22,0.55)' }}>{s.est}m</div>
-                </div>
-                <div style={{ fontSize: 11.5, color: 'rgba(31,27,22,0.55)', marginTop: 4, lineHeight: 1.4 }}>{s.why}</div>
-              </div>
-            </div>
-          );
-        })}
-      </div>
+      <EditableSteps steps={list} setSteps={setSteps} />
     </div>
   );
 }

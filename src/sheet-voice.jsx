@@ -1,19 +1,6 @@
 import React from 'react';
-import { Bloom, Chip, Btn, H } from './ui.jsx';
+import { Bloom, Chip, Btn, H, EditableSteps } from './ui.jsx';
 import { SheetShell, SheetFooter } from './planner.jsx';
-
-// Kind → color styling (local copy; mirrors screen-today / sheet-library). Without
-// it, the result view referenced an undefined `blockKindStyle` and crashed the sheet.
-function blockKindStyle(kind) {
-  switch (kind) {
-    case 'focus':   return { bg: 'rgba(200,96,47,0.10)',  bar: 'var(--terra)', label: 'Focus' };
-    case 'rest':    return { bg: 'rgba(107,142,90,0.12)', bar: 'var(--sage)',  label: 'Rest' };
-    case 'body':    return { bg: 'rgba(232,194,107,0.22)',bar: '#c89a3a',      label: 'Body' };
-    case 'reading': return { bg: 'rgba(155,138,196,0.16)',bar: 'var(--lav)',   label: 'Read' };
-    case 'self':    return { bg: 'rgba(31,27,22,0.05)',   bar: '#6b6359',      label: 'Self' };
-    default:        return { bg: 'rgba(31,27,22,0.05)',   bar: '#6b6359',      label: '' };
-  }
-}
 
 // Voice planning sheet — natural language → full day plan.
 // Simulates a voice capture, shows live transcript, then parses into a plan.
@@ -120,27 +107,8 @@ function VoiceSheet({ onClose, onApply }) {
               <H size={22}>Your day, in order.</H>
             </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-              {plan.map((s, i) => {
-                const k = blockKindStyle(s.kind);
-                return (
-                  <div key={i} style={{
-                    display: 'flex', gap: 12, padding: 12,
-                    background: 'var(--card)', borderRadius: 14,
-                    border: '0.5px solid rgba(31,27,22,0.06)',
-                  }}>
-                    <div style={{ width: 4, borderRadius: 2, background: k.bar, flexShrink: 0 }}/>
-                    <div style={{ flex: 1 }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10 }}>
-                        <div style={{ fontSize: 14, color: 'var(--ink)', fontWeight: 500 }}>{s.label}</div>
-                        <div style={{ fontFamily: 'var(--mono)', fontSize: 11.5, color: 'rgba(31,27,22,0.55)' }}>{s.est}m</div>
-                      </div>
-                      <div style={{ fontSize: 11.5, color: 'rgba(31,27,22,0.55)', marginTop: 4, lineHeight: 1.4 }}>{s.why}</div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
+            <Chip tone="lav" size="sm" style={{ alignSelf: 'flex-start' }}>Edit before adding</Chip>
+            <EditableSteps steps={plan} setSteps={setPlan} />
           </div>
         )}
 
