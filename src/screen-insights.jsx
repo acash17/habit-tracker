@@ -1,5 +1,4 @@
 import React from 'react';
-import { INSIGHTS } from './data.jsx';
 import { Icon, Bloom, Card, H } from './ui.jsx';
 import { analyzeBreakpoints } from './breakpoints.js';
 import { cellColor } from './palette.js';
@@ -271,8 +270,9 @@ function BreakpointInsight({ goals }) {
 }
 
 function InsightsScreen({ goals }) {
-  // Keep one evergreen, effort-over-streaks message alongside the real rhythm.
-  const evergreen = INSIGHTS.find(i => i.kind === 'celebrate') || INSIGHTS[0];
+  // Insights are derived from real goals/completions — no canned template cards.
+  // With no goals there's nothing to analyse, so show a prompt instead.
+  const hasGoals = Array.isArray(goals) && goals.length > 0;
   return (
     <div style={{ padding: '0 18px 32px', display: 'flex', flexDirection: 'column', gap: 18 }}>
       <div style={{ paddingTop: 8 }}>
@@ -289,14 +289,21 @@ function InsightsScreen({ goals }) {
         </div>
       </div>
 
-      <BreakpointInsight goals={goals} />
-
-      <RhythmSection />
-
-      {evergreen && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-          <InsightCard i={evergreen} />
-        </div>
+      {hasGoals ? (
+        <>
+          <BreakpointInsight goals={goals} />
+          <RhythmSection />
+        </>
+      ) : (
+        <Card style={{ padding: 24, display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: 12 }}>
+          <Bloom value={0.4} size={92} color="var(--lav)" />
+          <div style={{ fontFamily: 'var(--serif)', fontSize: 21, color: 'var(--ink)', letterSpacing: -0.3 }}>
+            No insights yet.
+          </div>
+          <div style={{ fontSize: 13.5, color: 'rgba(31,27,22,0.62)', lineHeight: 1.5, maxWidth: 270 }}>
+            Add a goal and start working your plans — your patterns and rhythm appear here, drawn from what you actually do.
+          </div>
+        </Card>
       )}
     </div>
   );
