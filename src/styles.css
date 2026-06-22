@@ -19,7 +19,13 @@
   body {
     font-family: var(--sans);
     color: var(--ink);
+    /* Text rendering pipeline tuned for Geist: comfortable default leading,
+       grayscale smoothing (crisper/lighter than subpixel on the WebView), and
+       legibility rendering so kerning/ligatures are on for body copy. */
+    line-height: 1.5;
     -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
     display: flex; align-items: center; justify-content: center;
     min-height: 100vh;
     background:
