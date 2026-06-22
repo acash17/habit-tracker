@@ -7,11 +7,13 @@
     --terra:   #C26A38;
     --sage:    #6B8E5A;
     --lav:     #8E7CB8;
-    /* One font everywhere: Instrument Serif. --sans / --mono are aliases so every
-       existing var(--sans)/var(--mono) usage resolves to the single serif family. */
+    /* Editorial pairing: a display serif for big headlines, a clean legible sans
+       for everything readable. Instrument Serif is a DISPLAY face — its tight
+       letterforms cramp small body text — so body/UI/labels use Geist (sans) and
+       numbers use Geist Mono. Headlines keep the serif character. */
     --serif:   'Instrument Serif', Georgia, serif;
-    --sans:    var(--serif);
-    --mono:    var(--serif);
+    --sans:    'Geist', -apple-system, BlinkMacSystemFont, system-ui, 'Segoe UI', Roboto, sans-serif;
+    --mono:    'Geist Mono', ui-monospace, 'SF Mono', monospace;
   }
   html, body { margin: 0; padding: 0; height: 100%; background: #E8E2D5; }
   body {
