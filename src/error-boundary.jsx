@@ -28,7 +28,7 @@ export class ErrorBoundary extends React.Component {
         <div style={{
           fontFamily: 'var(--serif, Georgia, serif)', fontSize: 26, marginBottom: 8, letterSpacing: -0.3,
         }}>Something hiccupped.</div>
-        <div style={{ fontSize: 13.5, color: 'rgba(31,27,22,0.6)', maxWidth: 300, lineHeight: 1.5, marginBottom: 20 }}>
+        <div style={{ fontSize: 13.5, color: 'rgba(31,27,22,0.64)', maxWidth: 300, lineHeight: 1.5, marginBottom: 20 }}>
           A screen failed to render. Your data is safe on this device — nothing was lost.
         </div>
         <div style={{ display: 'flex', gap: 10 }}>

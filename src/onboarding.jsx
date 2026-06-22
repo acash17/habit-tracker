@@ -61,7 +61,7 @@ function OnboardingFlow({ onDone }) {
         {step > 0 && step < steps.length - 1 && screen !== 'signin' && (
           <button onClick={onDone} style={{
             background: 'transparent', border: 'none', padding: 6,
-            fontFamily: 'inherit', fontSize: 13, color: 'rgba(31,27,22,0.5)',
+            fontFamily: 'inherit', fontSize: 13, color: 'rgba(31,27,22,0.64)',
             cursor: 'pointer',
           }}>Skip</button>
         )}
@@ -74,7 +74,9 @@ function OnboardingFlow({ onDone }) {
         {screen === 'goals'    && <GoalsScreenOnboard value={goalText} onChange={setGoalText}/>}
         {screen === 'preview'  && <PreviewScreen steps={generated} setSteps={setGenerated}/>}
         {screen === 'tour'     && <TourScreen/>}
-        {screen === 'win'      && <WinScreen onStart={onDone}/>}
+        {/* Finishing from the win screen carries the (edited) plan onto Today.
+            Skipping passes nothing, so a skipper still lands on a clean slate. */}
+        {screen === 'win'      && <WinScreen onStart={() => onDone(generated)}/>}
       </div>
 
       {/* Footer CTA — sign-in has its own CTA (and no Back, so users can't slip past). */}
@@ -106,7 +108,7 @@ function WelcomeScreen({ onNext }) {
       </div>
       <div style={{ width: '100%', marginTop: 24, paddingBottom: 34 }}>
         <Btn variant="terra" size="lg" full onClick={onNext}>Get started</Btn>
-        <div style={{ fontSize: 11.5, color: 'rgba(31,27,22,0.45)', marginTop: 14 }}>
+        <div style={{ fontSize: 11.5, color: 'rgba(31,27,22,0.64)', marginTop: 14 }}>
           Set up in under a minute
         </div>
       </div>
@@ -165,7 +167,7 @@ function SignInScreen({ onAuthed }) {
           <Btn variant="terra" size="lg" full onClick={onAuthed}>Continue</Btn>
         )}
 
-        <div style={{ fontSize: 11.5, color: 'rgba(31,27,22,0.5)', marginTop: 14, lineHeight: 1.5 }}>
+        <div style={{ fontSize: 11.5, color: 'rgba(31,27,22,0.64)', marginTop: 14, lineHeight: 1.5 }}>
           By continuing you agree to our{' '}
           <a href="/terms.html" target="_blank" rel="noreferrer" style={{ color: 'var(--terra)' }}>Terms</a>
           {' '}&amp;{' '}
@@ -189,7 +191,7 @@ function EnergyScreen({ value, onChange }) {
     <div style={{ display: 'flex', flexDirection: 'column', gap: 24, paddingTop: 12 }}>
       <div>
         <H size={32}>When's your brain at its best?</H>
-        <div style={{ fontSize: 14, color: 'rgba(31,27,22,0.6)', marginTop: 10, lineHeight: 1.5 }}>
+        <div style={{ fontSize: 14, color: 'rgba(31,27,22,0.64)', marginTop: 10, lineHeight: 1.5 }}>
           We'll route focus work into your peaks and lighter tasks into your dips. You can adjust this anytime.
         </div>
       </div>
@@ -200,7 +202,7 @@ function EnergyScreen({ value, onChange }) {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
               <div>
                 <div style={{ fontSize: 14.5, fontWeight: 500, color: 'var(--ink)' }}>{p.label}</div>
-                <div style={{ fontSize: 11.5, color: 'rgba(31,27,22,0.55)', marginTop: 2 }}>{p.sub}</div>
+                <div style={{ fontSize: 11.5, color: 'rgba(31,27,22,0.64)', marginTop: 2 }}>{p.sub}</div>
               </div>
               <Chip tone={value[p.id] === 'high' ? 'terra' : value[p.id] === 'medium' ? 'butter' : 'ink'}>
                 {value[p.id]}
@@ -231,7 +233,7 @@ function GoalsScreenOnboard({ value, onChange }) {
     <div style={{ display: 'flex', flexDirection: 'column', gap: 22, paddingTop: 12 }}>
       <div>
         <H size={32}>What would you like help organising?</H>
-        <div style={{ fontSize: 14, color: 'rgba(31,27,22,0.6)', marginTop: 10, lineHeight: 1.5 }}>
+        <div style={{ fontSize: 14, color: 'rgba(31,27,22,0.64)', marginTop: 10, lineHeight: 1.5 }}>
           One sentence. Goals, tasks, energy, time available — say it however you want.
         </div>
       </div>
@@ -251,7 +253,7 @@ function GoalsScreenOnboard({ value, onChange }) {
       />
 
       <div>
-        <div style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.8, color: 'rgba(31,27,22,0.5)', marginBottom: 10 }}>
+        <div style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.8, color: 'rgba(31,27,22,0.64)', marginBottom: 10 }}>
           Or try
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -290,7 +292,7 @@ function PreviewScreen({ steps, setSteps }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16, paddingTop: 12 }}>
       <div>
-        <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: 1.2, textTransform: 'uppercase', color: 'rgba(31,27,22,0.5)', marginBottom: 6 }}>
+        <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: 1.2, textTransform: 'uppercase', color: 'rgba(31,27,22,0.64)', marginBottom: 6 }}>
           Drafted in 3 seconds
         </div>
         <H size={32}>Your day, in order.</H>
@@ -333,7 +335,7 @@ function TourScreen() {
               }}><Icon name={c.icon} size={20}/></div>
               <div style={{ flex: 1 }}>
                 <div style={{ fontFamily: 'var(--serif)', fontSize: 20, color: 'var(--ink)', letterSpacing: -0.3 }}>{c.title}</div>
-                <div style={{ fontSize: 13, color: 'rgba(31,27,22,0.62)', marginTop: 6, lineHeight: 1.5 }}>{c.sub}</div>
+                <div style={{ fontSize: 13, color: 'rgba(31,27,22,0.64)', marginTop: 6, lineHeight: 1.5 }}>{c.sub}</div>
               </div>
             </div>
           </Card>

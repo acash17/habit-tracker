@@ -344,8 +344,26 @@ function App({ requireAuth = true }) {
     () => goals.find(g => g.id === editingGoalId) || null,
     [goals, editingGoalId]
   );
-  function finishOnboarding() {
+  function finishOnboarding(plan) {
     try { localStorage.setItem('cadence-onboarded', '1'); } catch {}
+    // Onboarding promised "your first plan is ready" — actually deliver it.
+    // Seed the (possibly edited) preview steps onto Today's timeline from 9am.
+    const steps = Array.isArray(plan) ? plan.filter(s => (s.label || '').trim()) : [];
+    if (steps.length) {
+      let cursor = 9 * 60;
+      const seeded = steps.map((s, i) => {
+        const dur = typeof s.est === 'number' ? s.est : 10;
+        const b = {
+          id: `ob-${i}`, startMin: cursor, dur, label: s.label,
+          kind: s.kind || 'focus', done: false, active: i === 0,
+          scores: { urgency: 0.5, importance: 0.6, energyMatch: 0.7, success: 0.8, effort: 0.4 },
+          optional: false, deps: [],
+        };
+        cursor += dur;
+        return b;
+      });
+      setBlocks(seeded);
+    }
     setOnboarding(false);
   }
   function replayOnboarding() {

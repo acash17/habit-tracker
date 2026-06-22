@@ -161,7 +161,7 @@ function TourOverlay({ onExit }) {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12 }}>
           <button onClick={onExit} style={{
             background: 'transparent', border: 'none', padding: '6px 4px',
-            fontFamily: 'inherit', fontSize: 12.5, color: 'rgba(31,27,22,0.5)',
+            fontFamily: 'inherit', fontSize: 12.5, color: 'rgba(31,27,22,0.64)',
             cursor: 'pointer', letterSpacing: 0.2,
           }}>Skip tour</button>
 

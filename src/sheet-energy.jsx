@@ -91,7 +91,7 @@ function EnergyCurveEditor({ value, onChange }) {
         )}
       </svg>
 
-      <div style={{ display: 'flex', gap: 8, marginTop: 8, fontSize: 11.5, color: 'rgba(31,27,22,0.55)' }}>
+      <div style={{ display: 'flex', gap: 8, marginTop: 8, fontSize: 11.5, color: 'rgba(31,27,22,0.64)' }}>
         <Chip tone="terra">Peak {minToTime(peakHour * 60)}</Chip>
         <Chip tone="ink">Dip {minToTime(dipHour * 60)}</Chip>
       </div>
@@ -108,7 +108,7 @@ function EnergyProfileSheet({ onClose, onSave, initial }) {
       <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
         <div>
           <H size={26}>When does your brain show up?</H>
-          <div style={{ fontSize: 13, color: 'rgba(31,27,22,0.6)', marginTop: 6, lineHeight: 1.45 }}>
+          <div style={{ fontSize: 13, color: 'rgba(31,27,22,0.64)', marginTop: 6, lineHeight: 1.45 }}>
             Drag the curve to match your real pattern. The planner uses this to route focus blocks into peaks and lighter work into dips.
           </div>
         </div>
@@ -127,7 +127,7 @@ function EnergyProfileSheet({ onClose, onSave, initial }) {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 }}>
             <div style={{ flex: 1 }}>
               <div style={{ fontSize: 13.5, fontWeight: 500, color: 'var(--ink)' }}>Auto-learn from check-ins</div>
-              <div style={{ fontSize: 11.5, color: 'rgba(31,27,22,0.55)', marginTop: 3, lineHeight: 1.4 }}>
+              <div style={{ fontSize: 11.5, color: 'rgba(31,27,22,0.64)', marginTop: 3, lineHeight: 1.4 }}>
                 Refine the curve from your daily energy logs. On-device only.
               </div>
             </div>

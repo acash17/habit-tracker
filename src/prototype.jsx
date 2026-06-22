@@ -174,7 +174,7 @@ function SyncPanel() {
             <div style={{ width: 84, height: 130, borderRadius: 16, background: '#15110d', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <div style={{ width: 70, height: 116, borderRadius: 11, background: 'var(--paper)' }} />
             </div>
-            <div style={{ fontFamily: 'var(--mono)', fontSize: 9.5, marginTop: 8, color: 'rgba(31,27,22,0.55)' }}>DEVICE</div>
+            <div style={{ fontFamily: 'var(--mono)', fontSize: 9.5, marginTop: 8, color: 'rgba(31,27,22,0.64)' }}>DEVICE</div>
           </div>
           {/* link */}
           <div style={{ position: 'relative', width: 90, height: 4 }}>
@@ -198,7 +198,7 @@ function SyncPanel() {
               fontFamily: 'var(--serif)', fontSize: 26, color: 'var(--ink)',
               transition: 'all 300ms ease',
             }}>☁</div>
-            <div style={{ fontFamily: 'var(--mono)', fontSize: 9.5, marginTop: 8, color: 'rgba(31,27,22,0.55)' }}>SUPABASE</div>
+            <div style={{ fontFamily: 'var(--mono)', fontSize: 9.5, marginTop: 8, color: 'rgba(31,27,22,0.64)' }}>SUPABASE</div>
           </div>
         </div>
       </div>
@@ -260,14 +260,14 @@ function AutoLogPanel() {
                     }}>{isDone ? '✓' : ''}</span>
                     <span style={{ flex: 1 }}>
                       <span style={{ display: 'block', fontSize: 13, color: 'var(--ink)', textDecoration: isDone ? 'line-through' : 'none', opacity: isDone ? 0.6 : 1 }}>{b.label}</span>
-                      <span style={{ display: 'block', fontSize: 10.5, color: 'rgba(31,27,22,0.5)' }}>{b.goal}</span>
+                      <span style={{ display: 'block', fontSize: 10.5, color: 'rgba(31,27,22,0.64)' }}>{b.goal}</span>
                     </span>
                   </button>
                 );
               })}
             </div>
 
-            <div style={{ marginTop: 16, fontFamily: 'var(--mono)', fontSize: 9, color: 'rgba(31,27,22,0.45)', marginBottom: 6 }}>
+            <div style={{ marginTop: 16, fontFamily: 'var(--mono)', fontSize: 9, color: 'rgba(31,27,22,0.64)', marginBottom: 6 }}>
               LEARN SPANISH · live
             </div>
             <Grid
@@ -323,7 +323,7 @@ function HourBars({ row, colorKey }) {
             background: cell(colorKey, v || 0, false),
             transition: 'height 200ms ease, background 200ms ease',
           }} />
-          <span style={{ fontFamily: 'var(--mono)', fontSize: 8, color: 'rgba(31,27,22,0.45)' }}>{BINS[i]}</span>
+          <span style={{ fontFamily: 'var(--mono)', fontSize: 8, color: 'rgba(31,27,22,0.64)' }}>{BINS[i]}</span>
         </div>
       ))}
     </div>
@@ -405,7 +405,7 @@ function ActiveHoursPanel() {
 
           {/* selected day hourly bars */}
           <div style={{ marginTop: 16, borderTop: '0.5px solid rgba(31,27,22,0.08)', paddingTop: 12 }}>
-            <div style={{ fontFamily: 'var(--mono)', fontSize: 9.5, color: 'rgba(31,27,22,0.5)', textTransform: 'uppercase', letterSpacing: 0.6 }}>
+            <div style={{ fontFamily: 'var(--mono)', fontSize: 9.5, color: 'rgba(31,27,22,0.64)', textTransform: 'uppercase', letterSpacing: 0.6 }}>
               {DAYS[day]} · hourly
             </div>
             <HourBars row={matrix[day]} colorKey={colorKey} />

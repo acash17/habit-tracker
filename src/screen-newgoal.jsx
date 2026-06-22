@@ -60,12 +60,12 @@ function NewGoalSheet({ onClose, onCommit, onOpenLibrary }) {
 
         {/* header */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 18px 6px' }}>
-          <div style={{ fontSize: 13, fontWeight: 500, color: 'rgba(31,27,22,0.55)' }}>
+          <div style={{ fontSize: 13, fontWeight: 500, color: 'rgba(31,27,22,0.64)' }}>
             {stage === 'result' ? 'Your plan' : 'New goal'}
           </div>
           <button onClick={onClose} style={{
             background: 'transparent', border: 'none', padding: 4, cursor: 'pointer',
-            color: 'rgba(31,27,22,0.5)',
+            color: 'rgba(31,27,22,0.64)',
           }}><Icon name="x" size={20}/></button>
         </div>
 
@@ -120,7 +120,7 @@ function InputStage({ goal, setGoal, hours, setHours, energy, setEnergy, deadlin
     <div style={{ display: 'flex', flexDirection: 'column', gap: 22, paddingTop: 6 }}>
       <div>
         <H size={28}>What’s the thing you’re circling?</H>
-        <div style={{ fontSize: 13, color: 'rgba(31,27,22,0.55)', marginTop: 6, lineHeight: 1.4 }}>
+        <div style={{ fontSize: 13, color: 'rgba(31,27,22,0.64)', marginTop: 6, lineHeight: 1.4 }}>
           One sentence is enough. I’ll break it down.
         </div>
       </div>
@@ -149,14 +149,14 @@ function InputStage({ goal, setGoal, hours, setHours, energy, setEnergy, deadlin
           <Icon name="goals" size={16} color="var(--sage)"/>
           <div style={{ flex: 1 }}>
             <div style={{ fontSize: 13.5, color: 'var(--ink)', fontWeight: 500 }}>Or start from the library</div>
-            <div style={{ fontSize: 11.5, color: 'rgba(31,27,22,0.55)', marginTop: 2 }}>Pre-built plans for common goals.</div>
+            <div style={{ fontSize: 11.5, color: 'rgba(31,27,22,0.64)', marginTop: 2 }}>Pre-built plans for common goals.</div>
           </div>
           <Icon name="chev" size={14} color="rgba(31,27,22,0.3)"/>
         </button>
       )}
 
       <div>
-        <div style={{ fontSize: 12, fontWeight: 600, color: 'rgba(31,27,22,0.55)', marginBottom: 10, letterSpacing: 0.4, textTransform: 'uppercase' }}>
+        <div style={{ fontSize: 12, fontWeight: 600, color: 'rgba(31,27,22,0.64)', marginBottom: 10, letterSpacing: 0.4, textTransform: 'uppercase' }}>
           Time you have today
         </div>
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
@@ -169,7 +169,7 @@ function InputStage({ goal, setGoal, hours, setHours, energy, setEnergy, deadlin
       </div>
 
       <div>
-        <div style={{ fontSize: 12, fontWeight: 600, color: 'rgba(31,27,22,0.55)', marginBottom: 10, letterSpacing: 0.4, textTransform: 'uppercase' }}>
+        <div style={{ fontSize: 12, fontWeight: 600, color: 'rgba(31,27,22,0.64)', marginBottom: 10, letterSpacing: 0.4, textTransform: 'uppercase' }}>
           Energy
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
@@ -180,7 +180,7 @@ function InputStage({ goal, setGoal, hours, setHours, energy, setEnergy, deadlin
       </div>
 
       <div>
-        <div style={{ fontSize: 12, fontWeight: 600, color: 'rgba(31,27,22,0.55)', marginBottom: 10, letterSpacing: 0.4, textTransform: 'uppercase' }}>
+        <div style={{ fontSize: 12, fontWeight: 600, color: 'rgba(31,27,22,0.64)', marginBottom: 10, letterSpacing: 0.4, textTransform: 'uppercase' }}>
           Frequency
         </div>
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
@@ -205,7 +205,7 @@ function InputStage({ goal, setGoal, hours, setHours, energy, setEnergy, deadlin
             />
             <div style={{ flex: 1 }}>
               <div style={{ fontSize: 13.5, color: 'var(--ink)', fontWeight: 500 }}>Repeat each {cadence === 'daily' ? 'day' : cadence === 'weekly' ? 'week' : 'month'}</div>
-              <div style={{ fontSize: 11.5, color: 'rgba(31,27,22,0.55)', marginTop: 2 }}>
+              <div style={{ fontSize: 11.5, color: 'rgba(31,27,22,0.64)', marginTop: 2 }}>
                 Sub-habits reset on a new {cadence === 'daily' ? 'day' : cadence === 'weekly' ? 'week' : 'month'}.
               </div>
             </div>
@@ -214,7 +214,7 @@ function InputStage({ goal, setGoal, hours, setHours, energy, setEnergy, deadlin
       </div>
 
       <div>
-        <div style={{ fontSize: 12, fontWeight: 600, color: 'rgba(31,27,22,0.55)', marginBottom: 10, letterSpacing: 0.4, textTransform: 'uppercase' }}>
+        <div style={{ fontSize: 12, fontWeight: 600, color: 'rgba(31,27,22,0.64)', marginBottom: 10, letterSpacing: 0.4, textTransform: 'uppercase' }}>
           Deadline
         </div>
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
@@ -241,7 +241,7 @@ function ThinkingStage({ goal }) {
     <div style={{ display: 'flex', flexDirection: 'column', gap: 18, paddingTop: 32, alignItems: 'center', textAlign: 'center' }}>
       <Bloom value={0.35} size={120} color="var(--lav)" />
       <H size={22} style={{ maxWidth: 280 }}>Breaking “{goal.length > 32 ? goal.slice(0, 30) + '…' : goal}” into doable steps…</H>
-      <div style={{ fontSize: 13, color: 'rgba(31,27,22,0.55)', maxWidth: 260, lineHeight: 1.5 }}>
+      <div style={{ fontSize: 13, color: 'rgba(31,27,22,0.64)', maxWidth: 260, lineHeight: 1.5 }}>
         Considering your time, energy and how you finished plans last week.
       </div>
       <div style={{ display: 'flex', gap: 6, marginTop: 4 }}>
@@ -262,7 +262,7 @@ function ResultStage({ goal, steps, setSteps }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16, paddingTop: 6 }}>
       <div>
-        <div style={{ fontSize: 12.5, color: 'rgba(31,27,22,0.55)', marginBottom: 4 }}>Goal</div>
+        <div style={{ fontSize: 12.5, color: 'rgba(31,27,22,0.64)', marginBottom: 4 }}>Goal</div>
         <H size={22}>{goal}</H>
         <div style={{ display: 'flex', gap: 6, marginTop: 10 }}>
           <Chip tone="paper">{steps.length} step{steps.length === 1 ? '' : 's'}</Chip>

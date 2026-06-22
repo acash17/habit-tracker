@@ -90,7 +90,7 @@ function SubHabitRow({ s, color, onChange, onDelete, onMoveUp, onMoveDown, canUp
             fontFeatureSettings: '"tnum"',
           }}
         />
-        <span style={{ fontSize: 11, color: 'rgba(31,27,22,0.5)' }}>m</span>
+        <span style={{ fontSize: 11, color: 'rgba(31,27,22,0.64)' }}>m</span>
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
@@ -175,7 +175,7 @@ function GoalEditSheet({ goal, onClose, onSave, onDelete }) {
       <div style={{ display: 'flex', flexDirection: 'column', gap: 18, paddingBottom: 16 }}>
         {/* Title */}
         <div>
-          <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: 0.6, textTransform: 'uppercase', color: 'rgba(31,27,22,0.5)', marginBottom: 6 }}>
+          <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: 0.6, textTransform: 'uppercase', color: 'rgba(31,27,22,0.64)', marginBottom: 6 }}>
             Goal
           </div>
           <input
@@ -194,7 +194,7 @@ function GoalEditSheet({ goal, onClose, onSave, onDelete }) {
 
         {/* Color swatches */}
         <div>
-          <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: 0.6, textTransform: 'uppercase', color: 'rgba(31,27,22,0.5)', marginBottom: 8 }}>
+          <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: 0.6, textTransform: 'uppercase', color: 'rgba(31,27,22,0.64)', marginBottom: 8 }}>
             Color
           </div>
           <div style={{ display: 'flex', gap: 8 }}>
@@ -212,7 +212,7 @@ function GoalEditSheet({ goal, onClose, onSave, onDelete }) {
 
         {/* Cadence */}
         <div>
-          <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: 0.6, textTransform: 'uppercase', color: 'rgba(31,27,22,0.5)', marginBottom: 8 }}>
+          <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: 0.6, textTransform: 'uppercase', color: 'rgba(31,27,22,0.64)', marginBottom: 8 }}>
             Frequency
           </div>
           <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
@@ -244,7 +244,7 @@ function GoalEditSheet({ goal, onClose, onSave, onDelete }) {
               />
               <div style={{ flex: 1 }}>
                 <div style={{ fontSize: 13.5, color: 'var(--ink)', fontWeight: 500 }}>Repeat each {draft.cadence === 'daily' ? 'day' : draft.cadence === 'weekly' ? 'week' : 'month'}</div>
-                <div style={{ fontSize: 11.5, color: 'rgba(31,27,22,0.55)', marginTop: 2 }}>
+                <div style={{ fontSize: 11.5, color: 'rgba(31,27,22,0.64)', marginTop: 2 }}>
                   Sub-habits reset at the start of each {draft.cadence === 'daily' ? 'day' : draft.cadence === 'weekly' ? 'week' : 'month'}.
                 </div>
               </div>
@@ -255,7 +255,7 @@ function GoalEditSheet({ goal, onClose, onSave, onDelete }) {
         {/* Sub-habits */}
         <div>
           <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 8 }}>
-            <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: 0.6, textTransform: 'uppercase', color: 'rgba(31,27,22,0.5)' }}>
+            <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: 0.6, textTransform: 'uppercase', color: 'rgba(31,27,22,0.64)' }}>
               Sub-habits
             </div>
             <div style={{ display: 'flex', gap: 6 }}>

@@ -20,7 +20,7 @@ function Row({ title, sub, control, last }) {
     }}>
       <div style={{ flex: 1 }}>
         <div style={{ fontSize: 14, color: 'var(--ink)', fontWeight: 500 }}>{title}</div>
-        {sub && <div style={{ fontSize: 12, color: 'rgba(31,27,22,0.55)', marginTop: 2, lineHeight: 1.4 }}>{sub}</div>}
+        {sub && <div style={{ fontSize: 12, color: 'rgba(31,27,22,0.64)', marginTop: 2, lineHeight: 1.4 }}>{sub}</div>}
       </div>
       {control}
     </div>
@@ -50,7 +50,7 @@ function Section({ header, children }) {
     <div>
       <div style={{
         fontSize: 11, fontWeight: 600, letterSpacing: 1.2, textTransform: 'uppercase',
-        color: 'rgba(31,27,22,0.5)', padding: '0 4px 8px',
+        color: 'rgba(31,27,22,0.64)', padding: '0 4px 8px',
       }}>{header}</div>
       <Card style={{ padding: 0, overflow: 'hidden' }}>{children}</Card>
     </div>
@@ -89,12 +89,12 @@ function ProfileCard() {
         <div style={{
           width: 52, height: 52, borderRadius: 999, background: 'var(--paper-2)',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
-          color: 'rgba(31,27,22,0.55)', fontFamily: 'var(--mono)', fontSize: 11,
+          color: 'rgba(31,27,22,0.64)', fontFamily: 'var(--mono)', fontSize: 11,
           letterSpacing: 1, textTransform: 'uppercase',
         }}>local</div>
         <div style={{ flex: 1 }}>
           <div style={{ fontFamily: 'var(--serif)', fontSize: 20, color: 'var(--ink)', letterSpacing: -0.3 }}>This device only</div>
-          <div style={{ fontSize: 12, color: 'rgba(31,27,22,0.55)', marginTop: 2 }}>Cloud sync not configured. See docs/SUPABASE_SETUP.md.</div>
+          <div style={{ fontSize: 12, color: 'rgba(31,27,22,0.64)', marginTop: 2 }}>Cloud sync not configured. See docs/SUPABASE_SETUP.md.</div>
         </div>
       </Card>
     );
@@ -108,7 +108,7 @@ function ProfileCard() {
           <div style={{ fontFamily: 'var(--serif)', fontSize: 20, color: 'var(--ink)', letterSpacing: -0.3, lineHeight: 1.1 }}>
             Sync your plans
           </div>
-          <div style={{ fontSize: 12.5, color: 'rgba(31,27,22,0.6)', marginTop: 6, lineHeight: 1.5 }}>
+          <div style={{ fontSize: 12.5, color: 'rgba(31,27,22,0.64)', marginTop: 6, lineHeight: 1.5 }}>
             Sign in to back up your goals and pick them up on any device. Local data stays on this device; signing in only mirrors it.
           </div>
         </div>
@@ -127,7 +127,7 @@ function ProfileCard() {
           <GoogleLogo size={18} />
           <span>{busy ? 'Redirecting…' : 'Continue with Google'}</span>
         </button>
-        <div style={{ fontSize: 10.5, color: 'rgba(31,27,22,0.5)', lineHeight: 1.5, marginTop: 2 }}>
+        <div style={{ fontSize: 10.5, color: 'rgba(31,27,22,0.64)', lineHeight: 1.5, marginTop: 2 }}>
           By continuing you consent to Pacely storing your goals and completion history to
           provide sync, per our{' '}
           <a href="/privacy.html" target="_blank" rel="noreferrer" style={{ color: 'var(--terra)' }}>Privacy Policy</a>
@@ -162,7 +162,7 @@ function ProfileCard() {
           overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
         }}>{name}</div>
         <div style={{
-          fontSize: 11.5, color: 'rgba(31,27,22,0.55)', marginTop: 2,
+          fontSize: 11.5, color: 'rgba(31,27,22,0.64)', marginTop: 2,
           display: 'flex', alignItems: 'center', gap: 6,
         }}>
           <span style={{ width: 6, height: 6, borderRadius: 999, background: 'var(--sage)' }} />
@@ -245,7 +245,7 @@ function SettingsScreen({ onOpenEnergy, onReplay }) {
       <div style={{ paddingTop: 8 }}>
         <div style={{
           fontSize: 11, fontWeight: 600, letterSpacing: 1.2,
-          color: 'rgba(31,27,22,0.5)', textTransform: 'uppercase', marginBottom: 6,
+          color: 'rgba(31,27,22,0.64)', textTransform: 'uppercase', marginBottom: 6,
         }}>You</div>
         <H size={32}>Settings</H>
       </div>
@@ -374,7 +374,7 @@ function SettingsScreen({ onOpenEnergy, onReplay }) {
       </Section>
 
       <div style={{
-        fontSize: 11.5, color: 'rgba(31,27,22,0.45)', textAlign: 'center',
+        fontSize: 11.5, color: 'rgba(31,27,22,0.64)', textAlign: 'center',
         padding: '8px 24px', lineHeight: 1.5, letterSpacing: -0.05,
       }}>
         Pacely v0.5.2 · Local-first by default<br/>

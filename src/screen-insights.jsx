@@ -32,7 +32,7 @@ function InsightCard({ i }) {
             color: 'var(--ink)', letterSpacing: -0.25, textWrap: 'pretty',
           }}>{i.headline}</div>
           <div style={{
-            fontSize: 13, color: 'rgba(31,27,22,0.62)',
+            fontSize: 13, color: 'rgba(31,27,22,0.64)',
             marginTop: 8, lineHeight: 1.45,
           }}>{i.detail}</div>
         </div>
@@ -58,7 +58,7 @@ function RhythmPanel({ matrix, stats }) {
 
   return (
     <Card style={{ padding: 18 }}>
-      <div style={{ fontSize: 11.5, fontWeight: 600, letterSpacing: 0.6, textTransform: 'uppercase', color: 'rgba(31,27,22,0.5)', marginBottom: 4 }}>
+      <div style={{ fontSize: 11.5, fontWeight: 600, letterSpacing: 0.6, textTransform: 'uppercase', color: 'rgba(31,27,22,0.64)', marginBottom: 4 }}>
         Your rhythm
       </div>
       <div style={{ fontFamily: 'var(--serif)', fontSize: 20, color: 'var(--ink)', letterSpacing: -0.3, marginBottom: 14 }}>
@@ -67,11 +67,11 @@ function RhythmPanel({ matrix, stats }) {
 
       {/* callouts */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 16 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: 'rgba(31,27,22,0.6)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: 'rgba(31,27,22,0.64)' }}>
           <span style={{ width: 8, height: 8, borderRadius: 999, background: 'var(--terra)' }} />
           Peak · <strong style={{ color: 'var(--ink)' }}>{DAYS[stats.peakDay]} {binLabel(stats.peakBin)}</strong>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: 'rgba(31,27,22,0.6)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: 'rgba(31,27,22,0.64)' }}>
           <span style={{ width: 8, height: 8, borderRadius: 999, background: 'rgba(31,27,22,0.3)' }} />
           Laziest · <strong style={{ color: 'var(--ink)' }}>daily {binLabel(stats.lazyBin)}</strong>
         </div>
@@ -108,7 +108,7 @@ function RhythmPanel({ matrix, stats }) {
 
       {/* selected day hourly bars */}
       <div style={{ marginTop: 16, borderTop: '0.5px solid rgba(31,27,22,0.08)', paddingTop: 12 }}>
-        <div style={{ fontFamily: 'var(--mono)', fontSize: 9.5, color: 'rgba(31,27,22,0.5)', textTransform: 'uppercase', letterSpacing: 0.6 }}>
+        <div style={{ fontFamily: 'var(--mono)', fontSize: 9.5, color: 'rgba(31,27,22,0.64)', textTransform: 'uppercase', letterSpacing: 0.6 }}>
           {DAYS[day]} · by time of day
         </div>
         <div style={{ display: 'flex', alignItems: 'flex-end', gap: 5, height: 90, marginTop: 10 }}>
@@ -120,7 +120,7 @@ function RhythmPanel({ matrix, stats }) {
                 background: cellColor(RHYTHM_COLOR, toLevel(v, max)),
                 transition: 'height 200ms ease',
               }} />
-              <span style={{ fontFamily: 'var(--mono)', fontSize: 8, color: 'rgba(31,27,22,0.45)' }}>{BINS[i]}</span>
+              <span style={{ fontFamily: 'var(--mono)', fontSize: 8, color: 'rgba(31,27,22,0.64)' }}>{BINS[i]}</span>
             </div>
           ))}
         </div>
@@ -133,13 +133,13 @@ function RhythmPanel({ matrix, stats }) {
 function RhythmPrompt({ title, body, children }) {
   return (
     <Card style={{ padding: 18, display: 'flex', flexDirection: 'column', gap: 10 }}>
-      <div style={{ fontSize: 11.5, fontWeight: 600, letterSpacing: 0.6, textTransform: 'uppercase', color: 'rgba(31,27,22,0.5)' }}>
+      <div style={{ fontSize: 11.5, fontWeight: 600, letterSpacing: 0.6, textTransform: 'uppercase', color: 'rgba(31,27,22,0.64)' }}>
         Your rhythm
       </div>
       <div style={{ fontFamily: 'var(--serif)', fontSize: 20, color: 'var(--ink)', letterSpacing: -0.3, lineHeight: 1.15 }}>
         {title}
       </div>
-      <div style={{ fontSize: 13, color: 'rgba(31,27,22,0.62)', lineHeight: 1.45 }}>{body}</div>
+      <div style={{ fontSize: 13, color: 'rgba(31,27,22,0.64)', lineHeight: 1.45 }}>{body}</div>
       {children}
     </Card>
   );
@@ -243,13 +243,13 @@ function BreakpointInsight({ goals }) {
 
   return (
     <Card style={{ padding: 18 }}>
-      <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: 1.1, textTransform: 'uppercase', color: 'rgba(31,27,22,0.5)', marginBottom: 6 }}>
+      <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: 1.1, textTransform: 'uppercase', color: 'rgba(31,27,22,0.64)', marginBottom: 6 }}>
         Where momentum dips
       </div>
       <div style={{ fontFamily: 'var(--serif)', fontSize: 20, color: 'var(--ink)', letterSpacing: -0.3, lineHeight: 1.2 }}>
         {headline}
       </div>
-      <div style={{ fontSize: 13, color: 'rgba(31,27,22,0.6)', marginTop: 6, lineHeight: 1.5 }}>
+      <div style={{ fontSize: 13, color: 'rgba(31,27,22,0.64)', marginTop: 6, lineHeight: 1.5 }}>
         Not a failure — usually the next step just needs to be smaller. Tap a goal to shrink it.
       </div>
 
@@ -257,7 +257,7 @@ function BreakpointInsight({ goals }) {
         {stalled.slice(0, 4).map(g => (
           <div key={g.goalId} style={{ padding: 12, background: 'var(--paper-2)', borderRadius: 12 }}>
             <div style={{ fontSize: 14, color: 'var(--ink)', fontWeight: 500 }}>{g.title}</div>
-            <div style={{ fontSize: 12.5, color: 'rgba(31,27,22,0.6)', marginTop: 3 }}>
+            <div style={{ fontSize: 12.5, color: 'rgba(31,27,22,0.64)', marginTop: 3 }}>
               Stuck at step {g.stallIndex + 1}: <span style={{ color: 'var(--terra)', fontWeight: 500 }}>{g.stallStep}</span>
               {g.stallEst ? ` · ${g.stallEst}m` : ''} — {g.doneBefore}/{g.total} done
             </div>
@@ -278,11 +278,11 @@ function InsightsScreen({ goals }) {
       <div style={{ paddingTop: 8 }}>
         <div style={{
           fontSize: 11, fontWeight: 600, letterSpacing: 1.2,
-          color: 'rgba(31,27,22,0.5)', textTransform: 'uppercase', marginBottom: 6,
+          color: 'rgba(31,27,22,0.64)', textTransform: 'uppercase', marginBottom: 6,
         }}>Patterns · not scores</div>
         <H size={32}>Insights</H>
         <div style={{
-          marginTop: 6, fontSize: 14, color: 'rgba(31,27,22,0.62)',
+          marginTop: 6, fontSize: 14, color: 'rgba(31,27,22,0.64)',
           lineHeight: 1.4, textWrap: 'pretty',
         }}>
           What’s working, in your own words. We measure effort and patterns — never failure.
@@ -300,7 +300,7 @@ function InsightsScreen({ goals }) {
           <div style={{ fontFamily: 'var(--serif)', fontSize: 21, color: 'var(--ink)', letterSpacing: -0.3 }}>
             No insights yet.
           </div>
-          <div style={{ fontSize: 13.5, color: 'rgba(31,27,22,0.62)', lineHeight: 1.5, maxWidth: 270 }}>
+          <div style={{ fontSize: 13.5, color: 'rgba(31,27,22,0.64)', lineHeight: 1.5, maxWidth: 270 }}>
             Add a goal and start working your plans — your patterns and rhythm appear here, drawn from what you actually do.
           </div>
         </Card>

@@ -65,7 +65,7 @@ function VoiceSheet({ onClose, onApply }) {
         {stage === 'listening' && (
           <div style={{ paddingTop: 8 }}>
             <H size={24}>Tell me about your day.</H>
-            <div style={{ fontSize: 13, color: 'rgba(31,27,22,0.6)', marginTop: 6, lineHeight: 1.45 }}>
+            <div style={{ fontSize: 13, color: 'rgba(31,27,22,0.64)', marginTop: 6, lineHeight: 1.45 }}>
               Goals, energy, how much time you have — say it naturally. I'll handle the order.
             </div>
 
@@ -92,7 +92,7 @@ function VoiceSheet({ onClose, onApply }) {
           <div style={{ display: 'flex', flexDirection: 'column', gap: 14, paddingTop: 32, alignItems: 'center', textAlign: 'center' }}>
             <Bloom value={0.4} size={110} color="var(--lav)" />
             <H size={22} style={{ maxWidth: 280 }}>Parsing constraints & organising…</H>
-            <div style={{ fontSize: 12.5, color: 'rgba(31,27,22,0.55)', maxWidth: 260, lineHeight: 1.5 }}>
+            <div style={{ fontSize: 12.5, color: 'rgba(31,27,22,0.64)', maxWidth: 260, lineHeight: 1.5 }}>
               gym · 2h deep work · lunch · emails · medium energy · 4h
             </div>
           </div>
@@ -101,7 +101,7 @@ function VoiceSheet({ onClose, onApply }) {
         {stage === 'result' && plan && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 14, paddingTop: 4 }}>
             <div>
-              <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: 1.2, textTransform: 'uppercase', color: 'rgba(31,27,22,0.5)', marginBottom: 4 }}>
+              <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: 1.2, textTransform: 'uppercase', color: 'rgba(31,27,22,0.64)', marginBottom: 4 }}>
                 Heard you · drafted this
               </div>
               <H size={22}>Your day, in order.</H>

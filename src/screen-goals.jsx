@@ -31,7 +31,7 @@ function GoalCard({ g, onOpen, log }) {
         <div style={{ flex: 1 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6, flexWrap: 'wrap' }}>
             <div style={{ width: 8, height: 8, borderRadius: 999, background: c }} />
-            <div style={{ fontSize: 11.5, color: 'rgba(31,27,22,0.5)', fontWeight: 500 }}>{g.deadline}</div>
+            <div style={{ fontSize: 11.5, color: 'rgba(31,27,22,0.64)', fontWeight: 500 }}>{g.deadline}</div>
             <div style={{
               fontSize: 10, fontWeight: 600, letterSpacing: 0.6, textTransform: 'uppercase',
               padding: '2px 8px', borderRadius: 999,
@@ -62,7 +62,7 @@ function GoalCard({ g, onOpen, log }) {
                 In progress · {done}/{total}
               </span>
             ) : (
-              <span style={{ fontSize: 11, fontWeight: 600, padding: '3px 9px', borderRadius: 999, background: 'rgba(31,27,22,0.06)', color: 'rgba(31,27,22,0.55)' }}>
+              <span style={{ fontSize: 11, fontWeight: 600, padding: '3px 9px', borderRadius: 999, background: 'rgba(31,27,22,0.06)', color: 'rgba(31,27,22,0.64)' }}>
                 Not started
               </span>
             )}
@@ -175,7 +175,7 @@ function SubHabitRow({ s, color, onChange, onDelete, onMoveUp, onMoveDown, canUp
             fontFeatureSettings: '"tnum"',
           }}
         />
-        <span style={{ fontSize: 11, color: 'rgba(31,27,22,0.5)' }}>m</span>
+        <span style={{ fontSize: 11, color: 'rgba(31,27,22,0.64)' }}>m</span>
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
@@ -287,7 +287,7 @@ function GoalDetail({ goal, allGoals, onBack, onPrev, onNext, onUpdate, onDelete
           </button>
           <div style={{
             fontFamily: 'var(--mono)', fontSize: 10.5, letterSpacing: 1,
-            color: 'rgba(31,27,22,0.55)', padding: '0 4px',
+            color: 'rgba(31,27,22,0.64)', padding: '0 4px',
             fontFeatureSettings: '"tnum"',
           }}>
             {indexLabel}
@@ -313,7 +313,7 @@ function GoalDetail({ goal, allGoals, onBack, onPrev, onNext, onUpdate, onDelete
           }}>
             {CADENCE_LABEL[goal.cadence || 'oneoff']}{goal.recurring ? ' · ↻' : ''}
           </div>
-          <div style={{ fontSize: 11.5, color: 'rgba(31,27,22,0.5)' }}>{goal.deadline}</div>
+          <div style={{ fontSize: 11.5, color: 'rgba(31,27,22,0.64)' }}>{goal.deadline}</div>
         </div>
 
         {titleEditing ? (
@@ -498,7 +498,7 @@ function Section({ label, children }) {
     <div style={{ marginBottom: 18 }}>
       <div style={{
         fontSize: 10.5, fontWeight: 600, letterSpacing: 0.8, textTransform: 'uppercase',
-        color: 'rgba(31,27,22,0.5)', marginBottom: 8,
+        color: 'rgba(31,27,22,0.64)', marginBottom: 8,
       }}>{label}</div>
       {children}
     </div>
@@ -572,11 +572,11 @@ function GoalsScreen({ goals, openNewGoal, openGoal, detailGoalId, setDetailGoal
       <div style={{ paddingTop: 8 }}>
         <div style={{
           fontSize: 11, fontWeight: 600, letterSpacing: 1.2,
-          color: 'rgba(31,27,22,0.5)', textTransform: 'uppercase', marginBottom: 6,
+          color: 'rgba(31,27,22,0.64)', textTransform: 'uppercase', marginBottom: 6,
         }}>{goals.length} active</div>
         <H size={32}>Plans</H>
         <div style={{
-          marginTop: 6, fontSize: 14, color: 'rgba(31,27,22,0.62)',
+          marginTop: 6, fontSize: 14, color: 'rgba(31,27,22,0.64)',
           lineHeight: 1.4, textWrap: 'pretty',
         }}>
           Each goal becomes a plan of micro-steps. Tap any card to edit it inline.
@@ -618,7 +618,7 @@ function GoalsScreen({ goals, openNewGoal, openGoal, detailGoalId, setDetailGoal
       <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
         {visible.length === 0 ? (
           <Card style={{ padding: 24, textAlign: 'center', background: 'var(--paper-2)' }}>
-            <div style={{ fontSize: 13.5, color: 'rgba(31,27,22,0.6)' }}>
+            <div style={{ fontSize: 13.5, color: 'rgba(31,27,22,0.64)' }}>
               No {filter === 'oneoff' ? 'projects' : filter} goals yet.
             </div>
           </Card>
@@ -628,7 +628,7 @@ function GoalsScreen({ goals, openNewGoal, openGoal, detailGoalId, setDetailGoal
       </div>
 
       <Card style={{ padding: 16, background: 'var(--paper-2)' }}>
-        <div style={{ fontSize: 12.5, color: 'rgba(31,27,22,0.6)', lineHeight: 1.5 }}>
+        <div style={{ fontSize: 12.5, color: 'rgba(31,27,22,0.64)', lineHeight: 1.5 }}>
           Tip: it’s fine to have many. Filter by frequency to focus, or drill into any card to edit sub-habits.
         </div>
       </Card>

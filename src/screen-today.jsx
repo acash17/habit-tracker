@@ -33,16 +33,21 @@ function firstNameOf(user, profile) {
 }
 
 function EnergyDots({ value, onChange }) {
+  // 44px hit area (Apple/Material min) with a 22px visual dot centered inside.
   return (
-    <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+    <div style={{ display: 'flex', alignItems: 'center' }}>
       {[1, 2, 3, 4, 5].map(n => (
-        <button key={n} onClick={() => onChange(n)} style={{
-          width: 22, height: 22, borderRadius: 999,
-          background: n <= value ? 'var(--terra)' : 'transparent',
-          border: `1.5px solid ${n <= value ? 'var(--terra)' : 'rgba(31,27,22,0.18)'}`,
-          padding: 0, cursor: 'pointer',
-          transition: 'all 180ms ease',
-        }} aria-label={`energy ${n}`} />
+        <button key={n} onClick={() => onChange(n)} aria-label={`energy ${n}`} style={{
+          width: 44, height: 44, padding: 0, border: 'none', background: 'transparent',
+          cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+        }}>
+          <span style={{
+            width: 22, height: 22, borderRadius: 999, display: 'block',
+            background: n <= value ? 'var(--terra)' : 'transparent',
+            border: `1.5px solid ${n <= value ? 'var(--terra)' : 'rgba(31,27,22,0.18)'}`,
+            transition: 'all 180ms ease',
+          }} />
+        </button>
       ))}
     </div>
   );
@@ -61,7 +66,7 @@ function TimelineBlock({ b, expanded, onToggle, onDone, allBlocks, onRunningLong
       <div style={{
         width: 52, flexShrink: 0, paddingTop: 8,
         fontFamily: 'var(--mono)', fontSize: 12,
-        color: 'rgba(31,27,22,0.55)', textAlign: 'right',
+        color: 'rgba(31,27,22,0.64)', textAlign: 'right',
       }}>
         <div style={{ fontWeight: 500, color: b.active ? 'var(--terra)' : undefined }}>{minToTime(b.startMin)}</div>
         <div style={{ fontSize: 10.5, marginTop: 2 }}>{b.dur}m</div>
@@ -97,19 +102,25 @@ function TimelineBlock({ b, expanded, onToggle, onDone, allBlocks, onRunningLong
             }}>{b.label}</div>
           </div>
 
-          {/* complete button */}
+          {/* complete button — 44px hit area, 28px visual circle */}
           <button
             onClick={(e) => { e.stopPropagation(); onDone(); }}
             aria-label={b.done ? `Mark ${b.label} not done` : `Mark ${b.label} done`}
             aria-pressed={b.done}
             style={{
-            width: 28, height: 28, borderRadius: 999, padding: 0,
-            background: b.done ? 'var(--sage)' : 'transparent',
-            border: b.done ? 'none' : '1.5px solid rgba(31,27,22,0.2)',
+            width: 44, height: 44, padding: 0, margin: '-8px -8px 0 0',
+            background: 'transparent', border: 'none',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            color: b.done ? '#fff' : 'rgba(31,27,22,0.4)',
             cursor: 'pointer', flexShrink: 0,
-          }}>{b.done && <Icon name="check" size={16} strokeWidth={2.4} />}</button>
+          }}>
+            <span style={{
+              width: 28, height: 28, borderRadius: 999,
+              background: b.done ? 'var(--sage)' : 'transparent',
+              border: b.done ? 'none' : '1.5px solid rgba(31,27,22,0.2)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              color: b.done ? '#fff' : 'rgba(31,27,22,0.4)',
+            }}>{b.done && <Icon name="check" size={16} strokeWidth={2.4} />}</span>
+          </button>
         </div>
 
         {b.active && (
@@ -167,7 +178,7 @@ function RecoveryCard({ onAccept }) {
           <div style={{ fontFamily: 'var(--serif)', fontSize: 19, color: 'var(--ink)', letterSpacing: -0.25, lineHeight: 1.2 }}>
             You took two days off. Want a soft restart?
           </div>
-          <div style={{ fontSize: 12, color: 'rgba(31,27,22,0.6)', marginTop: 6, lineHeight: 1.45 }}>
+          <div style={{ fontSize: 12, color: 'rgba(31,27,22,0.64)', marginTop: 6, lineHeight: 1.45 }}>
             Three tiny steps. No streak penalty. Just enough to feel something move.
           </div>
         </div>
@@ -200,11 +211,11 @@ function TodayScreen({ blocks, setBlocks, onAdapt, openNewGoal, onRunningLong, o
       <div style={{ paddingTop: 8 }}>
         <div style={{
           fontSize: 11, fontWeight: 600, letterSpacing: 1.2,
-          color: 'rgba(31,27,22,0.5)', textTransform: 'uppercase', marginBottom: 6,
+          color: 'rgba(31,27,22,0.64)', textTransform: 'uppercase', marginBottom: 6,
         }}>{dateLabel}</div>
         <H size={32}>{greeting}</H>
         <div style={{
-          marginTop: 6, fontSize: 14, color: 'rgba(31,27,22,0.62)',
+          marginTop: 6, fontSize: 14, color: 'rgba(31,27,22,0.64)',
           lineHeight: 1.4, textWrap: 'pretty',
         }}>
           {total === 0
@@ -219,7 +230,7 @@ function TodayScreen({ blocks, setBlocks, onAdapt, openNewGoal, onRunningLong, o
           <Bloom value={0.45} size={120} color="var(--terra)" />
           <div>
             <H size={26}>Nothing planned yet.</H>
-            <div style={{ fontSize: 14, color: 'rgba(31,27,22,0.6)', marginTop: 8, lineHeight: 1.5, maxWidth: 280 }}>
+            <div style={{ fontSize: 14, color: 'rgba(31,27,22,0.64)', marginTop: 8, lineHeight: 1.5, maxWidth: 280 }}>
               No demo, no clutter. Create your first plan — its steps land here, in order.
             </div>
           </div>
@@ -238,7 +249,7 @@ function TodayScreen({ blocks, setBlocks, onAdapt, openNewGoal, onRunningLong, o
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div>
             <div style={{ fontSize: 13.5, fontWeight: 500, color: 'var(--ink)' }}>How’s your energy?</div>
-            <div style={{ fontSize: 11.5, color: 'rgba(31,27,22,0.5)', marginTop: 2 }}>I’ll rebalance the day.</div>
+            <div style={{ fontSize: 11.5, color: 'rgba(31,27,22,0.64)', marginTop: 2 }}>I’ll rebalance the day.</div>
           </div>
           <EnergyDots value={energy} onChange={setEnergy} />
         </div>
@@ -272,7 +283,7 @@ function TodayScreen({ blocks, setBlocks, onAdapt, openNewGoal, onRunningLong, o
             fontFamily: 'var(--serif)', fontSize: 22, color: 'var(--ink)',
             lineHeight: 1, letterSpacing: -0.3,
           }}>{done} <span style={{ color: 'rgba(31,27,22,0.4)' }}>of {total}</span></div>
-          <div style={{ fontSize: 12, color: 'rgba(31,27,22,0.55)', marginTop: 4 }}>
+          <div style={{ fontSize: 12, color: 'rgba(31,27,22,0.64)', marginTop: 4 }}>
             {minsDone}m done · {minsToday - minsDone}m planned
           </div>
         </div>
@@ -307,7 +318,7 @@ function TodayScreen({ blocks, setBlocks, onAdapt, openNewGoal, onRunningLong, o
         }}><Icon name="leaf" size={18}/></div>
         <div style={{ flex: 1 }}>
           <div style={{ fontSize: 13.5, fontWeight: 500, color: 'var(--ink)' }}>End of day check-in at 6pm</div>
-          <div style={{ fontSize: 11.5, color: 'rgba(31,27,22,0.55)', marginTop: 2 }}>
+          <div style={{ fontSize: 11.5, color: 'rgba(31,27,22,0.64)', marginTop: 2 }}>
             One tap. No streak. Just patterns.
           </div>
         </div>

@@ -184,10 +184,29 @@ function blockKindStyle(kind) {
 // step) before it's saved. One implementation, identical affordances everywhere.
 function EditableSteps({ steps, setSteps, showWhy = true }) {
   const list = steps || [];
+  // Undo for a deleted step — non-destructive within a 6s window.
+  const [undo, setUndo] = React.useState(null); // { step, idx } | null
+  const undoTimer = React.useRef(null);
+
   const updateStep = (idx, patch) =>
     setSteps(prev => (prev || []).map((s, i) => (i === idx ? { ...s, ...patch } : s)));
-  const deleteStep = (idx) =>
+  const deleteStep = (idx) => {
+    const removed = list[idx];
     setSteps(prev => (prev || []).filter((_, i) => i !== idx));
+    setUndo({ step: removed, idx });
+    clearTimeout(undoTimer.current);
+    undoTimer.current = setTimeout(() => setUndo(null), 6000);
+  };
+  const doUndo = () => {
+    if (!undo) return;
+    setSteps(prev => {
+      const a = [...(prev || [])];
+      a.splice(Math.min(undo.idx, a.length), 0, undo.step);
+      return a;
+    });
+    setUndo(null);
+    clearTimeout(undoTimer.current);
+  };
   const addStep = () =>
     setSteps(prev => [...(prev || []), { label: '', est: 10, kind: 'focus', why: 'Your own step.' }]);
 
@@ -236,22 +255,24 @@ function EditableSteps({ steps, setSteps, showWhy = true }) {
                       fontFamily: 'var(--mono)', fontSize: 12, color: 'var(--ink)',
                     }}
                   />
-                  <span style={{ fontFamily: 'var(--mono)', fontSize: 12, color: 'rgba(31,27,22,0.45)' }}>m</span>
+                  <span style={{ fontFamily: 'var(--mono)', fontSize: 12, color: 'rgba(31,27,22,0.64)' }}>m</span>
                 </div>
-                {/* delete step */}
+                {/* delete step — 44px hit area, 18px visual icon */}
                 <button
                   onClick={() => deleteStep(idx)}
                   aria-label={`delete step ${idx + 1}`}
                   style={{
                     flexShrink: 0, background: 'transparent', border: 'none', cursor: 'pointer',
-                    padding: 2, color: 'rgba(31,27,22,0.35)', display: 'flex',
+                    width: 44, height: 44, margin: '-12px -12px 0 0', padding: 0,
+                    color: 'rgba(31,27,22,0.64)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
                   }}
                 >
-                  <Icon name="x" size={16} />
+                  <Icon name="x" size={18} />
                 </button>
               </div>
               {showWhy && s.why && (
-                <div style={{ fontSize: 12, color: 'rgba(31,27,22,0.55)', marginTop: 6, lineHeight: 1.4 }}>
+                <div style={{ fontSize: 12, color: 'rgba(31,27,22,0.64)', marginTop: 6, lineHeight: 1.4 }}>
                   <span style={{ color: k.bar, fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.4, fontSize: 10 }}>{k.label || s.kind} · </span>
                   {s.why}
                 </div>
@@ -260,6 +281,21 @@ function EditableSteps({ steps, setSteps, showWhy = true }) {
           </div>
         );
       })}
+
+      {/* undo bar — appears after a delete, auto-dismisses */}
+      {undo && (
+        <div style={{
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12,
+          padding: '10px 14px', borderRadius: 12,
+          background: 'rgba(31,27,22,0.06)', border: '0.5px solid rgba(31,27,22,0.1)',
+        }}>
+          <span style={{ fontSize: 13, color: 'rgba(31,27,22,0.7)' }}>Step removed.</span>
+          <button onClick={doUndo} style={{
+            background: 'transparent', border: 'none', cursor: 'pointer', padding: '6px 8px',
+            fontFamily: 'inherit', fontSize: 13, fontWeight: 600, color: 'var(--terra)',
+          }}>Undo</button>
+        </div>
+      )}
 
       {/* add a step */}
       <button

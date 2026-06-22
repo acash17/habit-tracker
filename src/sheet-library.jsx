@@ -126,13 +126,13 @@ function TemplateCard({ t, onPick }) {
           background: a.bg, color: a.fg,
           fontSize: 10.5, fontWeight: 600, letterSpacing: 0.4, textTransform: 'uppercase',
         }}>{t.tag}</div>
-        <div style={{ fontSize: 11.5, color: 'rgba(31,27,22,0.5)', fontFamily: 'var(--mono)' }}>
+        <div style={{ fontSize: 11.5, color: 'rgba(31,27,22,0.64)', fontFamily: 'var(--mono)' }}>
           {totalMin}m · {t.steps.length} steps
         </div>
       </div>
       <div>
         <div style={{ fontFamily: 'var(--serif)', fontSize: 21, lineHeight: 1.15, color: 'var(--ink)', letterSpacing: -0.3 }}>{t.title}</div>
-        <div style={{ fontSize: 12.5, color: 'rgba(31,27,22,0.6)', marginTop: 4, lineHeight: 1.4 }}>{t.sub}</div>
+        <div style={{ fontSize: 12.5, color: 'rgba(31,27,22,0.64)', marginTop: 4, lineHeight: 1.4 }}>{t.sub}</div>
       </div>
       {/* tiny preview bars */}
       <div style={{ display: 'flex', gap: 3, marginTop: 2 }}>
@@ -161,7 +161,7 @@ function LibrarySheet({ onClose, onApply }) {
       <div style={{ display: 'flex', flexDirection: 'column', gap: 16, paddingTop: 4 }}>
         <div>
           <H size={26}>Start from a tested shape.</H>
-          <div style={{ fontSize: 13, color: 'rgba(31,27,22,0.6)', marginTop: 6, lineHeight: 1.45 }}>
+          <div style={{ fontSize: 13, color: 'rgba(31,27,22,0.64)', marginTop: 6, lineHeight: 1.45 }}>
             Plans refined across thousands of completions. Tap one to preview — adjust before adding.
           </div>
         </div>
@@ -208,12 +208,12 @@ function TemplatePreview({ t, onBack, onApply }) {
         <button onClick={onBack} style={{
           background: 'transparent', border: 'none', padding: 0, cursor: 'pointer',
           display: 'flex', alignItems: 'center', gap: 6,
-          color: 'rgba(31,27,22,0.6)', fontSize: 13, fontFamily: 'inherit',
+          color: 'rgba(31,27,22,0.64)', fontSize: 13, fontFamily: 'inherit',
         }}><Icon name="back" size={14}/> All plans</button>
 
         <div>
           <H size={26}>{t.title}</H>
-          <div style={{ fontSize: 13, color: 'rgba(31,27,22,0.6)', marginTop: 6 }}>{t.sub}</div>
+          <div style={{ fontSize: 13, color: 'rgba(31,27,22,0.64)', marginTop: 6 }}>{t.sub}</div>
           <div style={{ display: 'flex', gap: 6, marginTop: 12 }}>
             <Chip tone="paper">{steps.length} step{steps.length === 1 ? '' : 's'}</Chip>
             <Chip tone="paper">{totalMin} min</Chip>

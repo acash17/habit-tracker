@@ -26,7 +26,7 @@ function LifeOption({ icon, color, title, sub, onClick }) {
       }}><Icon name={icon} size={18}/></div>
       <div style={{ flex: 1 }}>
         <div style={{ fontSize: 15, fontWeight: 500, color: 'var(--ink)', letterSpacing: -0.15 }}>{title}</div>
-        <div style={{ fontSize: 12.5, color: 'rgba(31,27,22,0.6)', marginTop: 4, lineHeight: 1.45 }}>{sub}</div>
+        <div style={{ fontSize: 12.5, color: 'rgba(31,27,22,0.64)', marginTop: 4, lineHeight: 1.45 }}>{sub}</div>
       </div>
       <Icon name="chev" size={16} color="rgba(31,27,22,0.3)"/>
     </button>
@@ -68,7 +68,7 @@ function LifeHappenedSheet({ blocks, onClose, onApply }) {
       <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
         <div>
           <H size={26}>What kind of "happened"?</H>
-          <div style={{ fontSize: 13, color: 'rgba(31,27,22,0.6)', marginTop: 6, lineHeight: 1.45 }}>
+          <div style={{ fontSize: 13, color: 'rgba(31,27,22,0.64)', marginTop: 6, lineHeight: 1.45 }}>
             No explanation needed. Pick the shape of today's recovery — I'll reshape the plan around it.
           </div>
         </div>
@@ -154,7 +154,7 @@ function RecoveryPlan({ blocks, onClose, onApply }) {
       <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
         <div>
           <H size={26}>Start with something tiny.</H>
-          <div style={{ fontSize: 13, color: 'rgba(31,27,22,0.6)', marginTop: 6, lineHeight: 1.45 }}>
+          <div style={{ fontSize: 13, color: 'rgba(31,27,22,0.64)', marginTop: 6, lineHeight: 1.45 }}>
             Forget the rest of the day. Three small things to get something moving.
           </div>
         </div>
@@ -175,9 +175,9 @@ function RecoveryPlan({ blocks, onClose, onApply }) {
               <div style={{ flex: 1 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10 }}>
                   <div style={{ fontSize: 14.5, color: 'var(--ink)', fontWeight: 500 }}>{s.label}</div>
-                  <div style={{ fontFamily: 'var(--mono)', fontSize: 12, color: 'rgba(31,27,22,0.55)' }}>{s.dur}m</div>
+                  <div style={{ fontFamily: 'var(--mono)', fontSize: 12, color: 'rgba(31,27,22,0.64)' }}>{s.dur}m</div>
                 </div>
-                <div style={{ fontSize: 12, color: 'rgba(31,27,22,0.55)', marginTop: 4 }}>{s.why}</div>
+                <div style={{ fontSize: 12, color: 'rgba(31,27,22,0.64)', marginTop: 4 }}>{s.why}</div>
               </div>
             </div>
           ))}

@@ -34,7 +34,7 @@ function Heatmap({ log, goalId, colorKey, weeksBack = 17 }) {
               <span key={i} style={{
                 position: 'absolute', left: m.col * (CELL + GAP),
                 fontFamily: 'var(--mono)', fontSize: 9, letterSpacing: 0.3,
-                color: 'rgba(31,27,22,0.45)',
+                color: 'rgba(31,27,22,0.64)',
               }}>{m.label}</span>
             ))}
           </div>
@@ -76,7 +76,7 @@ function Heatmap({ log, goalId, colorKey, weeksBack = 17 }) {
       {/* legend */}
       <div style={{
         display: 'flex', alignItems: 'center', gap: 5, marginTop: 8,
-        fontFamily: 'var(--mono)', fontSize: 9.5, color: 'rgba(31,27,22,0.45)',
+        fontFamily: 'var(--mono)', fontSize: 9.5, color: 'rgba(31,27,22,0.64)',
       }}>
         <span>Less</span>
         {legendColors(colorKey).map((c, i) => (
@@ -96,7 +96,7 @@ function StatCell({ value, label }) {
         letterSpacing: -0.5, lineHeight: 1, fontFeatureSettings: '"tnum"',
       }}>{value}</div>
       <div style={{
-        fontSize: 9.5, color: 'rgba(31,27,22,0.5)', marginTop: 4,
+        fontSize: 9.5, color: 'rgba(31,27,22,0.64)', marginTop: 4,
         textTransform: 'uppercase', letterSpacing: 0.6, fontWeight: 600,
       }}>{label}</div>
     </div>
