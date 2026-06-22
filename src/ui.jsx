@@ -252,10 +252,10 @@ function EditableSteps({ steps, setSteps, showWhy = true }) {
                       width: 40, textAlign: 'right',
                       background: 'rgba(31,27,22,0.04)', border: '0.5px solid rgba(31,27,22,0.12)',
                       borderRadius: 8, padding: '3px 5px', outline: 'none',
-                      fontFamily: 'var(--mono)', fontSize: 12, color: 'var(--ink)',
+                      fontFamily: 'var(--mono)', fontSize: 13, color: 'var(--ink)',
                     }}
                   />
-                  <span style={{ fontFamily: 'var(--mono)', fontSize: 12, color: 'rgba(31,27,22,0.64)' }}>m</span>
+                  <span style={{ fontFamily: 'var(--mono)', fontSize: 13, color: 'rgba(31,27,22,0.64)' }}>m</span>
                 </div>
                 {/* delete step — 44px hit area, 18px visual icon */}
                 <button
@@ -272,8 +272,8 @@ function EditableSteps({ steps, setSteps, showWhy = true }) {
                 </button>
               </div>
               {showWhy && s.why && (
-                <div style={{ fontSize: 12, color: 'rgba(31,27,22,0.64)', marginTop: 6, lineHeight: 1.4 }}>
-                  <span style={{ color: k.bar, fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.4, fontSize: 10 }}>{k.label || s.kind} · </span>
+                <div style={{ fontSize: 13, color: 'rgba(31,27,22,0.64)', marginTop: 6, lineHeight: 1.4 }}>
+                  <span style={{ color: k.bar, fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.4, fontSize: 12 }}>{k.label || s.kind} · </span>
                   {s.why}
                 </div>
               )}

@@ -12,8 +12,8 @@ function ScoreBar({ label, value, hint, color = 'var(--terra)' }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-        <div style={{ fontSize: 11.5, color: 'rgba(31,27,22,0.7)', fontWeight: 500, letterSpacing: -0.05 }}>{label}</div>
-        <div style={{ fontFamily: 'var(--mono)', fontSize: 10.5, color: 'rgba(31,27,22,0.64)' }}>
+        <div style={{ fontSize: 13, color: 'rgba(31,27,22,0.7)', fontWeight: 500, letterSpacing: -0.05 }}>{label}</div>
+        <div style={{ fontFamily: 'var(--mono)', fontSize: 12, color: 'rgba(31,27,22,0.64)' }}>
           {Math.round(value * 100)}
         </div>
       </div>
@@ -25,7 +25,7 @@ function ScoreBar({ label, value, hint, color = 'var(--terra)' }) {
         }}/>
       </div>
       {hint && (
-        <div style={{ fontSize: 10.5, color: 'rgba(31,27,22,0.64)', lineHeight: 1.35, marginTop: 1 }}>{hint}</div>
+        <div style={{ fontSize: 12, color: 'rgba(31,27,22,0.64)', lineHeight: 1.35, marginTop: 1 }}>{hint}</div>
       )}
     </div>
   );
@@ -56,16 +56,16 @@ function ScoreDrawer({ block, allBlocks }) {
       {/* Composite header */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
-          <div style={{ fontSize: 10.5, fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.7, color: 'rgba(31,27,22,0.64)' }}>
+          <div style={{ fontSize: 12, fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.7, color: 'rgba(31,27,22,0.64)' }}>
             Composite score
           </div>
           <div style={{ fontFamily: 'var(--serif)', fontSize: 28, lineHeight: 1, color: 'var(--ink)', letterSpacing: -0.4, marginTop: 2 }}>
             {Math.round(c * 100)}
-            <span style={{ fontFamily: 'var(--mono)', fontSize: 11, color: 'rgba(31,27,22,0.4)', marginLeft: 4 }}>/100</span>
+            <span style={{ fontFamily: 'var(--mono)', fontSize: 12, color: 'rgba(31,27,22,0.4)', marginLeft: 4 }}>/100</span>
           </div>
         </div>
         <div style={{ textAlign: 'right' }}>
-          <div style={{ fontSize: 10.5, fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.7, color: 'rgba(31,27,22,0.64)' }}>
+          <div style={{ fontSize: 12, fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.7, color: 'rgba(31,27,22,0.64)' }}>
             Rank today
           </div>
           <div style={{ fontFamily: 'var(--serif)', fontSize: 22, lineHeight: 1, color: 'var(--terra)', marginTop: 4 }}>
@@ -89,7 +89,7 @@ function ScoreDrawer({ block, allBlocks }) {
           borderRadius: 10, display: 'flex', gap: 8, alignItems: 'center',
         }}>
           <Icon name="goals" size={13} color="rgba(31,27,22,0.55)"/>
-          <div style={{ fontSize: 11.5, color: 'rgba(31,27,22,0.65)' }}>
+          <div style={{ fontSize: 13, color: 'rgba(31,27,22,0.65)' }}>
             Depends on <b style={{ color: 'var(--ink)' }}>{dep.map(d => d.label).join(', ')}</b>
           </div>
         </div>
@@ -191,7 +191,7 @@ function RunningLongSheet({ blocks, onConfirm, onClose }) {
 
         {/* Diff card */}
         <Card style={{ padding: 16 }}>
-          <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: 0.6, textTransform: 'uppercase', color: 'rgba(31,27,22,0.64)', marginBottom: 12 }}>
+          <div style={{ fontSize: 12, fontWeight: 600, letterSpacing: 0.6, textTransform: 'uppercase', color: 'rgba(31,27,22,0.64)', marginBottom: 12 }}>
             What changes
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
@@ -215,7 +215,7 @@ function RunningLongSheet({ blocks, onConfirm, onClose }) {
               />
             )}
             {preview.diff.dropped.length === 0 && preview.diff.shifted === 0 && (
-              <div style={{ fontSize: 12.5, color: 'rgba(31,27,22,0.64)' }}>No downstream impact — you have buffer.</div>
+              <div style={{ fontSize: 13, color: 'rgba(31,27,22,0.64)' }}>No downstream impact — you have buffer.</div>
             )}
           </div>
         </Card>
@@ -223,7 +223,7 @@ function RunningLongSheet({ blocks, onConfirm, onClose }) {
         <Card style={{ padding: 14, background: 'rgba(107,142,90,0.08)' }}>
           <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
             <Icon name="leaf" size={16} color="var(--sage)"/>
-            <div style={{ fontSize: 12, color: 'rgba(31,27,22,0.7)', lineHeight: 1.5 }}>
+            <div style={{ fontSize: 13, color: 'rgba(31,27,22,0.7)', lineHeight: 1.5 }}>
               No streak penalty. No shame. Today just got reshaped.
             </div>
           </div>
@@ -250,7 +250,7 @@ function DiffRow({ icon, color, title, sub }) {
       }}><Icon name={icon} size={13}/></div>
       <div style={{ flex: 1 }}>
         <div style={{ fontSize: 13.5, color: 'var(--ink)', fontWeight: 500, lineHeight: 1.3 }}>{title}</div>
-        {sub && <div style={{ fontSize: 11.5, color: 'rgba(31,27,22,0.64)', marginTop: 3, lineHeight: 1.4 }}>{sub}</div>}
+        {sub && <div style={{ fontSize: 13, color: 'rgba(31,27,22,0.64)', marginTop: 3, lineHeight: 1.4 }}>{sub}</div>}
       </div>
     </div>
   );
@@ -268,7 +268,7 @@ function WhyOrderSheet({ blocks, onClose }) {
     <SheetShell title="Why this order" onClose={onClose}>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
         <div>
-          <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: 1.2, textTransform: 'uppercase', color: 'rgba(31,27,22,0.64)', marginBottom: 6 }}>
+          <div style={{ fontSize: 12, fontWeight: 600, letterSpacing: 1.2, textTransform: 'uppercase', color: 'rgba(31,27,22,0.64)', marginBottom: 6 }}>
             The planner's reasoning
           </div>
           <H size={26}>Today is shaped by four things.</H>
@@ -300,7 +300,7 @@ function WhyOrderSheet({ blocks, onClose }) {
 
         {top && (
           <Card style={{ padding: 16 }}>
-            <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: 0.6, textTransform: 'uppercase', color: 'rgba(31,27,22,0.64)', marginBottom: 8 }}>
+            <div style={{ fontSize: 12, fontWeight: 600, letterSpacing: 0.6, textTransform: 'uppercase', color: 'rgba(31,27,22,0.64)', marginBottom: 8 }}>
               Top-ranked block right now
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -308,7 +308,7 @@ function WhyOrderSheet({ blocks, onClose }) {
                 <div style={{ fontFamily: 'var(--serif)', fontSize: 20, color: 'var(--ink)', letterSpacing: -0.3 }}>
                   {top.label}
                 </div>
-                <div style={{ fontSize: 11.5, color: 'rgba(31,27,22,0.64)', marginTop: 4 }}>
+                <div style={{ fontSize: 13, color: 'rgba(31,27,22,0.64)', marginTop: 4 }}>
                   Composite {Math.round(composite(top.scores) * 100)} · {minToTime(top.startMin || 0)}
                 </div>
               </div>

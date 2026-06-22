@@ -136,10 +136,10 @@ function LogTodayButton({ log, goalId, colorKey, onCycle }) {
         width: 14, height: 14, borderRadius: 4,
         background: 'rgba(255,255,255,0.9)',
         display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-        color: level ? cellColor(colorKey, 3) : 'var(--ink)', fontSize: 11, fontWeight: 800,
+        color: level ? cellColor(colorKey, 3) : 'var(--ink)', fontSize: 12, fontWeight: 800,
       }}>{level || '+'}</span>
       {labels[level]}
-      {level > 0 && <span style={{ opacity: 0.7, fontWeight: 400, fontSize: 12 }}>· tap to change</span>}
+      {level > 0 && <span style={{ opacity: 0.7, fontWeight: 400, fontSize: 13 }}>· tap to change</span>}
     </button>
   );
 }

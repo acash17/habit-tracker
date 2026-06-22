@@ -124,15 +124,15 @@ function TemplateCard({ t, onPick }) {
         <div style={{
           padding: '3px 10px', borderRadius: 999,
           background: a.bg, color: a.fg,
-          fontSize: 10.5, fontWeight: 600, letterSpacing: 0.4, textTransform: 'uppercase',
+          fontSize: 12, fontWeight: 600, letterSpacing: 0.4, textTransform: 'uppercase',
         }}>{t.tag}</div>
-        <div style={{ fontSize: 11.5, color: 'rgba(31,27,22,0.64)', fontFamily: 'var(--mono)' }}>
+        <div style={{ fontSize: 13, color: 'rgba(31,27,22,0.64)', fontFamily: 'var(--mono)' }}>
           {totalMin}m · {t.steps.length} steps
         </div>
       </div>
       <div>
         <div style={{ fontFamily: 'var(--serif)', fontSize: 21, lineHeight: 1.15, color: 'var(--ink)', letterSpacing: -0.3 }}>{t.title}</div>
-        <div style={{ fontSize: 12.5, color: 'rgba(31,27,22,0.64)', marginTop: 4, lineHeight: 1.4 }}>{t.sub}</div>
+        <div style={{ fontSize: 13, color: 'rgba(31,27,22,0.64)', marginTop: 4, lineHeight: 1.4 }}>{t.sub}</div>
       </div>
       {/* tiny preview bars */}
       <div style={{ display: 'flex', gap: 3, marginTop: 2 }}>
@@ -173,7 +173,7 @@ function LibrarySheet({ onClose, onApply }) {
         <Card style={{ padding: 14, background: 'rgba(155,138,196,0.06)' }}>
           <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
             <Icon name="sparkle" size={16} color="var(--lav)"/>
-            <div style={{ fontSize: 12, color: 'rgba(31,27,22,0.7)', lineHeight: 1.5 }}>
+            <div style={{ fontSize: 13, color: 'rgba(31,27,22,0.7)', lineHeight: 1.5 }}>
               Or describe your own — the AI breaker handles anything. Open the <b>+</b> button.
             </div>
           </div>

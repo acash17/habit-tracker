@@ -31,9 +31,9 @@ function GoalCard({ g, onOpen, log }) {
         <div style={{ flex: 1 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6, flexWrap: 'wrap' }}>
             <div style={{ width: 8, height: 8, borderRadius: 999, background: c }} />
-            <div style={{ fontSize: 11.5, color: 'rgba(31,27,22,0.64)', fontWeight: 500 }}>{g.deadline}</div>
+            <div style={{ fontSize: 13, color: 'rgba(31,27,22,0.64)', fontWeight: 500 }}>{g.deadline}</div>
             <div style={{
-              fontSize: 10, fontWeight: 600, letterSpacing: 0.6, textTransform: 'uppercase',
+              fontSize: 12, fontWeight: 600, letterSpacing: 0.6, textTransform: 'uppercase',
               padding: '2px 8px', borderRadius: 999,
               background: cad === 'oneoff' ? 'rgba(31,27,22,0.06)' : 'rgba(107,142,90,0.12)',
               color: cad === 'oneoff' ? 'rgba(31,27,22,0.55)' : 'var(--sage)',
@@ -54,15 +54,15 @@ function GoalCard({ g, onOpen, log }) {
             <Chip tone="paper">{mins}m total</Chip>
             {/* Clear completion status so users know what's done vs not */}
             {complete ? (
-              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 11, fontWeight: 600, padding: '3px 9px', borderRadius: 999, background: 'var(--sage)', color: '#fff' }}>
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 12, fontWeight: 600, padding: '3px 9px', borderRadius: 999, background: 'var(--sage)', color: '#fff' }}>
                 <Icon name="check" size={12} color="#fff" /> Done
               </span>
             ) : started ? (
-              <span style={{ fontSize: 11, fontWeight: 600, padding: '3px 9px', borderRadius: 999, background: 'rgba(194,106,56,0.12)', color: 'var(--terra)' }}>
+              <span style={{ fontSize: 12, fontWeight: 600, padding: '3px 9px', borderRadius: 999, background: 'rgba(194,106,56,0.12)', color: 'var(--terra)' }}>
                 In progress · {done}/{total}
               </span>
             ) : (
-              <span style={{ fontSize: 11, fontWeight: 600, padding: '3px 9px', borderRadius: 999, background: 'rgba(31,27,22,0.06)', color: 'rgba(31,27,22,0.64)' }}>
+              <span style={{ fontSize: 12, fontWeight: 600, padding: '3px 9px', borderRadius: 999, background: 'rgba(31,27,22,0.06)', color: 'rgba(31,27,22,0.64)' }}>
                 Not started
               </span>
             )}
@@ -169,13 +169,13 @@ function SubHabitRow({ s, color, onChange, onDelete, onMoveUp, onMoveDown, canUp
           onChange={(e) => onChange({ ...s, est: Math.max(1, Math.min(240, parseInt(e.target.value, 10) || 1)) })}
           style={{
             width: 42, padding: '4px 6px', textAlign: 'right',
-            fontFamily: 'inherit', fontSize: 12.5, color: 'var(--ink)',
+            fontFamily: 'inherit', fontSize: 13, color: 'var(--ink)',
             background: 'rgba(31,27,22,0.04)', border: '0.5px solid rgba(31,27,22,0.08)',
             borderRadius: 8, outline: 'none',
             fontFeatureSettings: '"tnum"',
           }}
         />
-        <span style={{ fontSize: 11, color: 'rgba(31,27,22,0.64)' }}>m</span>
+        <span style={{ fontSize: 12, color: 'rgba(31,27,22,0.64)' }}>m</span>
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
@@ -266,7 +266,7 @@ function GoalDetail({ goal, allGoals, onBack, onPrev, onNext, onUpdate, onDelete
           display: 'inline-flex', alignItems: 'center', gap: 6,
           background: 'var(--card)', border: '0.5px solid rgba(31,27,22,0.1)',
           borderRadius: 999, padding: '7px 12px 7px 9px',
-          cursor: 'pointer', fontFamily: 'inherit', fontSize: 12.5,
+          cursor: 'pointer', fontFamily: 'inherit', fontSize: 13,
           color: 'rgba(31,27,22,0.7)',
         }}>
           <Icon name="back" size={14} /> Goals
@@ -286,7 +286,7 @@ function GoalDetail({ goal, allGoals, onBack, onPrev, onNext, onUpdate, onDelete
             </span>
           </button>
           <div style={{
-            fontFamily: 'var(--mono)', fontSize: 10.5, letterSpacing: 1,
+            fontFamily: 'var(--mono)', fontSize: 12, letterSpacing: 1,
             color: 'rgba(31,27,22,0.64)', padding: '0 4px',
             fontFeatureSettings: '"tnum"',
           }}>
@@ -306,14 +306,14 @@ function GoalDetail({ goal, allGoals, onBack, onPrev, onNext, onUpdate, onDelete
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8, flexWrap: 'wrap' }}>
           <div style={{ width: 10, height: 10, borderRadius: 999, background: colorHex }} />
           <div style={{
-            fontSize: 10, fontWeight: 600, letterSpacing: 0.6, textTransform: 'uppercase',
+            fontSize: 12, fontWeight: 600, letterSpacing: 0.6, textTransform: 'uppercase',
             padding: '2px 8px', borderRadius: 999,
             background: goal.cadence === 'oneoff' ? 'rgba(31,27,22,0.06)' : 'rgba(107,142,90,0.12)',
             color: goal.cadence === 'oneoff' ? 'rgba(31,27,22,0.55)' : 'var(--sage)',
           }}>
             {CADENCE_LABEL[goal.cadence || 'oneoff']}{goal.recurring ? ' · ↻' : ''}
           </div>
-          <div style={{ fontSize: 11.5, color: 'rgba(31,27,22,0.64)' }}>{goal.deadline}</div>
+          <div style={{ fontSize: 13, color: 'rgba(31,27,22,0.64)' }}>{goal.deadline}</div>
         </div>
 
         {titleEditing ? (
@@ -406,7 +406,7 @@ function GoalDetail({ goal, allGoals, onBack, onPrev, onNext, onUpdate, onDelete
                 border: `0.5px solid ${active ? 'var(--ink)' : 'rgba(31,27,22,0.12)'}`,
                 background: active ? 'var(--ink)' : 'var(--paper)',
                 color: active ? 'var(--paper)' : 'var(--ink)',
-                fontFamily: 'inherit', fontSize: 12, fontWeight: 500,
+                fontFamily: 'inherit', fontSize: 13, fontWeight: 500,
                 cursor: 'pointer', transition: 'all 160ms ease',
               }}>{label}</button>
             );
@@ -424,7 +424,7 @@ function GoalDetail({ goal, allGoals, onBack, onPrev, onNext, onUpdate, onDelete
               onChange={(e) => patch({ recurring: e.target.checked })}
               style={{ accentColor: 'var(--sage)', width: 16, height: 16 }}
             />
-            <div style={{ fontSize: 12.5, color: 'var(--ink)' }}>
+            <div style={{ fontSize: 13, color: 'var(--ink)' }}>
               Repeat each {goal.cadence === 'daily' ? 'day' : goal.cadence === 'weekly' ? 'week' : 'month'}
             </div>
           </label>
@@ -475,16 +475,16 @@ function GoalDetail({ goal, allGoals, onBack, onPrev, onNext, onUpdate, onDelete
           </button>
         ) : (
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <div style={{ flex: 1, fontSize: 12.5, color: 'rgba(31,27,22,0.7)' }}>
+            <div style={{ flex: 1, fontSize: 13, color: 'rgba(31,27,22,0.7)' }}>
               Delete “{goal.title}” permanently?
             </div>
             <button onClick={() => setConfirmDel(false)} style={{
               background: 'transparent', border: '0.5px solid rgba(31,27,22,0.15)',
-              padding: '5px 11px', borderRadius: 999, fontFamily: 'inherit', fontSize: 12, cursor: 'pointer',
+              padding: '5px 11px', borderRadius: 999, fontFamily: 'inherit', fontSize: 13, cursor: 'pointer',
             }}>Cancel</button>
             <button onClick={onDelete} style={{
               background: 'var(--terra)', color: '#fff', border: 'none',
-              padding: '5px 11px', borderRadius: 999, fontFamily: 'inherit', fontSize: 12, cursor: 'pointer', fontWeight: 500,
+              padding: '5px 11px', borderRadius: 999, fontFamily: 'inherit', fontSize: 13, cursor: 'pointer', fontWeight: 500,
             }}>Delete</button>
           </div>
         )}
@@ -497,7 +497,7 @@ function Section({ label, children }) {
   return (
     <div style={{ marginBottom: 18 }}>
       <div style={{
-        fontSize: 10.5, fontWeight: 600, letterSpacing: 0.8, textTransform: 'uppercase',
+        fontSize: 12, fontWeight: 600, letterSpacing: 0.8, textTransform: 'uppercase',
         color: 'rgba(31,27,22,0.64)', marginBottom: 8,
       }}>{label}</div>
       {children}
@@ -571,7 +571,7 @@ function GoalsScreen({ goals, openNewGoal, openGoal, detailGoalId, setDetailGoal
     <div style={{ padding: '0 18px 32px', display: 'flex', flexDirection: 'column', gap: 18 }}>
       <div style={{ paddingTop: 8 }}>
         <div style={{
-          fontSize: 11, fontWeight: 600, letterSpacing: 1.2,
+          fontSize: 12, fontWeight: 600, letterSpacing: 1.2,
           color: 'rgba(31,27,22,0.64)', textTransform: 'uppercase', marginBottom: 6,
         }}>{goals.length} active</div>
         <H size={32}>Plans</H>
@@ -603,13 +603,13 @@ function GoalsScreen({ goals, openNewGoal, openGoal, detailGoalId, setDetailGoal
               border: `0.5px solid ${isActive ? 'var(--ink)' : 'rgba(31,27,22,0.12)'}`,
               background: isActive ? 'var(--ink)' : 'var(--paper)',
               color: isActive ? 'var(--paper)' : 'var(--ink)',
-              fontFamily: 'inherit', fontSize: 12.5, fontWeight: 500,
+              fontFamily: 'inherit', fontSize: 13, fontWeight: 500,
               cursor: 'pointer',
               display: 'inline-flex', alignItems: 'center', gap: 6,
               transition: 'all 160ms ease',
             }}>
               {label}
-              <span style={{ fontSize: 10.5, opacity: 0.7, fontFeatureSettings: '"tnum"' }}>{n}</span>
+              <span style={{ fontSize: 12, opacity: 0.7, fontFeatureSettings: '"tnum"' }}>{n}</span>
             </button>
           );
         })}
@@ -628,7 +628,7 @@ function GoalsScreen({ goals, openNewGoal, openGoal, detailGoalId, setDetailGoal
       </div>
 
       <Card style={{ padding: 16, background: 'var(--paper-2)' }}>
-        <div style={{ fontSize: 12.5, color: 'rgba(31,27,22,0.64)', lineHeight: 1.5 }}>
+        <div style={{ fontSize: 13, color: 'rgba(31,27,22,0.64)', lineHeight: 1.5 }}>
           Tip: it’s fine to have many. Filter by frequency to focus, or drill into any card to edit sub-habits.
         </div>
       </Card>

@@ -90,7 +90,7 @@ export function ProfileChat({ onDone, initialEmail = '' }) {
       {/* header */}
       <div style={{ padding: '54px 18px 12px', borderBottom: '0.5px solid rgba(31,27,22,0.08)' }}>
         <div style={{ fontFamily: 'var(--serif)', fontSize: 22, color: 'var(--ink)', letterSpacing: -0.3 }}>Your details</div>
-        <div style={{ fontSize: 12.5, color: 'rgba(31,27,22,0.64)', marginTop: 2 }}>
+        <div style={{ fontSize: 13, color: 'rgba(31,27,22,0.64)', marginTop: 2 }}>
           A few quick questions. Stored securely on your account.
         </div>
       </div>
@@ -103,7 +103,7 @@ export function ProfileChat({ onDone, initialEmail = '' }) {
       {/* input */}
       {!done && (
         <div style={{ padding: '10px 14px 22px', borderTop: '0.5px solid rgba(31,27,22,0.08)', background: 'var(--paper)' }}>
-          {err && <div style={{ color: 'var(--terra)', fontSize: 12, marginBottom: 6, paddingLeft: 4 }}>{err}</div>}
+          {err && <div style={{ color: 'var(--terra)', fontSize: 13, marginBottom: 6, paddingLeft: 4 }}>{err}</div>}
           <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
             <input
               ref={inputRef}

@@ -58,7 +58,7 @@ function RhythmPanel({ matrix, stats }) {
 
   return (
     <Card style={{ padding: 18 }}>
-      <div style={{ fontSize: 11.5, fontWeight: 600, letterSpacing: 0.6, textTransform: 'uppercase', color: 'rgba(31,27,22,0.64)', marginBottom: 4 }}>
+      <div style={{ fontSize: 13, fontWeight: 600, letterSpacing: 0.6, textTransform: 'uppercase', color: 'rgba(31,27,22,0.64)', marginBottom: 4 }}>
         Your rhythm
       </div>
       <div style={{ fontFamily: 'var(--serif)', fontSize: 20, color: 'var(--ink)', letterSpacing: -0.3, marginBottom: 14 }}>
@@ -133,7 +133,7 @@ function RhythmPanel({ matrix, stats }) {
 function RhythmPrompt({ title, body, children }) {
   return (
     <Card style={{ padding: 18, display: 'flex', flexDirection: 'column', gap: 10 }}>
-      <div style={{ fontSize: 11.5, fontWeight: 600, letterSpacing: 0.6, textTransform: 'uppercase', color: 'rgba(31,27,22,0.64)' }}>
+      <div style={{ fontSize: 13, fontWeight: 600, letterSpacing: 0.6, textTransform: 'uppercase', color: 'rgba(31,27,22,0.64)' }}>
         Your rhythm
       </div>
       <div style={{ fontFamily: 'var(--serif)', fontSize: 20, color: 'var(--ink)', letterSpacing: -0.3, lineHeight: 1.15 }}>
@@ -243,7 +243,7 @@ function BreakpointInsight({ goals }) {
 
   return (
     <Card style={{ padding: 18 }}>
-      <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: 1.1, textTransform: 'uppercase', color: 'rgba(31,27,22,0.64)', marginBottom: 6 }}>
+      <div style={{ fontSize: 12, fontWeight: 600, letterSpacing: 1.1, textTransform: 'uppercase', color: 'rgba(31,27,22,0.64)', marginBottom: 6 }}>
         Where momentum dips
       </div>
       <div style={{ fontFamily: 'var(--serif)', fontSize: 20, color: 'var(--ink)', letterSpacing: -0.3, lineHeight: 1.2 }}>
@@ -257,7 +257,7 @@ function BreakpointInsight({ goals }) {
         {stalled.slice(0, 4).map(g => (
           <div key={g.goalId} style={{ padding: 12, background: 'var(--paper-2)', borderRadius: 12 }}>
             <div style={{ fontSize: 14, color: 'var(--ink)', fontWeight: 500 }}>{g.title}</div>
-            <div style={{ fontSize: 12.5, color: 'rgba(31,27,22,0.64)', marginTop: 3 }}>
+            <div style={{ fontSize: 13, color: 'rgba(31,27,22,0.64)', marginTop: 3 }}>
               Stuck at step {g.stallIndex + 1}: <span style={{ color: 'var(--terra)', fontWeight: 500 }}>{g.stallStep}</span>
               {g.stallEst ? ` · ${g.stallEst}m` : ''} — {g.doneBefore}/{g.total} done
             </div>
@@ -277,7 +277,7 @@ function InsightsScreen({ goals }) {
     <div style={{ padding: '0 18px 32px', display: 'flex', flexDirection: 'column', gap: 18 }}>
       <div style={{ paddingTop: 8 }}>
         <div style={{
-          fontSize: 11, fontWeight: 600, letterSpacing: 1.2,
+          fontSize: 12, fontWeight: 600, letterSpacing: 1.2,
           color: 'rgba(31,27,22,0.64)', textTransform: 'uppercase', marginBottom: 6,
         }}>Patterns · not scores</div>
         <H size={32}>Insights</H>

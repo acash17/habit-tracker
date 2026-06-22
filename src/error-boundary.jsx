@@ -46,7 +46,7 @@ export class ErrorBoundary extends React.Component {
         {this.state.error?.message && (
           <pre style={{
             marginTop: 22, maxWidth: 320, whiteSpace: 'pre-wrap', wordBreak: 'break-word',
-            fontFamily: 'var(--mono, monospace)', fontSize: 10.5, color: 'rgba(31,27,22,0.4)',
+            fontFamily: 'var(--mono, monospace)', fontSize: 12, color: 'rgba(31,27,22,0.4)',
           }}>{String(this.state.error.message).slice(0, 200)}</pre>
         )}
       </div>

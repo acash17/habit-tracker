@@ -161,7 +161,7 @@ function TourOverlay({ onExit }) {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12 }}>
           <button onClick={onExit} style={{
             background: 'transparent', border: 'none', padding: '6px 4px',
-            fontFamily: 'inherit', fontSize: 12.5, color: 'rgba(31,27,22,0.64)',
+            fontFamily: 'inherit', fontSize: 13, color: 'rgba(31,27,22,0.64)',
             cursor: 'pointer', letterSpacing: 0.2,
           }}>Skip tour</button>
 
@@ -187,7 +187,7 @@ function TourOverlay({ onExit }) {
 
         <div style={{
           fontFamily: 'var(--mono, ui-monospace, monospace)',
-          fontSize: 10, letterSpacing: 1.2, color: 'rgba(31,27,22,0.35)',
+          fontSize: 12, letterSpacing: 1.2, color: 'rgba(31,27,22,0.35)',
           marginTop: 18, textTransform: 'uppercase',
         }}>Step {step + 1} of {TOUR_STEPS.length} · Investor tour</div>
       </div>

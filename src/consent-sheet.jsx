@@ -49,7 +49,7 @@ function ConsentSheet({ onClose, onAgree }) {
           </span>
         </label>
 
-        <div style={{ fontSize: 11.5, color: 'rgba(31,27,22,0.64)', lineHeight: 1.5 }}>
+        <div style={{ fontSize: 13, color: 'rgba(31,27,22,0.64)', lineHeight: 1.5 }}>
           You can withdraw consent at any time via Settings → “Erase all my data”. Withdrawal is as
           easy as giving consent and does not affect processing already done.
         </div>

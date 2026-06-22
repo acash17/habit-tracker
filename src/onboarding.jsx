@@ -108,7 +108,7 @@ function WelcomeScreen({ onNext }) {
       </div>
       <div style={{ width: '100%', marginTop: 24, paddingBottom: 34 }}>
         <Btn variant="terra" size="lg" full onClick={onNext}>Get started</Btn>
-        <div style={{ fontSize: 11.5, color: 'rgba(31,27,22,0.64)', marginTop: 14 }}>
+        <div style={{ fontSize: 13, color: 'rgba(31,27,22,0.64)', marginTop: 14 }}>
           Set up in under a minute
         </div>
       </div>
@@ -167,7 +167,7 @@ function SignInScreen({ onAuthed }) {
           <Btn variant="terra" size="lg" full onClick={onAuthed}>Continue</Btn>
         )}
 
-        <div style={{ fontSize: 11.5, color: 'rgba(31,27,22,0.64)', marginTop: 14, lineHeight: 1.5 }}>
+        <div style={{ fontSize: 13, color: 'rgba(31,27,22,0.64)', marginTop: 14, lineHeight: 1.5 }}>
           By continuing you agree to our{' '}
           <a href="/terms.html" target="_blank" rel="noreferrer" style={{ color: 'var(--terra)' }}>Terms</a>
           {' '}&amp;{' '}
@@ -202,7 +202,7 @@ function EnergyScreen({ value, onChange }) {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
               <div>
                 <div style={{ fontSize: 14.5, fontWeight: 500, color: 'var(--ink)' }}>{p.label}</div>
-                <div style={{ fontSize: 11.5, color: 'rgba(31,27,22,0.64)', marginTop: 2 }}>{p.sub}</div>
+                <div style={{ fontSize: 13, color: 'rgba(31,27,22,0.64)', marginTop: 2 }}>{p.sub}</div>
               </div>
               <Chip tone={value[p.id] === 'high' ? 'terra' : value[p.id] === 'medium' ? 'butter' : 'ink'}>
                 {value[p.id]}
@@ -215,7 +215,7 @@ function EnergyScreen({ value, onChange }) {
                   background: value[p.id] === l ? 'var(--ink)' : 'transparent',
                   color: value[p.id] === l ? 'var(--paper)' : 'rgba(31,27,22,0.7)',
                   border: `1px solid ${value[p.id] === l ? 'var(--ink)' : 'rgba(31,27,22,0.12)'}`,
-                  borderRadius: 999, fontFamily: 'inherit', fontSize: 12.5, fontWeight: 500,
+                  borderRadius: 999, fontFamily: 'inherit', fontSize: 13, fontWeight: 500,
                   cursor: 'pointer', textTransform: 'capitalize',
                 }}>{l}</button>
               ))}
@@ -253,7 +253,7 @@ function GoalsScreenOnboard({ value, onChange }) {
       />
 
       <div>
-        <div style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.8, color: 'rgba(31,27,22,0.64)', marginBottom: 10 }}>
+        <div style={{ fontSize: 12, fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.8, color: 'rgba(31,27,22,0.64)', marginBottom: 10 }}>
           Or try
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -275,7 +275,7 @@ function GoalsScreenOnboard({ value, onChange }) {
       <Card style={{ padding: 14, background: 'rgba(155,138,196,0.08)' }}>
         <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
           <Icon name="mic" size={16} color="var(--lav)"/>
-          <div style={{ fontSize: 12, color: 'rgba(31,27,22,0.65)' }}>
+          <div style={{ fontSize: 13, color: 'rgba(31,27,22,0.65)' }}>
             Or speak it — voice planning lives on Today.
           </div>
         </div>
@@ -292,7 +292,7 @@ function PreviewScreen({ steps, setSteps }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16, paddingTop: 12 }}>
       <div>
-        <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: 1.2, textTransform: 'uppercase', color: 'rgba(31,27,22,0.64)', marginBottom: 6 }}>
+        <div style={{ fontSize: 12, fontWeight: 600, letterSpacing: 1.2, textTransform: 'uppercase', color: 'rgba(31,27,22,0.64)', marginBottom: 6 }}>
           Drafted in 3 seconds
         </div>
         <H size={32}>Your day, in order.</H>

@@ -14,6 +14,21 @@
     --serif:   'Instrument Serif', Georgia, serif;
     --sans:    'Geist', -apple-system, BlinkMacSystemFont, system-ui, 'Segoe UI', Roboto, sans-serif;
     --mono:    'Geist Mono', ui-monospace, 'SF Mono', monospace;
+
+    /* ── Type scale ───────────────────────────────────────────────────────────
+       One ramp, semantic names. Display tiers use the serif; text tiers use the
+       sans. The reading floor is 13px (--text-sm) — nothing meant to be READ goes
+       below it. 12px (--text-xs) is reserved for short uppercase eyebrow labels
+       and mono numerals only. Each token carries its size; line-height/weight are
+       applied at the component (see H in ui.jsx). This replaces ~27 ad-hoc inline
+       sizes with a 7-step rhythm. */
+    --text-display: 32px;  /* screen titles / greeting (serif) */
+    --text-title:   22px;  /* card & section titles (serif)   */
+    --text-heading: 18px;  /* sub-headings (serif)            */
+    --text-lg:      17px;  /* lead / emphasis body (sans)     */
+    --text-md:      15px;  /* primary body & labels (sans)    */
+    --text-sm:      13px;  /* secondary body — reading floor  */
+    --text-xs:      12px;  /* eyebrow labels & mono numerals  */
   }
   html, body { margin: 0; padding: 0; height: 100%; background: #E8E2D5; }
   body {

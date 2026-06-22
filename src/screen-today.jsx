@@ -62,14 +62,14 @@ function TimelineBlock({ b, expanded, onToggle, onDone, allBlocks, onRunningLong
       opacity: b.done ? 0.55 : 1,
       transition: 'opacity 200ms ease',
     }}>
-      {/* time gutter */}
+      {/* time gutter — mono numerals stay at the --text-xs floor (12px) */}
       <div style={{
         width: 52, flexShrink: 0, paddingTop: 8,
         fontFamily: 'var(--mono)', fontSize: 12,
         color: 'rgba(31,27,22,0.64)', textAlign: 'right',
       }}>
         <div style={{ fontWeight: 500, color: b.active ? 'var(--terra)' : undefined }}>{minToTime(b.startMin)}</div>
-        <div style={{ fontSize: 10.5, marginTop: 2 }}>{b.dur}m</div>
+        <div style={{ fontSize: 12, marginTop: 2 }}>{b.dur}m</div>
       </div>
 
       {/* block card */}
@@ -92,7 +92,7 @@ function TimelineBlock({ b, expanded, onToggle, onDone, allBlocks, onRunningLong
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 10 }}>
           <div style={{ flex: 1 }}>
             <div style={{
-              fontSize: 10.5, fontWeight: 600, textTransform: 'uppercase',
+              fontSize: 12, fontWeight: 600, textTransform: 'uppercase',
               letterSpacing: 0.6, color: k.bar, marginBottom: 4,
             }}>{k.label}{b.active ? ' · now' : ''}</div>
             <div style={{
@@ -172,13 +172,13 @@ function RecoveryCard({ onAccept }) {
     }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
         <div style={{ flex: 1 }}>
-          <div style={{ fontSize: 10.5, fontWeight: 600, letterSpacing: 0.8, textTransform: 'uppercase', color: 'var(--lav)', marginBottom: 4 }}>
+          <div style={{ fontSize: 12, fontWeight: 600, letterSpacing: 0.8, textTransform: 'uppercase', color: 'var(--lav)', marginBottom: 4 }}>
             Welcome back
           </div>
           <div style={{ fontFamily: 'var(--serif)', fontSize: 19, color: 'var(--ink)', letterSpacing: -0.25, lineHeight: 1.2 }}>
             You took two days off. Want a soft restart?
           </div>
-          <div style={{ fontSize: 12, color: 'rgba(31,27,22,0.64)', marginTop: 6, lineHeight: 1.45 }}>
+          <div style={{ fontSize: 13, color: 'rgba(31,27,22,0.64)', marginTop: 6, lineHeight: 1.45 }}>
             Three tiny steps. No streak penalty. Just enough to feel something move.
           </div>
         </div>
@@ -210,7 +210,7 @@ function TodayScreen({ blocks, setBlocks, onAdapt, openNewGoal, onRunningLong, o
       {/* Greeting card */}
       <div style={{ paddingTop: 8 }}>
         <div style={{
-          fontSize: 11, fontWeight: 600, letterSpacing: 1.2,
+          fontSize: 12, fontWeight: 600, letterSpacing: 1.2,
           color: 'rgba(31,27,22,0.64)', textTransform: 'uppercase', marginBottom: 6,
         }}>{dateLabel}</div>
         <H size={32}>{greeting}</H>
@@ -249,7 +249,7 @@ function TodayScreen({ blocks, setBlocks, onAdapt, openNewGoal, onRunningLong, o
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div>
             <div style={{ fontSize: 13.5, fontWeight: 500, color: 'var(--ink)' }}>How’s your energy?</div>
-            <div style={{ fontSize: 11.5, color: 'rgba(31,27,22,0.64)', marginTop: 2 }}>I’ll rebalance the day.</div>
+            <div style={{ fontSize: 13, color: 'rgba(31,27,22,0.64)', marginTop: 2 }}>I’ll rebalance the day.</div>
           </div>
           <EnergyDots value={energy} onChange={setEnergy} />
         </div>
@@ -283,7 +283,7 @@ function TodayScreen({ blocks, setBlocks, onAdapt, openNewGoal, onRunningLong, o
             fontFamily: 'var(--serif)', fontSize: 22, color: 'var(--ink)',
             lineHeight: 1, letterSpacing: -0.3,
           }}>{done} <span style={{ color: 'rgba(31,27,22,0.4)' }}>of {total}</span></div>
-          <div style={{ fontSize: 12, color: 'rgba(31,27,22,0.64)', marginTop: 4 }}>
+          <div style={{ fontSize: 13, color: 'rgba(31,27,22,0.64)', marginTop: 4 }}>
             {minsDone}m done · {minsToday - minsDone}m planned
           </div>
         </div>
@@ -318,7 +318,7 @@ function TodayScreen({ blocks, setBlocks, onAdapt, openNewGoal, onRunningLong, o
         }}><Icon name="leaf" size={18}/></div>
         <div style={{ flex: 1 }}>
           <div style={{ fontSize: 13.5, fontWeight: 500, color: 'var(--ink)' }}>End of day check-in at 6pm</div>
-          <div style={{ fontSize: 11.5, color: 'rgba(31,27,22,0.64)', marginTop: 2 }}>
+          <div style={{ fontSize: 13, color: 'rgba(31,27,22,0.64)', marginTop: 2 }}>
             One tap. No streak. Just patterns.
           </div>
         </div>

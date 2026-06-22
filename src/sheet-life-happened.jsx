@@ -26,7 +26,7 @@ function LifeOption({ icon, color, title, sub, onClick }) {
       }}><Icon name={icon} size={18}/></div>
       <div style={{ flex: 1 }}>
         <div style={{ fontSize: 15, fontWeight: 500, color: 'var(--ink)', letterSpacing: -0.15 }}>{title}</div>
-        <div style={{ fontSize: 12.5, color: 'rgba(31,27,22,0.64)', marginTop: 4, lineHeight: 1.45 }}>{sub}</div>
+        <div style={{ fontSize: 13, color: 'rgba(31,27,22,0.64)', marginTop: 4, lineHeight: 1.45 }}>{sub}</div>
       </div>
       <Icon name="chev" size={16} color="rgba(31,27,22,0.3)"/>
     </button>
@@ -107,7 +107,7 @@ function LifeHappenedSheet({ blocks, onClose, onApply }) {
         <Card style={{ padding: 14, background: 'rgba(107,142,90,0.06)' }}>
           <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
             <Icon name="leaf" size={16} color="var(--sage)"/>
-            <div style={{ fontSize: 12, color: 'rgba(31,27,22,0.7)', lineHeight: 1.5 }}>
+            <div style={{ fontSize: 13, color: 'rgba(31,27,22,0.7)', lineHeight: 1.5 }}>
               Nothing resets. Your bloom keeps the days you've already lived in.
             </div>
           </div>
@@ -175,9 +175,9 @@ function RecoveryPlan({ blocks, onClose, onApply }) {
               <div style={{ flex: 1 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10 }}>
                   <div style={{ fontSize: 14.5, color: 'var(--ink)', fontWeight: 500 }}>{s.label}</div>
-                  <div style={{ fontFamily: 'var(--mono)', fontSize: 12, color: 'rgba(31,27,22,0.64)' }}>{s.dur}m</div>
+                  <div style={{ fontFamily: 'var(--mono)', fontSize: 13, color: 'rgba(31,27,22,0.64)' }}>{s.dur}m</div>
                 </div>
-                <div style={{ fontSize: 12, color: 'rgba(31,27,22,0.64)', marginTop: 4 }}>{s.why}</div>
+                <div style={{ fontSize: 13, color: 'rgba(31,27,22,0.64)', marginTop: 4 }}>{s.why}</div>
               </div>
             </div>
           ))}

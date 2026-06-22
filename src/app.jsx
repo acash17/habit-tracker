@@ -85,7 +85,7 @@ function TabBar({ tab, setTab, onAdd }) {
             background: tab === t.id ? 'var(--ink)' : 'transparent',
             color: tab === t.id ? 'var(--paper)' : 'rgba(31,27,22,0.6)',
             border: 'none', borderRadius: 999, cursor: 'pointer',
-            fontFamily: 'inherit', fontSize: 11.5, fontWeight: 500,
+            fontFamily: 'inherit', fontSize: 13, fontWeight: 500,
             display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3,
             transition: 'all 180ms ease',
           }}>
