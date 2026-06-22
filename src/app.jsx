@@ -3,7 +3,6 @@ import { usePersistedState } from './storage.js';
 import { newId } from './utils.js';
 import { useAuth } from './use-auth.js';
 import { useCloudSync, deleteGoalCloud } from './cloud-sync.js';
-import { INITIAL_GOALS, TIMELINE_BLOCKS } from './data.jsx';
 import { Icon, Chip } from './ui.jsx';
 import { TodayScreen } from './screen-today.jsx';
 import { GoalsScreen } from './screen-goals.jsx';

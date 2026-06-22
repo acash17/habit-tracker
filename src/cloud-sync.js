@@ -14,6 +14,30 @@ const LAST_USER_KEY = 'cadence:last-user-id';
 
 const TABLE = 'goals';
 
+// Original demo seed (id → title). Early builds seeded these three goals locally
+// and they got pushed to some accounts' cloud before we removed the demo. They
+// re-appear on every login via pullGoals, so we strip them once — but ONLY when
+// still unedited (id matches AND title unchanged), so a user who renamed a demo
+// goal keeps their data. User-created goals use a `g_` id prefix and never match.
+const DEMO_CLOUD_GOALS = {
+  g1: 'Finish Q3 design review',
+  g2: 'Run a 5K by August',
+  g3: 'Read “Thinking in Systems”',
+};
+
+function isUneditedDemoGoal(g) {
+  return !!g && DEMO_CLOUD_GOALS[g.id] !== undefined && g.title === DEMO_CLOUD_GOALS[g.id];
+}
+
+// Remove unedited demo goals from a freshly-pulled cloud list and delete those
+// rows server-side so they don't come back. Returns the cleaned list.
+async function purgeDemoFromCloud(userId, cloud) {
+  const stale = (cloud || []).filter(isUneditedDemoGoal);
+  if (stale.length === 0) return cloud || [];
+  await Promise.all(stale.map(g => deleteGoalCloud(userId, g.id).catch(() => {})));
+  return (cloud || []).filter(g => !isUneditedDemoGoal(g));
+}
+
 function toRow(userId, g) {
   return {
     id: g.id,
@@ -157,11 +181,20 @@ export function useCloudSync({ user, goals, setGoals }) {
 
     (async () => {
       const bootstrapped = localStorage.getItem(syncedKey) === '1';
-      const cloud = await pullGoals(user.id);
+      const pulled = await pullGoals(user.id);
       if (cancelled) return;
+      // Strip any stale, unedited demo goals that an old build pushed to cloud.
+      const cloud = await purgeDemoFromCloud(user.id, pulled);
+      if (cancelled) return;
+      const purgedSome = (pulled || []).length !== (cloud || []).length;
       if (cloud && cloud.length > 0) {
         setGoals(cloud);
         saveLocal('goals', cloud);
+      } else if (purgedSome) {
+        // Cloud held only demo goals; after purge it's empty. Reconcile local so
+        // the stale demo doesn't linger in the cache, and land on a clean Today.
+        setGoals([]);
+        saveLocal('goals', []);
       } else if (!bootstrapped && !userSwitched && goals.length > 0) {
         // Only push local-only goals to cloud when this is the FIRST sign-in on this
         // device for this user (not a re-sign-in after switching accounts).
