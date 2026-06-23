@@ -79,6 +79,12 @@
     0%   { transform: translate(-50%, calc(-50% + 12px)) scale(0.96); opacity: 0; }
     100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
   }
+  /* Anchored floating-cloud entrance — positioned via left/right, so no centering
+     transform (which would conflict with tour-pop's translate). */
+  @keyframes tour-cloud-in {
+    0%   { transform: translateY(8px) scale(0.98); opacity: 0; }
+    100% { transform: translateY(0) scale(1); opacity: 1; }
+  }
 
   /* Hide scrollbars inside phone */
   .phone-scroll::-webkit-scrollbar { display: none; }

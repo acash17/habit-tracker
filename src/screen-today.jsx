@@ -267,7 +267,7 @@ function TodayScreen({ blocks, setBlocks, onAdapt, openNewGoal, onRunningLong, o
       </Card>
 
       {/* Quick-start chips */}
-      <div style={{ display: 'flex', gap: 8, overflowX: 'auto', margin: '0 -18px', padding: '0 18px 4px', scrollbarWidth: 'none' }}>
+      <div data-tour="quick-actions" style={{ display: 'flex', gap: 8, overflowX: 'auto', margin: '0 -18px', padding: '0 18px 4px', scrollbarWidth: 'none' }}>
         <QuickChip icon="mic" label="Voice plan" tone="lav" onClick={onVoice} />
         <QuickChip icon="goals" label="From library" tone="sage" onClick={onLibrary} />
         <QuickChip icon="leaf" label="Life happened" tone="terra" emphasis onClick={onLife} />
@@ -291,7 +291,7 @@ function TodayScreen({ blocks, setBlocks, onAdapt, openNewGoal, onRunningLong, o
       </div>
 
       {/* Timeline */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+      <div data-tour="today-timeline" style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
         {blocks.map(b => (
           <TimelineBlock
             key={b.id}

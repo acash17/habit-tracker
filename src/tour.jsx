@@ -1,8 +1,85 @@
 import React from 'react';
 
-// Guided product tour overlay. Activated via ?tour=1 on Pacely.html
-// Steps walk investors through the key value props in 60-90 seconds.
+// Guided tour overlay — floating-cloud coachmarks over real UI.
+// Two step sets share one engine:
+//   • TOUR_STEPS         — investor walkthrough, activated via ?tour=1.
+//   • FEATURE_TOUR_STEPS — user feature tour, auto-runs once after onboarding
+//     and is replayable from the floating "?" button or Settings.
 
+// ── User feature tour ────────────────────────────────────────────────────────
+// Anchored to real elements via data-tour. `action` events are dispatched on the
+// `cadence-tour-action` bus so the app can switch tabs as the tour advances.
+const FEATURE_TOUR_STEPS = [
+  {
+    target: null,
+    title: 'Welcome to Pacely.',
+    body: "A 30-second tour of what each part does. You can skip anytime — and replay it later from the ? button.",
+    cta: 'Show me',
+    placement: 'center',
+    action: 'go-today',
+  },
+  {
+    target: 'today-timeline',
+    title: 'Your day, as blocks.',
+    body: 'Today opens to a visual plan — time-estimated blocks, not a checklist. Tap a block to expand it; tap the circle to mark it done.',
+    placement: 'auto',
+  },
+  {
+    target: 'energy-card',
+    title: 'Set your energy.',
+    body: 'Tell Pacely how you feel and it rebalances the rest of the day. “Adapt for today” reshuffles in one tap.',
+    placement: 'auto',
+  },
+  {
+    target: 'why-button',
+    title: 'Never a black box.',
+    body: '“Why this order?” explains, in plain language, why your day is shaped the way it is — based on your real patterns.',
+    placement: 'auto',
+  },
+  {
+    target: 'quick-actions',
+    title: 'Three fast ways in.',
+    body: 'Speak a plan with Voice, start from a tested Library template, or hit “Life happened” to reshape the day with no guilt.',
+    placement: 'auto',
+  },
+  {
+    target: 'fab-new',
+    title: 'Turn any goal into a plan.',
+    body: 'Tap + and name a goal. Pacely breaks it into ordered micro-steps with time estimates — and every step is editable before you save.',
+    placement: 'auto',
+  },
+  {
+    target: 'tab-goals',
+    title: 'All your plans live here.',
+    body: 'Goals become cards of micro-steps. Tap any card to rename it, change its rhythm, or edit sub-habits inline.',
+    placement: 'auto',
+    action: 'go-goals',
+  },
+  {
+    target: 'tab-insights',
+    title: 'Patterns, never failure.',
+    body: 'Insights surface what works for you — your peak hours, where plans stall — and never punish a missed day.',
+    placement: 'auto',
+    action: 'go-insights',
+  },
+  {
+    target: 'tab-you',
+    title: 'Yours, and private.',
+    body: 'Local-first by default. Sync is opt-in. Manage your profile, reminders, and data — export or erase anytime.',
+    placement: 'auto',
+    action: 'go-you',
+  },
+  {
+    target: null,
+    title: "That's the tour.",
+    body: 'Replay it anytime from the ? button, or in You → Replay feature tour. Now go build your first plan.',
+    cta: 'Start using Pacely',
+    placement: 'center',
+    action: 'go-today',
+  },
+];
+
+// ── Investor tour ────────────────────────────────────────────────────────────
 const TOUR_STEPS = [
   {
     target: null, // intro modal
@@ -55,18 +132,27 @@ const TOUR_STEPS = [
   },
 ];
 
-function TourOverlay({ onExit }) {
+function TourOverlay({ onExit, steps = TOUR_STEPS, label = 'Investor tour' }) {
   const [step, setStep] = React.useState(0);
   const [targetRect, setTargetRect] = React.useState(null);
-  const s = TOUR_STEPS[step];
+  const s = steps[step];
 
-  // Locate target element (within the phone)
+  // Locate target element (within the phone). Re-measure after the step's side
+  // action (tab switch) has had a moment to render the anchor.
   React.useEffect(() => {
     if (!s.target) { setTargetRect(null); return; }
-    const el = document.querySelector(`[data-tour="${s.target}"]`);
-    if (!el) { setTargetRect(null); return; }
-    const r = el.getBoundingClientRect();
-    setTargetRect(r);
+    let tries = 0;
+    function locate() {
+      const el = document.querySelector(`[data-tour="${s.target}"]`);
+      if (el) {
+        el.scrollIntoView({ block: 'center', behavior: 'smooth' });
+        // allow the scroll to settle before measuring
+        setTimeout(() => setTargetRect(el.getBoundingClientRect()), 220);
+        return;
+      }
+      if (tries++ < 8) setTimeout(locate, 80); else setTargetRect(null);
+    }
+    locate();
   }, [step]);
 
   // Trigger side actions (open sheet, switch tab) on entering a step
@@ -79,7 +165,7 @@ function TourOverlay({ onExit }) {
   }, [step]);
 
   function next() {
-    if (step === TOUR_STEPS.length - 1) {
+    if (step === steps.length - 1) {
       if (s.finalLink) location.href = s.finalLink;
       else onExit();
       return;
@@ -88,7 +174,15 @@ function TourOverlay({ onExit }) {
   }
   function prev() { setStep(Math.max(0, step - 1)); }
 
-  const isCenter = s.placement === 'center';
+  const isCenter = s.placement === 'center' || (s.placement === 'auto' && !targetRect);
+  // For anchored steps, float the cloud below the target — unless the target sits
+  // in the lower half of the screen (tab bar, FAB), where we float it above so it
+  // never runs off-screen. The tail flips to keep pointing at the element.
+  const vh = typeof window !== 'undefined' ? window.innerHeight : 800;
+  const below = !targetRect || (targetRect.top + targetRect.height / 2) < vh * 0.55;
+  const tailX = targetRect
+    ? Math.max(28, Math.min((typeof window !== 'undefined' ? window.innerWidth : 380) - 28, targetRect.left + targetRect.width / 2))
+    : 0;
 
   return (
     <div style={{
@@ -117,27 +211,48 @@ function TourOverlay({ onExit }) {
         }}/>
       )}
 
-      {/* Caption card */}
+      {/* Caption card — the floating cloud */}
       <div style={{
         position: 'absolute',
         ...(isCenter ? {
           top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
           maxWidth: 520,
+        } : below ? {
+          left: 16, right: 16,
+          top: targetRect ? Math.min(targetRect.bottom + 18, vh - 300) : 60,
         } : {
-          left: '50%', transform: 'translateX(-50%)',
-          top: targetRect ? Math.min(targetRect.bottom + 24, window.innerHeight - 280) : 60,
-          maxWidth: 460,
+          left: 16, right: 16,
+          bottom: targetRect ? Math.max(18, vh - targetRect.top + 18) : 60,
         }),
         background: 'var(--paper, #F6F1E8)',
-        borderRadius: 24, padding: '28px 28px 24px',
+        borderRadius: 24, padding: '24px 24px 20px',
         boxShadow: '0 30px 60px -20px rgba(0,0,0,0.5)',
         pointerEvents: 'auto',
-        animation: 'tour-pop 360ms cubic-bezier(.2,.8,.2,1)',
+        animation: isCenter
+          ? 'tour-pop 360ms cubic-bezier(.2,.8,.2,1)'
+          : 'tour-cloud-in 360ms cubic-bezier(.2,.8,.2,1)',
         fontFamily: 'var(--sans, system-ui)',
       }}>
+        {/* Pointer tail toward the spotlighted element */}
+        {!isCenter && targetRect && (
+          <div style={{
+            position: 'fixed',
+            left: tailX - 9,
+            ...(below
+              ? { top: targetRect.bottom + 18 - 8 }
+              : { top: targetRect.top - 18 - 8 }),
+            width: 18, height: 18,
+            background: 'var(--paper, #F6F1E8)',
+            transform: 'rotate(45deg)',
+            borderRadius: 4,
+            boxShadow: below ? 'none' : '6px 6px 14px -8px rgba(0,0,0,0.4)',
+            pointerEvents: 'none',
+            zIndex: -1,
+          }}/>
+        )}
         {/* Progress dots */}
         <div style={{ display: 'flex', gap: 5, marginBottom: 18 }}>
-          {TOUR_STEPS.map((_, i) => (
+          {steps.map((_, i) => (
             <div key={i} style={{
               width: i === step ? 22 : 5, height: 5, borderRadius: 999,
               background: i <= step ? 'var(--terra, #C26A38)' : 'rgba(31,27,22,0.12)',
@@ -181,7 +296,7 @@ function TourOverlay({ onExit }) {
               color: '#fff', fontFamily: 'inherit', fontSize: 13, fontWeight: 500,
               cursor: 'pointer',
               boxShadow: '0 8px 20px -8px rgba(200,96,47,0.6)',
-            }}>{s.cta || (step === TOUR_STEPS.length - 1 ? 'Finish' : 'Next →')}</button>
+            }}>{s.cta || (step === steps.length - 1 ? 'Finish' : 'Next →')}</button>
           </div>
         </div>
 
@@ -189,12 +304,12 @@ function TourOverlay({ onExit }) {
           fontFamily: 'var(--mono, ui-monospace, monospace)',
           fontSize: 12, letterSpacing: 1.2, color: 'rgba(31,27,22,0.35)',
           marginTop: 18, textTransform: 'uppercase',
-        }}>Step {step + 1} of {TOUR_STEPS.length} · Investor tour</div>
+        }}>Step {step + 1} of {steps.length} · {label}</div>
       </div>
     </div>
   );
 }
 
-Object.assign(window, { TourOverlay, TOUR_STEPS });
+Object.assign(window, { TourOverlay, TOUR_STEPS, FEATURE_TOUR_STEPS });
 
-export { TOUR_STEPS, TourOverlay };
+export { TOUR_STEPS, FEATURE_TOUR_STEPS, TourOverlay };

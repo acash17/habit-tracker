@@ -16,7 +16,7 @@ import { LifeHappenedSheet } from './sheet-life-happened.jsx';
 import { VoiceSheet } from './sheet-voice.jsx';
 import { RunningLongSheet, WhyOrderSheet } from './planner.jsx';
 import { OnboardingFlow, SignInScreen } from './onboarding.jsx';
-import { TourOverlay } from './tour.jsx';
+import { TourOverlay, FEATURE_TOUR_STEPS } from './tour.jsx';
 import { ConsentGate } from './consent-sheet.jsx';
 import { ProfileGate } from './profile-chat.jsx';
 import { cloudEnabled } from './supabase.js';
@@ -80,7 +80,7 @@ function TabBar({ tab, setTab, onAdd }) {
         boxShadow: '0 8px 28px -10px rgba(31,27,22,0.18), 0 2px 6px -3px rgba(31,27,22,0.08)',
       }}>
         {tabs.map(t => (
-          <button key={t.id} onClick={() => setTab(t.id)} style={{
+          <button key={t.id} onClick={() => setTab(t.id)} data-tour={`tab-${t.id === 'settings' ? 'you' : t.id}`} style={{
             flex: 1, padding: '10px 0',
             background: tab === t.id ? 'var(--ink)' : 'transparent',
             color: tab === t.id ? 'var(--paper)' : 'rgba(31,27,22,0.6)',
@@ -94,7 +94,7 @@ function TabBar({ tab, setTab, onAdd }) {
           </button>
         ))}
       </div>
-      <button onClick={onAdd} aria-label="new" style={{
+      <button onClick={onAdd} aria-label="new" data-tour="fab-new" style={{
         width: 56, height: 56, borderRadius: 999, flexShrink: 0,
         background: 'var(--terra)', color: '#fff',
         border: 'none', cursor: 'pointer',
@@ -189,6 +189,23 @@ function App({ requireAuth = true }) {
     catch { return false; }
   });
 
+  // User feature tour: floating-cloud coachmarks over the real UI. Auto-runs once
+  // after onboarding (see finishOnboarding) and is replayable from the floating
+  // "?" button or Settings → Replay feature tour.
+  const FEATURE_TOUR_SEEN = 'pacely:feature-tour-seen';
+  const [featureTourOn, setFeatureTourOn] = React.useState(false);
+  function startFeatureTour() { setTab('today'); setFeatureTourOn(true); }
+  function endFeatureTour() {
+    setFeatureTourOn(false);
+    try { localStorage.setItem(FEATURE_TOUR_SEEN, '1'); } catch {}
+  }
+  // Replay can be triggered from anywhere (Settings row, ? button) via this event.
+  React.useEffect(() => {
+    const onReplay = () => startFeatureTour();
+    window.addEventListener('pacely:start-feature-tour', onReplay);
+    return () => window.removeEventListener('pacely:start-feature-tour', onReplay);
+  }, []);
+
   // Onboarding gate — show on first run; "Replay onboarding" in settings sets it back.
   // ?skip=1 or ?tour=1 in URL bypasses (for demos and screenshots).
   const [onboarding, setOnboarding] = React.useState(() => {
@@ -198,13 +215,16 @@ function App({ requireAuth = true }) {
     } catch { return true; }
   });
 
-  // Tour action bus — listens for events from the TourOverlay to switch tabs / open sheets.
+  // Tour action bus — listens for events from either TourOverlay (investor or
+  // feature tour) to switch tabs / open sheets as the tour advances.
   React.useEffect(() => {
-    if (!tourOn) return;
+    if (!tourOn && !featureTourOn) return;
     const onAction = (e) => {
       switch (e.detail) {
         case 'open-why':       setWhyOpen(true); break;
+        case 'go-goals':       setWhyOpen(false); setTab('goals'); break;
         case 'go-insights':    setWhyOpen(false); setTab('insights'); break;
+        case 'go-you':         setWhyOpen(false); setTab('settings'); break;
         case 'go-today-life':  setTab('today'); setTimeout(() => setLifeOpen(true), 250); break;
         case 'go-today':       setLifeOpen(false); setWhyOpen(false); setTab('today'); break;
         default: break;
@@ -212,7 +232,7 @@ function App({ requireAuth = true }) {
     };
     window.addEventListener('cadence-tour-action', onAction);
     return () => window.removeEventListener('cadence-tour-action', onAction);
-  }, [tourOn]);
+  }, [tourOn, featureTourOn]);
 
   // Keep an up-to-date ref to goals so the demo bus can resolve indexes
   // without stale-closure bugs.
@@ -364,6 +384,13 @@ function App({ requireAuth = true }) {
       setBlocks(seeded);
     }
     setOnboarding(false);
+    // First run only: introduce the app with the floating-cloud feature tour.
+    try {
+      if (localStorage.getItem(FEATURE_TOUR_SEEN) !== '1') {
+        setTab('today');
+        setTimeout(() => setFeatureTourOn(true), 650); // let Today settle first
+      }
+    } catch {}
   }
   function replayOnboarding() {
     try { localStorage.removeItem('cadence-onboarded'); } catch {}
@@ -496,6 +523,38 @@ function App({ requireAuth = true }) {
 
       {/* Guided investor tour overlay */}
       {tourOn && <TourOverlay onExit={() => setTourOn(false)} />}
+
+      {/* User feature tour — floating-cloud coachmarks */}
+      {featureTourOn && (
+        <TourOverlay
+          steps={FEATURE_TOUR_STEPS}
+          label="Feature tour"
+          onExit={endFeatureTour}
+        />
+      )}
+
+      {/* Floating "?" help bubble — replays the feature tour. Hidden during
+          onboarding, the auth wall, and while a tour is already running. */}
+      {!onboarding && !featureTourOn && !tourOn && !(requireAuth && cloudEnabled && !(ready && user)) && (
+        <button
+          onClick={startFeatureTour}
+          aria-label="Feature tour"
+          title="Feature tour"
+          style={{
+            position: 'absolute', left: 18, bottom: 92, zIndex: 90,
+            width: 40, height: 40, borderRadius: 999,
+            background: 'var(--paper-2)', color: 'var(--terra)',
+            border: '0.5px solid rgba(31,27,22,0.10)', cursor: 'pointer',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontFamily: 'var(--serif)', fontSize: 20, lineHeight: 1,
+            boxShadow: '0 8px 22px -8px rgba(31,27,22,0.28), 0 2px 6px -3px rgba(31,27,22,0.12)',
+            transition: 'transform 150ms ease',
+          }}
+          onMouseDown={(e) => e.currentTarget.style.transform = 'scale(0.92)'}
+          onMouseUp={(e) => e.currentTarget.style.transform = ''}
+          onMouseLeave={(e) => e.currentTarget.style.transform = ''}
+        >?</button>
+      )}
 
       {toast && (
         <div style={{

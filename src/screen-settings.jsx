@@ -329,6 +329,11 @@ function SettingsScreen({ onOpenEnergy, onReplay }) {
 
       <Section header="Help">
         <Row
+          title="Replay feature tour"
+          sub="Walk through every feature with the floating guide."
+          control={<button onClick={() => window.dispatchEvent(new CustomEvent('pacely:start-feature-tour'))} style={{ background: 'transparent', border: 'none', padding: 4, cursor: 'pointer' }}><Icon name="chev" size={16} color="rgba(31,27,22,0.3)"/></button>}
+        />
+        <Row
           title="Replay onboarding"
           sub="See the 6-screen intro again."
           control={<button onClick={onReplay} style={{ background: 'transparent', border: 'none', padding: 4, cursor: 'pointer' }}><Icon name="chev" size={16} color="rgba(31,27,22,0.3)"/></button>}
