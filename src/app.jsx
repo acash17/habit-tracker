@@ -3,7 +3,7 @@ import { usePersistedState, missedDayCount, setLastActiveDate, dayKey } from './
 import { newId } from './utils.js';
 import { useAuth } from './use-auth.js';
 import { useCloudSync, deleteGoalCloud } from './cloud-sync.js';
-import { INITIAL_GOALS, TIMELINE_BLOCKS } from './data.jsx';
+import { INITIAL_GOALS, TIMELINE_BLOCKS, reschedule } from './data.jsx';
 import { Icon, Chip } from './ui.jsx';
 import { TodayScreen } from './screen-today.jsx';
 import { GoalsScreen } from './screen-goals.jsx';
@@ -16,6 +16,7 @@ import { LibrarySheet } from './sheet-library.jsx';
 import { LifeHappenedSheet } from './sheet-life-happened.jsx';
 import { VoiceSheet } from './sheet-voice.jsx';
 import { RunningLongSheet, WhyOrderSheet } from './planner.jsx';
+import { AddEventSheet } from './sheet-add-event.jsx';
 import { OnboardingFlow } from './onboarding.jsx';
 import { TourOverlay } from './tour.jsx';
 import { ConsentGate } from './consent-sheet.jsx';
@@ -119,6 +120,7 @@ function App() {
   const [voiceOpen, setVoiceOpen] = React.useState(false);
   const [libraryOpen, setLibraryOpen] = React.useState(false);
   const [energyOpen, setEnergyOpen] = React.useState(false);
+  const [eventOpen, setEventOpen] = React.useState(false);
   const [editingGoalId, setEditingGoalId] = React.useState(null);
 
   // Compute missed days once on mount (before we mark today as active).
@@ -170,7 +172,7 @@ function App() {
   React.useEffect(() => {
     const closeAllSheets = (alsoEditor = true) => {
       setSheetOpen(false); setRunningLongOpen(false); setWhyOpen(false);
-      setLifeOpen(false); setVoiceOpen(false); setLibraryOpen(false); setEnergyOpen(false);
+      setLifeOpen(false); setVoiceOpen(false); setLibraryOpen(false); setEnergyOpen(false); setEventOpen(false);
       if (alsoEditor) setEditingGoalId(null);
     };
     const setSheet = (name, open) => {
@@ -306,6 +308,7 @@ function App() {
             onLife={() => setLifeOpen(true)}
             onVoice={() => setVoiceOpen(true)}
             onLibrary={() => setLibraryOpen(true)}
+            onAddEvent={() => setEventOpen(true)}
             missedDays={missedDays}
           />
         )}
@@ -386,6 +389,38 @@ function App() {
         <EnergyProfileSheet
           onClose={() => setEnergyOpen(false)}
           onSave={() => { setEnergyOpen(false); flash('Energy profile saved'); }}
+        />
+      )}
+
+      {eventOpen && (
+        <AddEventSheet
+          onClose={() => setEventOpen(false)}
+          onCommit={(ev) => {
+            const newEvent = {
+              id: newId('ev_'),
+              type: 'event',
+              startMin: ev.startMin,
+              dur: ev.dur,
+              label: ev.label,
+              cat: ev.cat,
+              anchor: ev.anchor,
+              reminder: ev.reminder,
+              done: false,
+              deps: [],
+            };
+            const prev = blocks;
+            const next = reschedule([...blocks, newEvent]);
+            setBlocks(next);
+            setEventOpen(false);
+            const moved = next.find(n => {
+              const o = prev.find(b => b.id === n.id);
+              return o && o.type === 'habit' && o.startMin !== n.startMin;
+            });
+            flash(moved
+              ? `"${ev.label}" added · moved "${moved.label}" to fit`
+              : `"${ev.label}" added to your day`
+            );
+          }}
         />
       )}
 

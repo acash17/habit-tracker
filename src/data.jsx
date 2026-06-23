@@ -51,21 +51,21 @@ const INITIAL_GOALS = [
 // `optional` flagged blocks can be dropped by the auto-reschedule.
 // `deps` lists block ids that must be done first (topological constraint).
 const TIMELINE_BLOCKS = [
-  { id: 'b1', startMin: 9 * 60, dur: 45, label: 'Morning check-in', kind: 'self', done: true, goal: null,
+  { id: 'b1', type: 'habit', startMin: 9 * 60, dur: 45, label: 'Morning check-in', kind: 'self', done: true, goal: null,
     scores: { urgency: 0.30, importance: 0.55, energyMatch: 0.82, success: 0.88, effort: 0.25 }, optional: true, deps: [] },
-  { id: 'b2', startMin: 9 * 60 + 45, dur: 50, label: 'Design review · sort feedback', kind: 'focus', done: true, goal: 'g1',
+  { id: 'b2', type: 'habit', startMin: 9 * 60 + 45, dur: 50, label: 'Design review · sort feedback', kind: 'focus', done: true, goal: 'g1',
     scores: { urgency: 0.78, importance: 0.85, energyMatch: 0.90, success: 0.84, effort: 0.55 }, deps: [] },
-  { id: 'b3', startMin: 10 * 60 + 35, dur: 15, label: 'Walk + water', kind: 'rest', done: true, goal: null,
+  { id: 'b3', type: 'habit', startMin: 10 * 60 + 35, dur: 15, label: 'Walk + water', kind: 'rest', done: true, goal: null,
     scores: { urgency: 0.20, importance: 0.65, energyMatch: 0.70, success: 0.95, effort: 0.15 }, deps: ['b2'] },
-  { id: 'b4', startMin: 10 * 60 + 50, dur: 55, label: 'Draft nav-bar reply', kind: 'focus', done: false, active: true, goal: 'g1',
+  { id: 'e1', type: 'event', startMin: 10 * 60 + 50, dur: 30, label: 'Team standup', cat: 'meeting', anchor: 'hard', reminder: 10, done: false, deps: [] },
+  { id: 'b4', type: 'habit', startMin: 11 * 60 + 20, dur: 55, label: 'Draft nav-bar reply', kind: 'focus', done: false, active: true, goal: 'g1',
     scores: { urgency: 0.85, importance: 0.90, energyMatch: 0.82, success: 0.78, effort: 0.70 }, deps: ['b2'] },
-  { id: 'b5', startMin: 11 * 60 + 45, dur: 30, label: 'Lunch · phone away', kind: 'rest', done: false, goal: null,
-    scores: { urgency: 0.40, importance: 0.60, energyMatch: 0.65, success: 0.92, effort: 0.20 }, deps: [] },
-  { id: 'b6', startMin: 12 * 60 + 15, dur: 35, label: 'Run intervals', kind: 'body', done: false, goal: 'g2',
+  { id: 'e2', type: 'event', startMin: 12 * 60 + 30, dur: 45, label: 'Lunch', cat: 'meal', anchor: 'soft', reminder: 0, done: false, deps: [] },
+  { id: 'b5', type: 'habit', startMin: 13 * 60 + 15, dur: 35, label: 'Run intervals', kind: 'body', done: false, goal: 'g2',
     scores: { urgency: 0.45, importance: 0.70, energyMatch: 0.58, success: 0.62, effort: 0.65 }, optional: true, deps: [] },
-  { id: 'b7', startMin: 12 * 60 + 50, dur: 40, label: 'Decision summary', kind: 'focus', done: false, goal: 'g1',
+  { id: 'b6', type: 'habit', startMin: 13 * 60 + 50, dur: 40, label: 'Decision summary', kind: 'focus', done: false, goal: 'g1',
     scores: { urgency: 0.82, importance: 0.88, energyMatch: 0.55, success: 0.66, effort: 0.60 }, deps: ['b4'] },
-  { id: 'b8', startMin: 13 * 60 + 30, dur: 25, label: 'Read 1 chapter', kind: 'reading', done: false, goal: 'g3',
+  { id: 'b7', type: 'habit', startMin: 14 * 60 + 30, dur: 25, label: 'Read 1 chapter', kind: 'reading', done: false, goal: 'g3',
     scores: { urgency: 0.20, importance: 0.45, energyMatch: 0.42, success: 0.51, effort: 0.35 }, optional: true, deps: [] },
 ];
 
@@ -108,6 +108,25 @@ const INSIGHTS = [
   },
 ];
 
+// Flow flexible habit blocks around fixed event anchors, preserving relative order.
+function reschedule(list) {
+  const sorted = [...list].sort((a, b) => a.startMin - b.startMin);
+  const events = sorted.filter(x => x.type === 'event');
+  let lastEnd = 0;
+  const out = sorted.map(x => {
+    if (x.type === 'event') { lastEnd = Math.max(lastEnd, x.startMin + x.dur); return x; }
+    let s = Math.max(x.startMin, lastEnd);
+    for (let i = 0; i < events.length + 2; i++) {
+      const hit = events.find(e => s < e.startMin + e.dur && s + x.dur > e.startMin);
+      if (!hit) break;
+      s = hit.startMin + hit.dur;
+    }
+    lastEnd = s + x.dur;
+    return s === x.startMin ? x : { ...x, startMin: s };
+  });
+  return out.sort((a, b) => a.startMin - b.startMin);
+}
+
 // utility
 function minToTime(m) {
   const h = Math.floor(m / 60);
@@ -117,6 +136,6 @@ function minToTime(m) {
   return mm === 0 ? `${h12}${ampm}` : `${h12}:${String(mm).padStart(2, '0')}${ampm}`;
 }
 
-Object.assign(window, { INITIAL_GOALS, TIMELINE_BLOCKS, INSIGHTS, minToTime, composite });
+Object.assign(window, { INITIAL_GOALS, TIMELINE_BLOCKS, INSIGHTS, minToTime, composite, reschedule });
 
-export { INITIAL_GOALS, TIMELINE_BLOCKS, INSIGHTS, minToTime, composite };
+export { INITIAL_GOALS, TIMELINE_BLOCKS, INSIGHTS, minToTime, composite, reschedule };

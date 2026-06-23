@@ -27,6 +27,42 @@ function NewGoalSheet({ onClose, onCommit, onOpenLibrary }) {
   const [sequence, setSequence] = React.useState(null);
   const [err, setErr] = React.useState(null);
 
+  function genStepsOffline(goalText) {
+    const g = (goalText || '').toLowerCase();
+    const short = (goalText || 'your goal').trim().slice(0, 30);
+    const cat = (re) => re.test(g);
+    if (cat(/run|jog|5k|gym|workout|exercise|walk|fitness/))
+      return [
+        { label: 'Lay out your kit + shoes', est: 3, kind: 'self', why: 'Tiny first move removes friction.' },
+        { label: 'Warm-up: 5-min easy walk', est: 5, kind: 'body', why: 'Ease in — no pressure to start hard.' },
+        { label: `Main set toward "${short}"`, est: 25, kind: 'body', why: 'The real work, while energy is fresh.' },
+        { label: 'Walk + water break', est: 5, kind: 'rest', why: 'Lets your body recover mid-session.' },
+        { label: 'Note how it felt', est: 2, kind: 'self', why: 'Track effort, not perfection.' },
+      ];
+    if (cat(/read|book|chapter|pages|novel/))
+      return [
+        { label: 'Put your phone in another room', est: 2, kind: 'self', why: 'Removes the biggest distraction first.' },
+        { label: 'Open the book + bookmark', est: 3, kind: 'self', why: 'Lower the barrier to starting.' },
+        { label: `Read toward "${short}"`, est: 25, kind: 'reading', why: 'One focused block beats a vague hour.' },
+        { label: 'Jot one line to remember', est: 3, kind: 'self', why: 'Anchors what you read.' },
+      ];
+    if (cat(/write|blog|essay|draft|article|report|post/))
+      return [
+        { label: `Open a doc titled "${short}"`, est: 2, kind: 'self', why: 'A named doc makes it real.' },
+        { label: 'Brain-dump bullets — no editing', est: 10, kind: 'focus', why: 'Get raw material down first.' },
+        { label: 'Draft the hardest section', est: 25, kind: 'focus', why: 'Tackle it while energy is high.' },
+        { label: 'Stand up + water', est: 5, kind: 'rest', why: 'Protects focus for the next block.' },
+        { label: 'Save + note tomorrow\'s first line', est: 3, kind: 'self', why: 'Makes restarting effortless.' },
+      ];
+    return [
+      { label: `Write what "done" looks like for "${short}"`, est: 3, kind: 'self', why: 'A clear target is a tiny first step.' },
+      { label: 'List the 3 smallest next actions', est: 8, kind: 'focus', why: 'Visible scope cuts overwhelm.' },
+      { label: 'Do the first action now', est: 25, kind: 'focus', why: 'Start while energy is fresh.' },
+      { label: 'Stand up + water', est: 5, kind: 'rest', why: 'Protects focus for the next block.' },
+      { label: 'Note where you stopped', est: 3, kind: 'self', why: 'Makes restarting effortless.' },
+    ];
+  }
+
   async function generate() {
     setStage('thinking');
     setErr(null);
@@ -54,15 +90,7 @@ Respond ONLY with raw JSON in this exact shape:
       setSequence(parsed.steps);
       setStage('result');
     } catch (e) {
-      // graceful fallback so prototype always works
-      setSequence([
-        { label: 'Open the project folder', est: 2, kind: 'self', why: 'Tiny first step.' },
-        { label: 'List the 5 sections still missing copy', est: 10, kind: 'focus', why: 'Visible scope reduces overwhelm.' },
-        { label: 'Draft hero copy only', est: 25, kind: 'focus', why: 'Hardest piece while energy is fresh.' },
-        { label: 'Stand up + water', est: 5, kind: 'rest', why: 'Protects focus for the next block.' },
-        { label: 'Wire one project case study', est: 30, kind: 'focus', why: 'Concrete win to end on.' },
-        { label: 'Push to staging URL', est: 8, kind: 'self', why: 'Ship, then iterate tomorrow.' },
-      ]);
+      setSequence(genStepsOffline(goal));
       setStage('result');
     }
   }
