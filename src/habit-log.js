@@ -171,18 +171,48 @@ function seedDemoLog() {
   return log;
 }
 
-// React hook: the whole log + a setter, persisted. Seeds demo data once.
+// ── Shared store ──────────────────────────────────────────────────────────────
+// One source of truth so a write from anywhere (Today tick, goal-detail logger)
+// re-renders every screen via useSyncExternalStore.
+let _current = null;             // null = not yet initialised
+const _listeners = new Set();
+
+function _init() {
+  if (_current !== null) return _current;
+  const existing = loadLog();
+  if (Object.keys(existing).length > 0) { _current = existing; return _current; }
+  let alreadySeeded = false;
+  try { alreadySeeded = localStorage.getItem('cadence:' + SEED_FLAG) === '1'; } catch { /* ignore */ }
+  if (alreadySeeded) { _current = existing; return _current; }
+  _current = seedDemoLog();
+  try { localStorage.setItem('cadence:' + SEED_FLAG, '1'); } catch { /* ignore */ }
+  saveLog(_current);
+  return _current;
+}
+
+export function getLogSnapshot() { return _init(); }
+export function subscribeLog(fn) { _listeners.add(fn); return () => _listeners.delete(fn); }
+export function setSharedLog(next) {
+  const base = _init();
+  _current = typeof next === 'function' ? next(base) : next;
+  saveLog(_current);
+  _listeners.forEach(fn => fn());
+}
+
+// React hook: shared log + a setter. Same [log, setLog] signature as before, so
+// existing consumers (GoalsScreen, GoalDetail, MiniHeatmap) are unchanged.
 export function useHabitLog() {
-  const [log, setLog] = React.useState(() => {
-    const existing = loadLog();
-    if (Object.keys(existing).length > 0) return existing;
-    try {
-      if (localStorage.getItem('cadence:' + SEED_FLAG) === '1') return existing;
-    } catch { /* ignore */ }
-    const seeded = seedDemoLog();
-    try { localStorage.setItem('cadence:' + SEED_FLAG, '1'); } catch { /* ignore */ }
-    return seeded;
-  });
-  React.useEffect(() => { saveLog(log); }, [log]);
-  return [log, setLog];
+  const log = React.useSyncExternalStore(subscribeLog, getLogSnapshot, getLogSnapshot);
+  return [log, setSharedLog];
+}
+
+// All goals' levels on one day → { total, goals: [{goalId, level}] }. Pure.
+export function dayBreakdown(log, day) {
+  const goals = [];
+  let total = 0;
+  for (const gid of Object.keys(log || {})) {
+    const lvl = (log[gid] && log[gid][day]) || 0;
+    if (lvl > 0) { goals.push({ goalId: gid, level: lvl }); total += lvl; }
+  }
+  return { total, goals };
 }
