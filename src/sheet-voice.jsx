@@ -45,18 +45,7 @@ function VoiceSheet({ onClose, onApply }) {
   }, [stage]);
 
   function apply() {
-    let cursor = 9 * 60;
-    const blocks = plan.map((p, i) => {
-      const b = {
-        id: 'v' + i, startMin: cursor, dur: p.est, label: p.label, kind: p.kind, done: false,
-        active: i === 0,
-        scores: { urgency: 0.5, importance: 0.65, energyMatch: 0.8, success: 0.75, effort: 0.4 },
-        optional: p.kind === 'reading', deps: [],
-      };
-      cursor += p.est;
-      return b;
-    });
-    onApply(blocks, 'Day built from your voice plan');
+    onApply({ title: 'Voice plan', steps: plan }, 'Day built from your voice plan');
   }
 
   return (

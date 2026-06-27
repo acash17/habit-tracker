@@ -6,6 +6,7 @@ import { useAuth } from './use-auth.js';
 import { cloudEnabled } from './supabase.js';
 import { requestSignIn } from './consent.js';
 import { getRhythm, bucketsToMatrix, deriveRhythmStats, DAYS, BINS, binLabel } from './rhythm.js';
+import { CalendarMonth } from './calendar-month.jsx';
 
 // Insights — real rhythm from the user's own completion history (signed in),
 // computed by the rhythm_by_hour RPC. Non-punitive: peaks and slumps, not scores.
@@ -291,6 +292,7 @@ function InsightsScreen({ goals }) {
 
       {hasGoals ? (
         <>
+          <CalendarMonth goals={goals} />
           <BreakpointInsight goals={goals} />
           <RhythmSection />
         </>

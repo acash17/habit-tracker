@@ -76,7 +76,7 @@ function OnboardingFlow({ onDone }) {
         {screen === 'tour'     && <TourScreen/>}
         {/* Finishing from the win screen carries the (edited) plan onto Today.
             Skipping passes nothing, so a skipper still lands on a clean slate. */}
-        {screen === 'win'      && <WinScreen onStart={() => onDone(generated)}/>}
+        {screen === 'win'      && <WinScreen onStart={() => onDone({ title: goalText, steps: generated })}/>}
       </div>
 
       {/* Footer CTA — sign-in has its own CTA (and no Back, so users can't slip past). */}

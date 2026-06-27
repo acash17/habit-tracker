@@ -191,7 +191,7 @@ function RecoveryCard({ onAccept }) {
   );
 }
 
-function TodayScreen({ blocks, setBlocks, onAdapt, openNewGoal, onRunningLong, onWhy, onLife, onVoice, onLibrary }) {
+function TodayScreen({ blocks, setBlocks, onAdapt, openNewGoal, onRunningLong, onWhy, onLife, onVoice, onLibrary, onCompleteBlock }) {
   const { user } = useAuth();
   const greeting = `${timeGreeting()}${firstNameOf(user, loadProfile()) ? `, ${firstNameOf(user, loadProfile())}` : ''}.`;
   const dateLabel = todayLabel();
@@ -299,7 +299,7 @@ function TodayScreen({ blocks, setBlocks, onAdapt, openNewGoal, onRunningLong, o
             allBlocks={blocks}
             expanded={expanded === b.id}
             onToggle={() => setExpanded(expanded === b.id ? null : b.id)}
-            onDone={() => setBlocks(blocks.map(x => x.id === b.id ? { ...x, done: !x.done, active: false } : x))}
+            onDone={() => onCompleteBlock(b.id)}
             onRunningLong={onRunningLong}
           />
         ))}

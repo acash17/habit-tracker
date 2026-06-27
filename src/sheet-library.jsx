@@ -189,18 +189,7 @@ function TemplatePreview({ t, onBack, onApply }) {
   const [steps, setSteps] = React.useState(() => t.steps.map(s => ({ ...s })));
   const totalMin = steps.reduce((s, x) => s + (x.est || 0), 0);
   function add() {
-    let cursor = 10 * 60 + 50;
-    const blocks = steps.map((s, i) => {
-      const b = {
-        id: t.id + '-' + i, startMin: cursor, dur: s.est, label: s.label, kind: s.kind, done: false,
-        active: false,
-        scores: { urgency: 0.45, importance: 0.6, energyMatch: 0.75, success: 0.85, effort: 0.3 },
-        optional: false, deps: [],
-      };
-      cursor += s.est;
-      return b;
-    });
-    onApply(blocks, `Added "${t.title}"`);
+    onApply({ title: t.title, steps }, `Added "${t.title}"`);
   }
   return (
     <SheetShell title="Preview" onClose={onBack}>

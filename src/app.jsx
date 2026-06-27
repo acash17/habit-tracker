@@ -1,8 +1,9 @@
 import React from 'react';
 import { usePersistedState } from './storage.js';
-import { newId } from './utils.js';
 import { useAuth } from './use-auth.js';
-import { useCloudSync, deleteGoalCloud } from './cloud-sync.js';
+import { useCloudSync, deleteGoalCloud, syncCellToCloud } from './cloud-sync.js';
+import { makeGoalFromSteps, seedBlocksFromGoal, resolveStep, heatLevel } from './goal-factory.js';
+import { setSharedLog, setLevel, dayKey } from './habit-log.js';
 import { Icon, Chip } from './ui.jsx';
 import { TodayScreen } from './screen-today.jsx';
 import { GoalsScreen } from './screen-goals.jsx';
@@ -296,55 +297,44 @@ function App({ requireAuth = true }) {
     setBlocks(prev => prev.map(b => b.done ? b : { ...b, dur: Math.max(8, Math.round(b.dur * 0.75)) }));
     flash('Day reorganised · lighter blocks first');
   }
+
+  // A Today tick fans out: flip the block, mark the goal sub-habit done, write the
+  // day's heatmap level (shared store → heatmap + calendar), and mirror to cloud
+  // (rhythm). Blocks with no resolvable goal/step just flip locally.
+  function completeBlock(blockId) {
+    const block = blocks.find(b => b.id === blockId);
+    if (!block) return;
+    const nextDone = !block.done;
+    setBlocks(blocks.map(x => x.id === blockId ? { ...x, done: nextDone, active: false } : x));
+
+    if (!block.goal) return;
+    const goal = goals.find(g => g.id === block.goal);
+    if (!goal) return;
+    const step = resolveStep(goal, block);
+    if (!step) return;
+
+    const updatedGoal = { ...goal, sequence: goal.sequence.map(s => s.id === step.id ? { ...s, done: nextDone } : s) };
+    setGoals(prev => prev.map(g => g.id === goal.id ? updatedGoal : g));
+
+    const level = heatLevel(updatedGoal);
+    const day = dayKey();
+    setSharedLog(prev => setLevel(prev, goal.id, level, day));
+    syncCellToCloud(user?.id, goal.id, day, level);
+  }
   function commitNewGoal(goalTitle, sequence, opts) {
     setSheetOpen(false);
     const title = (goalTitle || '').trim();
     if (!title) { flash('Goal needs a name'); return; }
-    const steps = Array.isArray(sequence) ? sequence : [];
-    const palette = ['terracotta', 'sage', 'lavender'];
-    const cadence = (opts && opts.cadence) || 'oneoff';
-    const recurring = !!(opts && opts.recurring) && cadence !== 'oneoff';
-    const deadlineKey = (opts && opts.deadline) || 'this-week';
-    const deadlineLabel = {
-      'today': 'Today', 'this-week': 'This week',
-      'this-month': 'This month', 'no-rush': 'Slow burn',
-    }[deadlineKey] || deadlineKey;
-    const newGoal = {
-      id: newId('g_'),
-      title,
-      color: palette[goals.length % palette.length],
-      cadence,
-      recurring,
-      deadline: cadence === 'oneoff' ? deadlineLabel : (cadence === 'daily' ? 'Every day' : cadence === 'weekly' ? 'Every week' : 'Every month'),
-      sequence: steps.map((s, i) => ({
-        id: newId('s_'),
-        label: s.label || `Step ${i + 1}`,
-        est: typeof s.est === 'number' ? s.est : 10,
-        done: false,
-        active: i === 0,
-        why: s.why || '',
-        kind: s.kind || 'focus',
-      })),
-    };
-    setGoals(prev => [newGoal, ...prev]);
-
-    // "Add to today" should actually put the plan on Today's timeline — append the
-    // steps as blocks after whatever's already there (or from 9am on an empty day).
-    setBlocks(prev => {
-      let cursor = prev.length ? Math.max(...prev.map(b => b.startMin + b.dur)) : 9 * 60;
-      const newBlocks = newGoal.sequence.map((s, i) => {
-        const b = {
-          id: `${newGoal.id}-${i}`, startMin: cursor, dur: s.est, label: s.label,
-          kind: s.kind, done: false, active: false, goal: newGoal.id,
-          scores: { urgency: 0.5, importance: 0.6, energyMatch: 0.7, success: 0.8, effort: 0.4 },
-          optional: false, deps: [],
-        };
-        cursor += s.est;
-        return b;
-      });
-      return [...prev, ...newBlocks];
+    const goal = makeGoalFromSteps(title, sequence, {
+      cadence: (opts && opts.cadence) || 'oneoff',
+      recurring: !!(opts && opts.recurring),
+      deadline: (opts && opts.deadline) || 'this-week',
+      colorIndex: goals.length,
     });
-
+    setGoals(prev => [goal, ...prev]);
+    // "Add to today" puts the plan on Today's timeline — append the steps as blocks
+    // after whatever's already there (or from 9am on an empty day).
+    setBlocks(prev => [...prev, ...seedBlocksFromGoal(goal, prev)]);
     flash(`Added · ${title.length > 28 ? title.slice(0, 28) + '…' : title}`);
   }
 
@@ -363,25 +353,20 @@ function App({ requireAuth = true }) {
     () => goals.find(g => g.id === editingGoalId) || null,
     [goals, editingGoalId]
   );
-  function finishOnboarding(plan) {
+  function finishOnboarding(payload) {
     try { localStorage.setItem('cadence-onboarded', '1'); } catch {}
-    // Onboarding promised "your first plan is ready" — actually deliver it.
-    // Seed the (possibly edited) preview steps onto Today's timeline from 9am.
-    const steps = Array.isArray(plan) ? plan.filter(s => (s.label || '').trim()) : [];
-    if (steps.length) {
-      let cursor = 9 * 60;
-      const seeded = steps.map((s, i) => {
-        const dur = typeof s.est === 'number' ? s.est : 10;
-        const b = {
-          id: `ob-${i}`, startMin: cursor, dur, label: s.label,
-          kind: s.kind || 'focus', done: false, active: i === 0,
-          scores: { urgency: 0.5, importance: 0.6, energyMatch: 0.7, success: 0.8, effort: 0.4 },
-          optional: false, deps: [],
-        };
-        cursor += dur;
-        return b;
+    // Onboarding promised "your first plan is ready" — deliver it as a real goal
+    // so it shows in the Goals tab AND lands on Today, goal-linked.
+    const steps = Array.isArray(payload?.steps) ? payload.steps
+      : Array.isArray(payload) ? payload // back-compat: a bare steps array
+      : [];
+    const clean = steps.filter(s => (s.label || '').trim());
+    if (clean.length) {
+      const goal = makeGoalFromSteps(payload?.title || 'My first plan', clean, {
+        cadence: 'oneoff', colorIndex: goals.length,
       });
-      setBlocks(seeded);
+      setGoals(prev => [goal, ...prev]);
+      setBlocks(seedBlocksFromGoal(goal, [])); // first run: start the day at 9am
     }
     setOnboarding(false);
     // First run only: introduce the app with the floating-cloud feature tour.
@@ -404,6 +389,21 @@ function App({ requireAuth = true }) {
     flash(msg);
   }
 
+  // Library/voice plans become real goals (so they appear in Goals + propagate),
+  // and their steps land on Today after any already-done blocks.
+  function applyPlan(plan, msg) {
+    const steps = Array.isArray(plan?.steps) ? plan.steps.filter(s => (s.label || '').trim()) : [];
+    if (!steps.length) { flash('Plan needs steps'); return; }
+    const goal = makeGoalFromSteps(plan.title, steps, { cadence: 'oneoff', colorIndex: goals.length });
+    setGoals(prev => [goal, ...prev]);
+    setBlocks(prev => {
+      const kept = prev.filter(b => b.done);
+      return [...kept, ...seedBlocksFromGoal(goal, kept)];
+    });
+    setLibraryOpen(false); setVoiceOpen(false);
+    flash(msg);
+  }
+
   return (
     <div style={{
       width: '100%', height: '100%', position: 'relative',
@@ -418,6 +418,7 @@ function App({ requireAuth = true }) {
             blocks={blocks}
             setBlocks={setBlocks}
             onAdapt={adapt}
+            onCompleteBlock={completeBlock}
             openNewGoal={() => setSheetOpen(true)}
             onRunningLong={() => setRunningLongOpen(true)}
             onWhy={() => setWhyOpen(true)}
@@ -484,17 +485,14 @@ function App({ requireAuth = true }) {
       {voiceOpen && (
         <VoiceSheet
           onClose={() => setVoiceOpen(false)}
-          onApply={applyDayChange}
+          onApply={applyPlan}
         />
       )}
 
       {libraryOpen && (
         <LibrarySheet
           onClose={() => setLibraryOpen(false)}
-          onApply={(newBlocks, msg) => {
-            // append rather than replace
-            applyDayChange([...blocks.filter(b => b.done), ...newBlocks], msg);
-          }}
+          onApply={applyPlan}
         />
       )}
 
