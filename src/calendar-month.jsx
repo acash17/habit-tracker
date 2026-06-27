@@ -233,4 +233,3 @@ function NavBtn({ dir, onClick }) {
 }
 
 Object.assign(window, { CalendarMonth });
-export { CalendarMonth as default };

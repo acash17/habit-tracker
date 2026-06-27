@@ -7,12 +7,12 @@
     --terra:   #C26A38;
     --sage:    #6B8E5A;
     --lav:     #8E7CB8;
-    /* Editorial pairing: a display serif for big headlines, a clean legible sans
-       for everything readable. Instrument Serif is a DISPLAY face — its tight
-       letterforms cramp small body text — so body/UI/labels use Geist (sans) and
-       numbers use Geist Mono. Headlines keep the serif character. */
-    --serif:   'Instrument Serif', Georgia, serif;
-    --sans:    'Geist', -apple-system, BlinkMacSystemFont, system-ui, 'Segoe UI', Roboto, sans-serif;
+    /* Habit-coaching pairing: Fraunces is a warm "old-style" display serif with
+       optical sizing — friendlier than a cold serif, carries the coaching tone in
+       headlines. Hanken Grotesk is a humanist sans, warm but highly legible at
+       small sizes for body/UI/labels. Geist Mono keeps numerals/times aligned. */
+    --serif:   'Fraunces', 'Instrument Serif', Georgia, serif;
+    --sans:    'Hanken Grotesk', -apple-system, BlinkMacSystemFont, system-ui, 'Segoe UI', Roboto, sans-serif;
     --mono:    'Geist Mono', ui-monospace, 'SF Mono', monospace;
 
     /* ── Type scale ───────────────────────────────────────────────────────────
@@ -34,13 +34,15 @@
   body {
     font-family: var(--sans);
     color: var(--ink);
-    /* Text rendering pipeline tuned for Geist: comfortable default leading,
-       grayscale smoothing (crisper/lighter than subpixel on the WebView), and
-       legibility rendering so kerning/ligatures are on for body copy. */
+    /* Text rendering pipeline tuned for Hanken Grotesk: comfortable default
+       leading, grayscale smoothing (crisper/lighter than subpixel on the WebView),
+       and legibility rendering so kerning/ligatures are on for body copy.
+       Optical sizing lets Fraunces headlines pick their display cut automatically. */
     line-height: 1.5;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
+    font-optical-sizing: auto;
     display: flex; align-items: center; justify-content: center;
     min-height: 100vh;
     background:
