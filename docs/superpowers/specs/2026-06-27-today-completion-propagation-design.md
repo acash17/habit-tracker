@@ -25,13 +25,31 @@ Flips `block.done` and nothing else, even though blocks know their source goal
 **Insights**, and the **heatmap** stay empty, and there is no in-app calendar at all
 (only `.ics` export).
 
+### Second problem: most plan paths never create a goal
+
+Only **"New goal → plan"** (`commitNewGoal`) calls `setGoals(...)`. The other three
+ways to make a plan only seed **Today blocks** and never create a goal record:
+
+| Path | Creates goal? | In Goals tab? |
+|---|---|---|
+| New goal → plan (`commitNewGoal`) | ✅ | ✅ |
+| Onboarding first plan (`finishOnboarding`) | ❌ blocks only | ❌ empty |
+| From library (`LibrarySheet` → `applyDayChange`) | ❌ blocks only | ❌ empty |
+| Voice plan (`VoiceSheet` → `applyDayChange`) | ❌ blocks only | ❌ empty |
+
+So a user who onboards (or uses library/voice) sees tasks on **Today** but an **empty
+Goals tab** — and, because there's no goal, those tasks also can't propagate to
+heatmap/calendar/rhythm. This must be fixed for the propagation above to mean anything.
+
 ## Goal
 
-One tick on Today propagates to all four surfaces:
-1. **Goals tab** — sub-habit marked done; card status + "Completed" filter update.
-2. **GitHub-style heatmap** — that goal's day square fills.
-3. **Insights rhythm** — completion time logged (cloud), rhythm + breakpoints populate.
-4. **Calendar** — new month view inside the Insights tab reflects done days.
+1. **Every plan path creates a real goal** (onboarding, library, voice — same as
+   "New goal"), so it appears in the Goals tab and its Today tasks are goal-linked.
+2. One tick on Today then propagates to all four surfaces:
+   - **Goals tab** — sub-habit marked done; card status + "Completed" filter update.
+   - **GitHub-style heatmap** — that goal's day square fills.
+   - **Insights rhythm** — completion time logged (cloud), rhythm + breakpoints populate.
+   - **Calendar** — new month view inside the Insights tab reflects done days.
 
 ## Approach (chosen: A)
 
@@ -46,21 +64,37 @@ Rejected alternatives:
 
 ## Design
 
+### 0. One shared "create goal + seed Today" path
+
+Extract the goal-building logic currently inline in `commitNewGoal` into two reusable
+helpers (new `src/goal-factory.js`):
+
+- `makeGoalFromSteps(title, steps, opts)` → returns a goal object
+  (`id: g_…`, color cycling, cadence/recurring/deadline, `sequence[]` with `stepId`s),
+  identical to today's `commitNewGoal` output.
+- `seedBlocksFromGoal(goal, existingBlocks)` → returns the blocks to append for that
+  goal (each carrying `goal: goal.id` **and `stepId`**), placed after existing blocks.
+
+`commitNewGoal`, onboarding, library, and voice all funnel through these so behaviour
+is consistent and goal-linkage is guaranteed everywhere.
+
+**Title source per path:** New goal = typed title; onboarding = `goalText` from the
+goals step; library = template title; voice = the transcript (trimmed, fallback
+"Voice plan"). Cadence defaults to `oneoff` unless the path specifies otherwise.
+
 ### 1. Block ↔ goal-step linkage
 
 Blocks created from a goal currently carry `goal: goalId` and id `${goalId}-${i}`,
-but no stable step reference. Add `stepId` at creation so write-back is exact and
-survives sub-habit reordering.
+but no stable step reference. `seedBlocksFromGoal` sets `stepId: s.id` on each block
+so write-back is exact and survives sub-habit reordering.
 
-- [src/app.jsx](../../../src/app.jsx) `commitNewGoal` — when building blocks from
-  `newGoal.sequence`, set `stepId: s.id` on each block.
-- Onboarding blocks (`ob-${i}`, no goal) and library/voice blocks remain
-  goal-less; they still flip locally but do not propagate (no goal to update).
-  Out of scope: turning onboarding plans into goals.
-- **Back-compat:** for existing blocks that have `goal` but no `stepId`, resolve the
+- Library/voice/onboarding now produce goal-linked blocks via `seedBlocksFromGoal`.
+- **Back-compat:** for older blocks that have `goal` but no `stepId`, resolve the
   step by matching `block.label` to a `sequence[].label`; if no match, fall back to
   the block's trailing index in its id. Encapsulated in one helper
   `resolveStep(goal, block)` so the fallback lives in one place.
+- Blocks with no `goal` at all (legacy `ob-${i}` data already on a device) still flip
+  locally without propagating — no crash, no fake goal.
 
 ### 2. Shared habit-log store
 
@@ -142,8 +176,12 @@ Today tick ──► completeBlock ──┬─► setBlocks (block.done)
 
 | File | Change |
 |---|---|
+| `src/goal-factory.js` | **New** — `makeGoalFromSteps`, `seedBlocksFromGoal` (extracted from `commitNewGoal`) |
 | `src/habit-log.js` | Shared store via `useSyncExternalStore`; add `heatLevel(goal)`; keep `useHabitLog` signature |
-| `src/app.jsx` | `completeBlock` handler; pass to TodayScreen; `stepId` on blocks in `commitNewGoal` |
+| `src/app.jsx` | Use factory in `commitNewGoal`; create a goal in `finishOnboarding`; library/voice `onApply` create a goal; `completeBlock` handler passed to TodayScreen |
+| `src/onboarding.jsx` | Pass `{ title: goalText, steps }` (or equivalent) so onboarding can create a goal |
+| `src/sheet-library.jsx` | `onApply` passes template title + steps (not just blocks) so a goal can be made |
+| `src/sheet-voice.jsx` | `onApply` passes transcript title + steps so a goal can be made |
 | `src/screen-today.jsx` | Use `onCompleteBlock(blockId)` instead of inline block-only toggle |
 | `src/screen-goals.jsx` | No logic change; benefits from shared store re-renders |
 | `src/calendar-month.jsx` | **New** — `CalendarMonth` view |
@@ -168,11 +206,16 @@ Today tick ──► completeBlock ──┬─► setBlocks (block.done)
   - Tick a goal-linked Today block → goal sequence step flips, day cell appears,
     calendar day tints.
   - Un-tick → reverts.
-- **Manual (preview):** create a goal → Today → tick steps → verify Goals status,
-  heatmap, calendar; sign in → verify rhythm populates.
+- **Goal-from-path:** `makeGoalFromSteps` produces the same shape for new-goal,
+  onboarding, library, and voice inputs; each path's `onApply`/`onDone` results in a
+  goal in `cadence:goals` and matching goal-linked blocks.
+- **Manual (preview):** finish onboarding → goal appears in Goals tab; add a library
+  template → goal appears; Today → tick steps → verify Goals status, heatmap,
+  calendar; sign in → verify rhythm populates.
 
 ## Out of scope
 
-- Turning onboarding/library/voice blocks into goals.
+- De-duping: if a user runs the same library template twice it creates two goals
+  (matches today's behaviour for "New goal"); no merge logic.
 - Multi-day block history on Today (Today stays single-day; history lives in the log).
 - Calendar editing (read-only reflection of completions for now).
