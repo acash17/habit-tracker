@@ -8,12 +8,15 @@ import { goalToICS, icsFilename } from './calendar.js';
 import { exportICS } from './calendar-export.js';
 import { useAuth } from './use-auth.js';
 import { syncCellToCloud } from './cloud-sync.js';
+import { getReminder, setReminder } from './reminders.js';
+import { applyGoalReminder } from './notifications.js';
 
 // Goals / Library — list + inline detail navigation.
 // Tap a card → drill into a full goal detail page inside the same tab.
 // Inside detail, paginate left/right between goals. No overlay sheet.
 
-const CADENCE_LABEL = { daily: 'Daily', weekly: 'Weekly', monthly: 'Monthly', oneoff: 'Project' };
+const CADENCE_LABEL = { daily: 'Daily', weekly: 'Weekly', monthly: 'Monthly', yearly: 'Yearly', oneoff: 'Project' };
+const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 
 // ── List view ────────────────────────────────────────────────────────────────
 
@@ -213,6 +216,14 @@ function GoalDetail({ goal, allGoals, onBack, onPrev, onNext, onUpdate, onDelete
   const [log, setLog] = useHabitLog();
   const { user } = useAuth();
 
+  const [reminder, setReminderState] = React.useState(() => getReminder(goal.id) || null);
+  React.useEffect(() => { setReminderState(getReminder(goal.id) || null); }, [goal.id]);
+  function updateReminder(next) {
+    setReminderState(next);
+    setReminder(goal.id, next);
+    applyGoalReminder(goal, next).catch(() => {});
+  }
+
   // Tap-to-log: advance the local cell, then mirror it to the cloud (if signed in)
   // so the heatmap syncs cross-device and the timestamp feeds rhythm insights.
   function logToday() {
@@ -250,7 +261,7 @@ function GoalDetail({ goal, allGoals, onBack, onPrev, onNext, onUpdate, onDelete
     });
   }
 
-  const cadenceList = [['daily','Daily'], ['weekly','Weekly'], ['monthly','Monthly'], ['oneoff','Project']];
+  const cadenceList = [['daily','Daily'], ['weekly','Weekly'], ['monthly','Monthly'], ['yearly','Yearly'], ['oneoff','Project']];
 
   return (
     <div style={{
@@ -425,11 +436,59 @@ function GoalDetail({ goal, allGoals, onBack, onPrev, onNext, onUpdate, onDelete
               style={{ accentColor: 'var(--sage)', width: 16, height: 16 }}
             />
             <div style={{ fontSize: 13, color: 'var(--ink)' }}>
-              Repeat each {goal.cadence === 'daily' ? 'day' : goal.cadence === 'weekly' ? 'week' : 'month'}
+              Repeat each {goal.cadence === 'daily' ? 'day' : goal.cadence === 'weekly' ? 'week' : goal.cadence === 'yearly' ? 'year' : goal.cadence === 'monthly' ? 'month' : 'period'}
             </div>
           </label>
         )}
       </Section>
+
+      {/* due-day reminder — monthly/yearly only */}
+      {(goal.cadence === 'monthly' || goal.cadence === 'yearly') && (
+        <Section label="Reminder">
+          <label style={{
+            display: 'flex', alignItems: 'center', gap: 10, padding: '9px 12px',
+            background: reminder ? 'rgba(107,142,90,0.10)' : 'var(--card)',
+            border: `0.5px solid ${reminder ? 'rgba(107,142,90,0.4)' : 'rgba(31,27,22,0.08)'}`,
+            borderRadius: 12, cursor: 'pointer',
+          }}>
+            <input type="checkbox" checked={!!reminder}
+              onChange={(e) => updateReminder(e.target.checked
+                ? { day: 1, ...(goal.cadence === 'yearly' ? { month: new Date().getMonth() } : {}), hour: 9, minute: 0 }
+                : null)}
+              style={{ accentColor: 'var(--sage)', width: 16, height: 16 }}
+            />
+            <div style={{ fontSize: 13, color: 'var(--ink)' }}>Remind me when this is due</div>
+          </label>
+
+          {reminder && (
+            <div style={{ display: 'flex', gap: 8, marginTop: 10, flexWrap: 'wrap', alignItems: 'center' }}>
+              {goal.cadence === 'yearly' && (
+                <select value={reminder.month ?? 0}
+                  onChange={(e) => updateReminder({ ...reminder, month: parseInt(e.target.value, 10) })}
+                  style={reminderControl}>
+                  {MONTHS.map((m, i) => <option key={i} value={i}>{m}</option>)}
+                </select>
+              )}
+              <select value={reminder.day}
+                onChange={(e) => updateReminder({ ...reminder, day: parseInt(e.target.value, 10) })}
+                style={reminderControl}>
+                {Array.from({ length: 31 }, (_, i) => <option key={i} value={i + 1}>Day {i + 1}</option>)}
+              </select>
+              <input type="time"
+                value={`${String(reminder.hour).padStart(2, '0')}:${String(reminder.minute).padStart(2, '0')}`}
+                onChange={(e) => {
+                  const [h, m] = (e.target.value || '09:00').split(':').map((n) => parseInt(n, 10));
+                  updateReminder({ ...reminder, hour: h || 0, minute: m || 0 });
+                }}
+                style={reminderControl} />
+            </div>
+          )}
+
+          <div style={{ fontSize: 12, color: 'rgba(31,27,22,0.5)', marginTop: 10 }}>
+            Reminders ring on the installed app.
+          </div>
+        </Section>
+      )}
 
       {/* sub-habits */}
       <Section label="Sub-habits">
@@ -493,6 +552,13 @@ function GoalDetail({ goal, allGoals, onBack, onPrev, onNext, onUpdate, onDelete
   );
 }
 
+const reminderControl = {
+  fontFamily: 'inherit', fontSize: 13, color: 'var(--ink)',
+  padding: '8px 10px', borderRadius: 10,
+  background: 'var(--card)', border: '0.5px solid rgba(31,27,22,0.12)',
+  outline: 'none',
+};
+
 function Section({ label, children }) {
   return (
     <div style={{ marginBottom: 18 }}>
@@ -530,7 +596,7 @@ function GoalsScreen({ goals, openNewGoal, openGoal, detailGoalId, setDetailGoal
   // when entering detail mode and crash with "rendered fewer hooks than expected".
   const isComplete = (g) => (g.sequence?.length || 0) > 0 && g.sequence.every(s => s.done);
   const counts = React.useMemo(() => {
-    const c = { all: goals.length, daily: 0, weekly: 0, monthly: 0, oneoff: 0, completed: 0 };
+    const c = { all: goals.length, daily: 0, weekly: 0, monthly: 0, yearly: 0, oneoff: 0, completed: 0 };
     for (const g of goals) { c[g.cadence || 'oneoff']++; if (isComplete(g)) c.completed++; }
     return c;
   }, [goals]);
@@ -564,6 +630,7 @@ function GoalsScreen({ goals, openNewGoal, openGoal, detailGoalId, setDetailGoal
     ['daily',     'Daily'],
     ['weekly',    'Weekly'],
     ['monthly',   'Monthly'],
+    ['yearly',    'Yearly'],
     ['oneoff',    'Projects'],
   ];
 
