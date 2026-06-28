@@ -6,6 +6,9 @@ import { makeGoalFromSteps, seedBlocksFromGoal, resolveStep, heatLevel } from '.
 import { setSharedLog, setLevel, dayKey } from './habit-log.js';
 import { removeReminder } from './reminders.js';
 import { applyGoalReminder } from './notifications.js';
+import { PaywallSheet } from './sheet-paywall.jsx';
+import { useEntitlement } from './use-entitlement.js';
+import { goalLimitReached } from './entitlement.js';
 import { Icon, Chip } from './ui.jsx';
 import { TodayScreen } from './screen-today.jsx';
 import { GoalsScreen } from './screen-goals.jsx';
@@ -181,6 +184,9 @@ function App({ requireAuth = true }) {
   const [libraryOpen, setLibraryOpen] = React.useState(false);
   const [energyOpen, setEnergyOpen] = React.useState(false);
   const [editingGoalId, setEditingGoalId] = React.useState(null);
+  const [paywall, setPaywall] = React.useState(null); // null | 'goals' | 'insights' | 'reminders' | 'general'
+  const { ent } = useEntitlement();
+  function openPaywall(reason) { setPaywall(reason || 'general'); }
 
   // Cloud sync — no-op when env vars / Supabase not set up.
   const { user, ready } = useAuth();
@@ -325,6 +331,7 @@ function App({ requireAuth = true }) {
   }
   function commitNewGoal(goalTitle, sequence, opts) {
     setSheetOpen(false);
+    if (goalLimitReached(goals.length, ent)) { openPaywall('goals'); return; }
     const title = (goalTitle || '').trim();
     if (!title) { flash('Goal needs a name'); return; }
     const goal = makeGoalFromSteps(title, sequence, {
@@ -394,6 +401,7 @@ function App({ requireAuth = true }) {
   // Library/voice plans become real goals (so they appear in Goals + propagate),
   // and their steps land on Today after any already-done blocks.
   function applyPlan(plan, msg) {
+    if (goalLimitReached(goals.length, ent)) { setLibraryOpen(false); setVoiceOpen(false); openPaywall('goals'); return; }
     const steps = Array.isArray(plan?.steps) ? plan.steps.filter(s => (s.label || '').trim()) : [];
     if (!steps.length) { flash('Plan needs steps'); return; }
     const goal = makeGoalFromSteps(plan.title, steps, { cadence: 'oneoff', colorIndex: goals.length });
@@ -432,6 +440,7 @@ function App({ requireAuth = true }) {
         {tab === 'goals' && (
           <GoalsScreen
             goals={goals}
+            onUpgrade={openPaywall}
             openNewGoal={() => setSheetOpen(true)}
             openGoal={openGoal}
             detailGoalId={editingGoalId}
@@ -447,8 +456,8 @@ function App({ requireAuth = true }) {
             }}
           />
         )}
-        {tab === 'insights' && <InsightsScreen goals={goals} />}
-        {tab === 'settings' && <SettingsScreen onOpenEnergy={() => setEnergyOpen(true)} onReplay={replayOnboarding}/>}
+        {tab === 'insights' && <InsightsScreen goals={goals} onUpgrade={openPaywall} />}
+        {tab === 'settings' && <SettingsScreen onOpenEnergy={() => setEnergyOpen(true)} onReplay={replayOnboarding} onUpgrade={openPaywall}/>}
       </div>
 
       <TabBar tab={tab} setTab={setTab} onAdd={() => setSheetOpen(true)} />
@@ -506,6 +515,8 @@ function App({ requireAuth = true }) {
           onSave={() => { setEnergyOpen(false); flash('Energy profile saved'); }}
         />
       )}
+
+      {paywall && <PaywallSheet reason={paywall} onClose={() => setPaywall(null)} />}
 
       {/* Goal editor is now inline inside GoalsScreen (no overlay sheet) */}
 

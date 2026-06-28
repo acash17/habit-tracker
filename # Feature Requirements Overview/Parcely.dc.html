@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  @keyframes pcl-slideup { from { transform: translateY(26px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+  @keyframes pcl-fade { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes pcl-toast { from { transform: translate(-50%, 22px); opacity: 0; } to { transform: translate(-50%, 0); opacity: 1; } }
+  @keyframes pcl-pulse { 0%,100% { opacity: .3; transform: scale(.85);} 50% { opacity: 1; transform: scale(1.12);} }
+  * { box-sizing: border-box; }
+  .pcl-scroll::-webkit-scrollbar { display: none; }
+  .pcl-scroll { scrollbar-width: none; }
+</style>
+</helmet>
+
+<div style="min-height:100vh;width:100%;display:flex;align-items:center;justify-content:center;padding:28px;font-family:'Geist',-apple-system,system-ui,sans-serif;background:radial-gradient(1200px 700px at 30% 18%, #EFE7D5, transparent 60%), radial-gradient(900px 600px at 80% 82%, #E9DDC9, transparent 60%), #DDD5C3;">
+
+  <!-- Phone -->
+  <div style="position:relative;width:390px;height:844px;border-radius:46px;overflow:hidden;background:#F6F1E8;box-shadow:0 40px 90px -20px rgba(31,27,22,0.4), 0 0 0 1px rgba(0,0,0,0.1);">
+
+    <!-- dynamic island -->
+    <div style="position:absolute;top:11px;left:50%;transform:translateX(-50%);width:118px;height:34px;border-radius:22px;background:#000;z-index:60;"></div>
+
+    <!-- status bar -->
+    <div style="position:absolute;top:0;left:0;right:0;z-index:40;display:flex;align-items:center;justify-content:space-between;padding:17px 30px 8px;">
+      <span style="font-weight:600;font-size:15px;color:#1F1B16;letter-spacing:0.2px;">9:41</span>
+      <span style="font-size:12px;color:#1F1B16;display:flex;gap:5px;align-items:center;">
+        <svg width="17" height="11" viewBox="0 0 17 11"><rect x="0" y="7" width="2.6" height="4" rx="0.6" fill="#1F1B16"/><rect x="4" y="4.6" width="2.6" height="6.4" rx="0.6" fill="#1F1B16"/><rect x="8" y="2.3" width="2.6" height="8.7" rx="0.6" fill="#1F1B16"/><rect x="12" y="0" width="2.6" height="11" rx="0.6" fill="#1F1B16"/></svg>
+        <svg width="22" height="11" viewBox="0 0 24 12"><rect x="0.5" y="0.5" width="20" height="11" rx="3" stroke="#1F1B16" stroke-opacity="0.4" fill="none"/><rect x="2" y="2" width="16" height="8" rx="1.6" fill="#1F1B16"/><rect x="21.5" y="3.5" width="1.6" height="5" rx="0.8" fill="#1F1B16" fill-opacity="0.5"/></svg>
+      </span>
+    </div>
+
+    <!-- scroll content -->
+    <div class="pcl-scroll" style="position:absolute;inset:0;top:0;bottom:0;overflow-y:auto;padding:54px 0 96px;">
+      <div style="padding:0 20px;display:flex;flex-direction:column;gap:18px;">
+
+        <!-- greeting -->
+        <div style="padding-top:6px;">
+          <div style="font-size:12px;font-weight:600;letter-spacing:1.2px;color:rgba(31,27,22,0.55);text-transform:uppercase;margin-bottom:6px;">{{ dateLabel }}</div>
+          <div style="font-family:'Instrument Serif',Georgia,serif;font-size:33px;line-height:1.05;letter-spacing:-0.5px;color:#1F1B16;">{{ greeting }}</div>
+          <div style="margin-top:7px;font-size:13.5px;color:rgba(31,27,22,0.6);line-height:1.45;text-wrap:pretty;">Your day in one place — fixed plans and gentle habits, side by side. Start anywhere; I'll flow the rest around what's locked.</div>
+        </div>
+
+        <!-- quick add row -->
+        <div style="margin:0 -20px;padding:0 20px 4px;display:flex;gap:8px;overflow-x:auto;" class="pcl-scroll">
+          <button onClick="{{ openEventBlank }}" style="flex-shrink:0;display:inline-flex;align-items:center;gap:7px;padding:10px 15px;border-radius:999px;background:#1F1B16;color:#F6F1E8;border:none;font-family:inherit;font-size:13px;font-weight:500;cursor:pointer;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg> Add event
+          </button>
+          <sc-for list="{{ catChips }}" as="c" hint-placeholder-count="4">
+            <button onClick="{{ c.onClick }}" style="{{ c.style }}">{{ c.label }}</button>
+          </sc-for>
+        </div>
+
+        <!-- adaptive suggestion -->
+        <sc-if value="{{ adaptiveVisible }}" hint-placeholder-val="{{ false }}">
+          <div style="padding:16px;border-radius:20px;background:linear-gradient(180deg, rgba(155,138,196,0.10), rgba(155,138,196,0.18));border:0.5px solid rgba(155,138,196,0.3);">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#8E7CB8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.6 5.4L19 10l-5.4 1.6L12 17l-1.6-5.4L5 10l5.4-1.6L12 3z"/></svg>
+              <span style="font-size:11.5px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;color:#8E7CB8;white-space:nowrap;">Parcely noticed</span>
+            </div>
+            <div style="font-family:'Instrument Serif',Georgia,serif;font-size:19px;line-height:1.2;letter-spacing:-0.25px;color:#1F1B16;">{{ adaptiveTitle }}</div>
+            <div style="font-size:13px;color:rgba(31,27,22,0.62);margin-top:6px;line-height:1.45;">{{ adaptiveDetail }}</div>
+            <div style="margin-top:12px;display:flex;gap:8px;">
+              <button onClick="{{ applyAdaptive }}" style="flex:1;height:38px;border-radius:999px;background:#8E7CB8;color:#fff;border:none;font-family:inherit;font-size:13px;font-weight:500;cursor:pointer;">{{ adaptiveAction }}</button>
+              <button onClick="{{ dismissAdaptive }}" style="height:38px;padding:0 18px;border-radius:999px;background:transparent;color:#1F1B16;border:1px solid rgba(31,27,22,0.14);font-family:inherit;font-size:13px;font-weight:500;cursor:pointer;">Keep as is</button>
+            </div>
+          </div>
+        </sc-if>
+
+        <!-- energy + adapt -->
+        <div style="padding:15px 16px;border-radius:22px;background:#FBF7EE;border:0.5px solid rgba(31,27,22,0.06);box-shadow:0 8px 24px -16px rgba(31,27,22,0.18);display:flex;flex-direction:column;gap:12px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <div>
+              <div style="font-size:13.5px;font-weight:500;color:#1F1B16;">How's your energy?</div>
+              <div style="font-size:12.5px;color:rgba(31,27,22,0.6);margin-top:2px;">I'll rebalance habits — not your fixed plans.</div>
+            </div>
+            <div style="display:flex;align-items:center;">
+              <sc-for list="{{ energyDots }}" as="d" hint-placeholder-count="5">
+                <button onClick="{{ d.onClick }}" style="width:34px;height:34px;padding:0;border:none;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;">
+                  <span style="{{ d.style }}"></span>
+                </button>
+              </sc-for>
+            </div>
+          </div>
+          <button onClick="{{ adaptDay }}" style="width:100%;height:40px;border-radius:999px;background:#EFE8DA;color:#1F1B16;border:none;font-family:inherit;font-size:13.5px;font-weight:500;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:8px;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3h5v5M4 20l17-17M21 16v5h-5M15 15l6 6M4 4l5 5"/></svg> Adapt around my day
+          </button>
+        </div>
+
+        <!-- progress strip -->
+        <div style="display:flex;align-items:center;gap:14px;padding:0 4px;">
+          <div style="font-family:'Instrument Serif',Georgia,serif;font-size:22px;color:#1F1B16;line-height:1;letter-spacing:-0.3px;">{{ doneCount }} <span style="color:rgba(31,27,22,0.38);">of {{ totalCount }}</span></div>
+          <div style="flex:1;height:6px;border-radius:999px;background:rgba(31,27,22,0.08);overflow:hidden;"><div style="{{ progressBarStyle }}"></div></div>
+          <span style="font-family:'Geist Mono',monospace;font-size:12px;color:rgba(31,27,22,0.55);">{{ minsLabel }}</span>
+        </div>
+
+        <!-- timeline -->
+        <div style="display:flex;flex-direction:column;gap:9px;">
+          <sc-for list="{{ items }}" as="it" hint-placeholder-count="7">
+            <div style="{{ it.rowStyle }}">
+              <div style="width:50px;flex-shrink:0;padding-top:9px;text-align:right;font-family:'Geist Mono',monospace;">
+                <div style="{{ it.timeStyle }}">{{ it.timeLabel }}</div>
+                <div style="font-size:11px;margin-top:3px;color:rgba(31,27,22,0.45);">{{ it.durLabel }}</div>
+              </div>
+              <div onClick="{{ it.onToggle }}" style="{{ it.cardStyle }}">
+                <div style="{{ it.barStyle }}"></div>
+                <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;">
+                  <div style="flex:1;min-width:0;">
+                    <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">
+                      <span style="{{ it.eyebrowStyle }}">{{ it.eyebrow }}</span>
+                      <sc-if value="{{ it.locked }}" hint-placeholder-val="{{ false }}">
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#1F1B16" stroke-opacity="0.55" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/></svg>
+                      </sc-if>
+                    </div>
+                    <div style="{{ it.labelStyle }}">{{ it.label }}</div>
+                    <sc-if value="{{ it.metaLabel }}" hint-placeholder-val="">
+                      <div style="display:inline-flex;align-items:center;gap:5px;margin-top:7px;padding:3px 9px;border-radius:999px;background:rgba(31,27,22,0.05);font-size:11.5px;color:rgba(31,27,22,0.6);">
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8v4l3 2"/><circle cx="12" cy="12" r="9"/></svg>
+                        {{ it.metaLabel }}
+                      </div>
+                    </sc-if>
+                  </div>
+                  <button onClick="{{ it.onDone }}" style="width:40px;height:40px;padding:0;margin:-6px -6px 0 0;background:transparent;border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;">
+                    <span style="{{ it.checkStyle }}">
+                      <sc-if value="{{ it.done }}" hint-placeholder-val="{{ false }}">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12l5 5L20 6"/></svg>
+                      </sc-if>
+                    </span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- FAB -->
+    <button onClick="{{ openCreate }}" style="position:absolute;right:20px;bottom:84px;z-index:45;width:56px;height:56px;border-radius:999px;background:{{ accent }};border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 12px 28px -8px rgba(194,106,56,0.7);">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+    </button>
+
+    <!-- tab bar -->
+    <div style="position:absolute;left:0;right:0;bottom:0;z-index:42;height:78px;padding:8px 28px 22px;display:flex;align-items:flex-start;justify-content:space-between;background:rgba(246,241,232,0.86);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-top:0.5px solid rgba(31,27,22,0.07);">
+      <div style="display:flex;flex-direction:column;align-items:center;gap:3px;color:{{ accent }};">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
+        <span style="font-size:10px;font-weight:500;">Today</span>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:3px;color:rgba(31,27,22,0.4);">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.4" fill="currentColor" stroke="none"/></svg>
+        <span style="font-size:10px;font-weight:500;">Goals</span>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:3px;color:rgba(31,27,22,0.4);">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V9M10 19V4M16 19v-8M22 19H2"/></svg>
+        <span style="font-size:10px;font-weight:500;">Insights</span>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:3px;color:rgba(31,27,22,0.4);">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 13a1.7 1.7 0 00.3 1.9l.1.1a2 2 0 01-2.9 2.8l-.1-.1a1.7 1.7 0 00-2.8 1.2V21a2 2 0 01-4 0v-.1a1.7 1.7 0 00-2.8-1.2l-.1.1a2 2 0 01-2.9-2.8l.1-.1a1.7 1.7 0 00.3-1.9 1.7 1.7 0 00-1.5-1H3a2 2 0 010-4h.1a1.7 1.7 0 001.5-2.8l-.1-.1a2 2 0 012.9-2.8l.1.1a1.7 1.7 0 001.9.3H10a1.7 1.7 0 001-1.5V3a2 2 0 014 0v.1a1.7 1.7 0 001 1.5 1.7 1.7 0 001.9-.3l.1-.1a2 2 0 012.9 2.8l-.1.1a1.7 1.7 0 00-.3 1.9V10a1.7 1.7 0 001.5 1H21a2 2 0 010 4h-.1a1.7 1.7 0 00-1.5 1z"/></svg>
+        <span style="font-size:10px;font-weight:500;">Settings</span>
+      </div>
+    </div>
+
+    <!-- ===================== TOAST ===================== -->
+    <sc-if value="{{ toast }}" hint-placeholder-val="{{ false }}">
+      <div style="position:absolute;left:50%;bottom:100px;z-index:80;width:330px;transform:translateX(-50%);">
+        <div style="display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:16px;background:#1F1B16;color:#F6F1E8;box-shadow:0 18px 40px -12px rgba(0,0,0,0.5);">
+          <span style="flex:1;font-size:13px;line-height:1.35;">{{ toastMsg }}</span>
+          <sc-if value="{{ toastUndo }}" hint-placeholder-val="{{ false }}">
+            <button onClick="{{ undoReschedule }}" style="background:transparent;border:none;cursor:pointer;font-family:inherit;font-size:13px;font-weight:600;color:#E8A87C;padding:6px 6px;flex-shrink:0;">Undo</button>
+          </sc-if>
+        </div>
+      </div>
+    </sc-if>
+
+    <!-- ===================== EVENT SHEET ===================== -->
+    <sc-if value="{{ eventSheetOpen }}" hint-placeholder-val="{{ false }}">
+      <div onClick="{{ closeSheet }}" style="position:absolute;inset:0;z-index:90;background:rgba(31,27,22,0.34);backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px);display:flex;align-items:flex-end;">
+        <div onClick="{{ stop }}" class="pcl-scroll" style="background:#F6F1E8;width:100%;max-height:90%;overflow-y:auto;border-radius:28px 28px 0 0;box-shadow:0 -20px 40px rgba(0,0,0,0.18);">
+          <div style="display:flex;justify-content:center;padding-top:10px;"><div style="width:38px;height:4px;border-radius:999px;background:rgba(31,27,22,0.18);"></div></div>
+          <div style="padding:14px 22px 28px;display:flex;flex-direction:column;gap:20px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;">
+              <div style="font-family:'Instrument Serif',Georgia,serif;font-size:26px;letter-spacing:-0.4px;">A fixed point in your day</div>
+              <button onClick="{{ closeSheet }}" style="background:transparent;border:none;cursor:pointer;color:rgba(31,27,22,0.55);padding:4px;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M6 18L18 6"/></svg></button>
+            </div>
+
+            <input value="{{ evtTitle }}" onChange="{{ onEvtTitle }}" placeholder="What is it? e.g. Movie with Sam" style="width:100%;background:#FBF7EE;border:0.5px solid rgba(31,27,22,0.1);border-radius:16px;padding:14px 16px;font-family:inherit;font-size:15.5px;color:#1F1B16;outline:none;" />
+
+            <div>
+              <div style="font-size:12px;font-weight:600;color:rgba(31,27,22,0.55);margin-bottom:10px;letter-spacing:0.4px;text-transform:uppercase;">Starts at</div>
+              <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                <sc-for list="{{ timeOptions }}" as="t" hint-placeholder-count="8">
+                  <button onClick="{{ t.onClick }}" style="{{ t.style }}">{{ t.label }}</button>
+                </sc-for>
+              </div>
+            </div>
+
+            <div>
+              <div style="font-size:12px;font-weight:600;color:rgba(31,27,22,0.55);margin-bottom:10px;letter-spacing:0.4px;text-transform:uppercase;">Lasts</div>
+              <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                <sc-for list="{{ durOptions }}" as="d" hint-placeholder-count="5">
+                  <button onClick="{{ d.onClick }}" style="{{ d.style }}">{{ d.label }}</button>
+                </sc-for>
+              </div>
+            </div>
+
+            <div>
+              <div style="font-size:12px;font-weight:600;color:rgba(31,27,22,0.55);margin-bottom:10px;letter-spacing:0.4px;text-transform:uppercase;">How firm is it?</div>
+              <div style="display:flex;gap:8px;">
+                <sc-for list="{{ anchorOptions }}" as="a" hint-placeholder-count="2">
+                  <button onClick="{{ a.onClick }}" style="{{ a.style }}">
+                    <div style="font-size:13.5px;font-weight:600;">{{ a.title }}</div>
+                    <div style="{{ a.subStyle }}">{{ a.sub }}</div>
+                  </button>
+                </sc-for>
+              </div>
+            </div>
+
+            <div>
+              <div style="font-size:12px;font-weight:600;color:rgba(31,27,22,0.55);margin-bottom:10px;letter-spacing:0.4px;text-transform:uppercase;">Remind me</div>
+              <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                <sc-for list="{{ reminderOptions }}" as="r" hint-placeholder-count="5">
+                  <button onClick="{{ r.onClick }}" style="{{ r.style }}">{{ r.label }}</button>
+                </sc-for>
+              </div>
+            </div>
+
+            <button onClick="{{ commitEvent }}" style="width:100%;height:52px;border-radius:999px;background:{{ accent }};color:#fff;border:none;font-family:inherit;font-size:16px;font-weight:500;cursor:pointer;">Add to my day</button>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+
+    <!-- ===================== CREATE MENU SHEET ===================== -->
+    <sc-if value="{{ createMenuOpen }}" hint-placeholder-val="{{ false }}">
+      <div onClick="{{ closeSheet }}" style="position:absolute;inset:0;z-index:90;background:rgba(31,27,22,0.34);backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px);display:flex;align-items:flex-end;">
+        <div onClick="{{ stop }}" class="pcl-scroll" style="background:#F6F1E8;width:100%;max-height:90%;overflow-y:auto;border-radius:28px 28px 0 0;box-shadow:0 -20px 40px rgba(0,0,0,0.18);">
+          <div style="display:flex;justify-content:center;padding-top:10px;"><div style="width:38px;height:4px;border-radius:999px;background:rgba(31,27,22,0.18);"></div></div>
+          <div style="padding:14px 22px 28px;display:flex;flex-direction:column;gap:18px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;">
+              <div style="font-family:'Instrument Serif',Georgia,serif;font-size:26px;letter-spacing:-0.4px;">New habit sequence</div>
+              <button onClick="{{ closeSheet }}" style="background:transparent;border:none;cursor:pointer;color:rgba(31,27,22,0.55);padding:4px;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M6 18L18 6"/></svg></button>
+            </div>
+
+            <textarea value="{{ goalText }}" onChange="{{ onGoalText }}" rows="2" placeholder="What are you circling? One sentence." style="width:100%;background:#FBF7EE;border:0.5px solid rgba(31,27,22,0.1);border-radius:16px;padding:14px 16px;font-family:inherit;font-size:15.5px;color:#1F1B16;outline:none;resize:none;line-height:1.4;"></textarea>
+
+            <button onClick="{{ generateSequence }}" style="width:100%;height:50px;border-radius:999px;background:#1F1B16;color:#F6F1E8;border:none;font-family:inherit;font-size:15px;font-weight:500;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:8px;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.6 5.4L19 10l-5.4 1.6L12 17l-1.6-5.4L5 10l5.4-1.6L12 3z"/></svg>
+              Break it into steps
+            </button>
+
+            <div style="display:flex;align-items:center;gap:12px;color:rgba(31,27,22,0.4);font-size:12px;">
+              <div style="flex:1;height:0.5px;background:rgba(31,27,22,0.14);"></div>or<div style="flex:1;height:0.5px;background:rgba(31,27,22,0.14);"></div>
+            </div>
+
+            <button onClick="{{ openLibrary }}" style="display:flex;align-items:center;gap:12px;padding:15px 16px;background:rgba(107,142,90,0.10);border:0.5px solid rgba(107,142,90,0.25);border-radius:16px;cursor:pointer;font-family:inherit;text-align:left;width:100%;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6B8E5A" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.4" fill="#6B8E5A" stroke="none"/></svg>
+              <div style="flex:1;"><div style="font-size:14px;color:#1F1B16;font-weight:500;">Start from the library</div><div style="font-size:12.5px;color:rgba(31,27,22,0.6);margin-top:2px;">Tested shapes for common goals.</div></div>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(31,27,22,0.3)" stroke-width="2" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg>
+            </button>
+
+            <button onClick="{{ startBlank }}" style="display:flex;align-items:center;gap:12px;padding:15px 16px;background:#FBF7EE;border:0.5px solid rgba(31,27,22,0.1);border-radius:16px;cursor:pointer;font-family:inherit;text-align:left;width:100%;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1F1B16" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 113 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>
+              <div style="flex:1;"><div style="font-size:14px;color:#1F1B16;font-weight:500;">Write it myself</div><div style="font-size:12.5px;color:rgba(31,27,22,0.6);margin-top:2px;">Blank canvas. Full control, no suggestions.</div></div>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(31,27,22,0.3)" stroke-width="2" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+
+    <!-- ===================== LIBRARY SHEET ===================== -->
+    <sc-if value="{{ libraryOpen }}" hint-placeholder-val="{{ false }}">
+      <div onClick="{{ closeSheet }}" style="position:absolute;inset:0;z-index:91;background:rgba(31,27,22,0.34);backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px);display:flex;align-items:flex-end;">
+        <div onClick="{{ stop }}" class="pcl-scroll" style="background:#F6F1E8;width:100%;max-height:90%;overflow-y:auto;border-radius:28px 28px 0 0;box-shadow:0 -20px 40px rgba(0,0,0,0.18);">
+          <div style="display:flex;justify-content:center;padding-top:10px;"><div style="width:38px;height:4px;border-radius:999px;background:rgba(31,27,22,0.18);"></div></div>
+          <div style="padding:14px 22px 28px;display:flex;flex-direction:column;gap:14px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;">
+              <div style="font-family:'Instrument Serif',Georgia,serif;font-size:26px;letter-spacing:-0.4px;">Plan library</div>
+              <button onClick="{{ backToCreate }}" style="background:transparent;border:none;cursor:pointer;color:rgba(31,27,22,0.55);padding:4px;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M6 18L18 6"/></svg></button>
+            </div>
+            <sc-for list="{{ templates }}" as="t" hint-placeholder-count="4">
+              <button onClick="{{ t.onPick }}" style="display:flex;flex-direction:column;gap:9px;padding:16px;width:100%;text-align:left;background:#FBF7EE;border:0.5px solid rgba(31,27,22,0.06);border-radius:18px;cursor:pointer;font-family:inherit;">
+                <div style="display:flex;justify-content:space-between;align-items:center;">
+                  <span style="{{ t.tagStyle }}">{{ t.tag }}</span>
+                  <span style="font-size:12px;color:rgba(31,27,22,0.55);font-family:'Geist Mono',monospace;">{{ t.meta }}</span>
+                </div>
+                <div style="font-family:'Instrument Serif',Georgia,serif;font-size:20px;line-height:1.15;letter-spacing:-0.3px;color:#1F1B16;">{{ t.title }}</div>
+                <div style="font-size:12.5px;color:rgba(31,27,22,0.6);line-height:1.4;">{{ t.sub }}</div>
+              </button>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+
+    <!-- ===================== DRAFT (EDITABLE STEPS) SHEET ===================== -->
+    <sc-if value="{{ draftOpen }}" hint-placeholder-val="{{ false }}">
+      <div onClick="{{ closeSheet }}" style="position:absolute;inset:0;z-index:92;background:rgba(31,27,22,0.34);backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px);display:flex;align-items:flex-end;">
+        <div onClick="{{ stop }}" class="pcl-scroll" style="background:#F6F1E8;width:100%;height:90%;overflow-y:auto;border-radius:28px 28px 0 0;box-shadow:0 -20px 40px rgba(0,0,0,0.18);display:flex;flex-direction:column;">
+          <div style="display:flex;justify-content:center;padding-top:10px;flex-shrink:0;"><div style="width:38px;height:4px;border-radius:999px;background:rgba(31,27,22,0.18);"></div></div>
+          <div class="pcl-scroll" style="flex:1;overflow-y:auto;padding:14px 22px 16px;display:flex;flex-direction:column;gap:16px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;">
+              <div>
+                <div style="font-size:12px;color:rgba(31,27,22,0.55);margin-bottom:3px;">{{ draftKicker }}</div>
+                <div style="font-family:'Instrument Serif',Georgia,serif;font-size:23px;letter-spacing:-0.3px;line-height:1.1;">{{ draftTitle }}</div>
+              </div>
+              <button onClick="{{ closeSheet }}" style="background:transparent;border:none;cursor:pointer;color:rgba(31,27,22,0.55);padding:4px;flex-shrink:0;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M6 18L18 6"/></svg></button>
+            </div>
+            <div style="display:flex;gap:6px;">
+              <span style="padding:4px 10px;border-radius:999px;background:#EFE8DA;font-size:12px;font-weight:500;">{{ draftStepCount }}</span>
+              <span style="padding:4px 10px;border-radius:999px;background:#EFE8DA;font-size:12px;font-weight:500;">~{{ draftTotalMin }} min</span>
+              <span style="padding:4px 10px;border-radius:999px;background:rgba(155,138,196,0.18);color:#8E7CB8;font-size:12px;font-weight:500;">Edit before adding</span>
+            </div>
+
+            <div style="display:flex;flex-direction:column;gap:10px;">
+              <sc-for list="{{ draftSteps }}" as="s" hint-placeholder-count="5">
+                <div style="display:flex;gap:11px;align-items:flex-start;padding:13px;background:#FBF7EE;border-radius:16px;border:0.5px solid rgba(31,27,22,0.06);">
+                  <div style="{{ s.numStyle }}">{{ s.num }}</div>
+                  <div style="flex:1;min-width:0;">
+                    <div style="display:flex;gap:8px;align-items:flex-start;">
+                      <textarea value="{{ s.label }}" onChange="{{ s.onLabel }}" rows="1" placeholder="Describe this step…" style="flex:1;min-width:0;resize:none;background:transparent;border:none;outline:none;padding:0;font-family:inherit;font-size:14.5px;color:#1F1B16;font-weight:500;line-height:1.35;"></textarea>
+                      <div style="display:flex;align-items:center;gap:2px;flex-shrink:0;">
+                        <input value="{{ s.est }}" onChange="{{ s.onEst }}" inputmode="numeric" style="width:38px;text-align:right;background:rgba(31,27,22,0.04);border:0.5px solid rgba(31,27,22,0.12);border-radius:8px;padding:3px 5px;outline:none;font-family:'Geist Mono',monospace;font-size:13px;color:#1F1B16;" />
+                        <span style="font-family:'Geist Mono',monospace;font-size:13px;color:rgba(31,27,22,0.55);">m</span>
+                      </div>
+                      <button onClick="{{ s.onDelete }}" style="flex-shrink:0;background:transparent;border:none;cursor:pointer;width:30px;height:30px;margin:-6px -6px 0 0;padding:0;color:rgba(31,27,22,0.5);display:flex;align-items:center;justify-content:center;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M6 18L18 6"/></svg></button>
+                    </div>
+                    <sc-if value="{{ s.whyShown }}" hint-placeholder-val="{{ false }}">
+                      <div style="font-size:12.5px;color:rgba(31,27,22,0.6);margin-top:6px;line-height:1.4;"><span style="{{ s.kindLabelStyle }}">{{ s.kindLabel }} · </span>{{ s.why }}</div>
+                    </sc-if>
+                  </div>
+                </div>
+              </sc-for>
+              <button onClick="{{ addDraftStep }}" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:12px;border-radius:14px;cursor:pointer;width:100%;background:transparent;border:1px dashed rgba(31,27,22,0.2);font-family:inherit;font-size:13.5px;color:rgba(31,27,22,0.7);">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg> Add step
+              </button>
+            </div>
+          </div>
+          <div style="flex-shrink:0;padding:12px 22px 22px;border-top:0.5px solid rgba(31,27,22,0.06);background:#F6F1E8;display:flex;gap:10px;">
+            <button onClick="{{ openCreate }}" style="height:52px;padding:0 20px;border-radius:999px;background:transparent;border:1px solid rgba(31,27,22,0.14);font-family:inherit;font-size:15px;font-weight:500;color:#1F1B16;cursor:pointer;">Back</button>
+            <button onClick="{{ commitDraft }}" style="flex:1;height:52px;border-radius:999px;background:{{ accent }};color:#fff;border:none;font-family:inherit;font-size:16px;font-weight:500;cursor:pointer;">Add to today</button>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;: {&quot;width&quot;: 446, &quot;height&quot;: 900}, &quot;showWhy&quot;: {&quot;editor&quot;: &quot;boolean&quot;, &quot;default&quot;: true, &quot;tsType&quot;: &quot;boolean&quot;}, &quot;defaultAnchor&quot;: {&quot;editor&quot;: &quot;enum&quot;, &quot;options&quot;: [&quot;hard&quot;, &quot;soft&quot;], &quot;default&quot;: &quot;hard&quot;, &quot;tsType&quot;: &quot;string&quot;}, &quot;accent&quot;: {&quot;editor&quot;: &quot;color&quot;, &quot;options&quot;: [&quot;#C26A38&quot;, &quot;#6B8E5A&quot;, &quot;#8E7CB8&quot;], &quot;default&quot;: &quot;#C26A38&quot;, &quot;tsType&quot;: &quot;string&quot;}}">
+class Component extends DCLogic {
+  state = {
+    sheet: 'none',            // none | event | create | library | draft
+    energy: 3,
+    expanded: null,
+    toast: null,              // { msg, undo }
+    prevItems: null,          // snapshot for undo
+    adaptiveStatus: 'open',   // open | applied | dismissed
+    items: [
+      { id: 'b1', type: 'habit', label: 'Morning check-in', startMin: 540, dur: 30, kind: 'self', done: true },
+      { id: 'b2', type: 'habit', label: 'Draft nav-bar reply', startMin: 570, dur: 50, kind: 'focus', goal: 'Q3 review', why: 'Highest-signal thread — unblocks two reviewers.' },
+      { id: 'e1', type: 'event', label: 'Team standup', startMin: 630, dur: 30, cat: 'meeting', anchor: 'hard', reminder: 10 },
+      { id: 'b3', type: 'habit', label: 'Walk + water', startMin: 660, dur: 15, kind: 'rest', why: 'Movement break protects the next block.' },
+      { id: 'b4', type: 'habit', label: 'Decision summary', startMin: 675, dur: 40, kind: 'focus', goal: 'Q3 review', why: 'Best done before fatigue sets in.' },
+      { id: 'e2', type: 'event', label: 'Lunch', startMin: 720, dur: 45, cat: 'meal', anchor: 'soft', reminder: 0 },
+      { id: 'b5', type: 'habit', label: 'Run intervals', startMin: 765, dur: 35, kind: 'body', goal: '5K by August', why: 'Matches your current pace data.' },
+      { id: 'b6', type: 'habit', label: 'Read 1 chapter', startMin: 800, dur: 25, kind: 'reading', goal: 'Reading', why: 'Single-chapter chunks beat "read more".' },
+    ],
+    // event form
+    evtTitle: '',
+    evtCat: 'meeting',
+    evtStart: 690,
+    evtDur: 45,
+    evtAnchor: 'hard',
+    evtReminder: 10,
+    // create / draft
+    goalText: '',
+    draftKind: 'blank',       // blank | ai | library
+    draftTitle: '',
+    draftKicker: '',
+    draftSteps: [],
+  };
+
+  // ---------- helpers ----------
+  minToTime(m) {
+    const h = Math.floor(m / 60), mm = m % 60;
+    const ap = h >= 12 ? 'pm' : 'am';
+    const h12 = ((h + 11) % 12) + 1;
+    return mm === 0 ? `${h12}${ap}` : `${h12}:${String(mm).padStart(2, '0')}${ap}`;
+  }
+  kindStyle(kind) {
+    switch (kind) {
+      case 'focus':   return { bg: 'rgba(194,106,56,0.10)',  bar: '#C26A38', label: 'Focus' };
+      case 'rest':    return { bg: 'rgba(107,142,90,0.12)',  bar: '#6B8E5A', label: 'Rest' };
+      case 'body':    return { bg: 'rgba(232,194,107,0.22)', bar: '#C89A3A', label: 'Body' };
+      case 'reading': return { bg: 'rgba(142,124,184,0.16)', bar: '#8E7CB8', label: 'Read' };
+      case 'self':    return { bg: 'rgba(31,27,22,0.05)',    bar: '#6B6359', label: 'Self' };
+      default:        return { bg: 'rgba(31,27,22,0.05)',    bar: '#6B6359', label: '' };
+    }
+  }
+  catMeta(cat) {
+    switch (cat) {
+      case 'meeting': return { label: 'Meeting', def: { title: 'Meeting', dur: 30, anchor: 'hard', reminder: 10 } };
+      case 'meal':    return { label: 'Lunch',   def: { title: 'Lunch', dur: 45, anchor: 'soft', reminder: 0 } };
+      case 'errand':  return { label: 'Errand',  def: { title: 'Errand', dur: 30, anchor: 'soft', reminder: 15 } };
+      case 'movie':   return { label: 'Movie',   def: { title: 'Movie', dur: 120, anchor: 'hard', reminder: 30 } };
+      default:        return { label: 'Event',   def: { title: '', dur: 45, anchor: 'hard', reminder: 10 } };
+    }
+  }
+  // Flow flexible habit blocks around fixed (event) anchors, preserving order.
+  reschedule(list) {
+    const sorted = [...list].sort((a, b) => a.startMin - b.startMin);
+    const events = sorted.filter(x => x.type === 'event');
+    const overlaps = (s, d) => events.some(e => s < e.startMin + e.dur && s + d > e.startMin);
+    let lastEnd = 0;
+    const out = sorted.map(x => {
+      if (x.type === 'event') { lastEnd = Math.max(lastEnd, x.startMin + x.dur); return x; }
+      let s = Math.max(x.startMin, lastEnd);
+      // push past any event it would collide with
+      for (let i = 0; i < events.length + 2; i++) {
+        const hit = events.find(e => s < e.startMin + e.dur && s + x.dur > e.startMin);
+        if (!hit) break;
+        s = hit.startMin + hit.dur;
+      }
+      lastEnd = s + x.dur;
+      return { ...x, startMin: s };
+    });
+    return out.sort((a, b) => a.startMin - b.startMin);
+  }
+  showToast(msg, undo) {
+    clearTimeout(this._toastT);
+    this.setState({ toast: { msg, undo: !!undo } });
+    this._toastT = setTimeout(() => this.setState({ toast: null }), undo ? 6000 : 3200);
+  }
+
+  // tiny on-device sequence generator (keyword → steps)
+  genSteps(goal) {
+    const g = (goal || '').toLowerCase();
+    const short = (goal || 'your goal').trim().slice(0, 30);
+    const cat = (re) => re.test(g);
+    if (cat(/run|jog|5k|gym|workout|exercise|walk|fitness/))
+      return [
+        { label: 'Lay out your kit + shoes', est: 3, kind: 'self', why: 'Tiny first move removes friction.' },
+        { label: 'Warm-up: 5-min easy walk', est: 5, kind: 'body', why: 'Ease in — no pressure to start hard.' },
+        { label: `Main set toward "${short}"`, est: 25, kind: 'body', why: 'The real work, while energy is fresh.' },
+        { label: 'Walk + water break', est: 5, kind: 'rest', why: 'Lets your body recover mid-session.' },
+        { label: 'Note how it felt', est: 2, kind: 'self', why: 'Track effort, not perfection.' },
+      ];
+    if (cat(/read|book|chapter|pages|novel/))
+      return [
+        { label: 'Put your phone in another room', est: 2, kind: 'self', why: 'Removes the biggest distraction first.' },
+        { label: 'Open the book + bookmark', est: 3, kind: 'self', why: 'Lower the barrier to starting.' },
+        { label: `Read toward "${short}"`, est: 25, kind: 'reading', why: 'One focused block beats a vague hour.' },
+        { label: 'Jot one line to remember', est: 3, kind: 'self', why: 'Anchors what you read.' },
+      ];
+    if (cat(/write|blog|essay|draft|article|report|post/))
+      return [
+        { label: `Open a doc titled "${short}"`, est: 2, kind: 'self', why: 'A named doc makes it real.' },
+        { label: 'Brain-dump bullets — no editing', est: 10, kind: 'focus', why: 'Get raw material down first.' },
+        { label: 'Draft the hardest section', est: 25, kind: 'focus', why: 'Tackle it while energy is high.' },
+        { label: 'Stand up + water', est: 5, kind: 'rest', why: 'Protects focus for the next block.' },
+        { label: 'Save + note tomorrow\u2019s first line', est: 3, kind: 'self', why: 'Makes restarting effortless.' },
+      ];
+    return [
+      { label: `Write what "done" looks like for "${short}"`, est: 3, kind: 'self', why: 'A clear target is a tiny first step.' },
+      { label: 'List the 3 smallest next actions', est: 8, kind: 'focus', why: 'Visible scope cuts overwhelm.' },
+      { label: 'Do the first action now', est: 25, kind: 'focus', why: 'Start while energy is fresh.' },
+      { label: 'Stand up + water', est: 5, kind: 'rest', why: 'Protects focus for the next block.' },
+      { label: 'Note where you stopped', est: 3, kind: 'self', why: 'Makes restarting effortless.' },
+    ];
+  }
+
+  TEMPLATES = [
+    { id: 'deep-work', title: 'Deep work block', sub: 'One important thing, in a row.', tag: 'Focus', tagTone: 'terra',
+      steps: [
+        { label: 'Close all tabs except one', est: 3, kind: 'self', why: 'Visible decluttering reduces overwhelm.' },
+        { label: 'Set a one-sentence intent', est: 2, kind: 'self', why: 'Tiny commitment beats vague resolve.' },
+        { label: 'First 50-min focus block', est: 50, kind: 'focus', why: 'Your sweet spot.' },
+        { label: 'Walk + water', est: 10, kind: 'rest', why: 'Mandatory reset, not optional.' },
+        { label: 'Second 50-min focus block', est: 50, kind: 'focus', why: 'Pairs finish 71% vs 28% for triples.' },
+      ] },
+    { id: 'adhd-reset', title: 'ADHD reset', sub: 'Scattered? Land back here.', tag: 'Reset', tagTone: 'lav',
+      steps: [
+        { label: 'Stand up. Drink water.', est: 2, kind: 'body', why: 'Body before thoughts.' },
+        { label: '5 deep breaths · box pattern', est: 3, kind: 'self', why: 'Re-engages the calm system.' },
+        { label: 'Brain-dump everything on your mind', est: 2, kind: 'self', why: 'Externalize working memory.' },
+        { label: 'Pick ONE item. Star it.', est: 1, kind: 'self', why: 'Decide once, do many times.' },
+        { label: '10 min on the starred item', est: 10, kind: 'focus', why: 'Tiny entrance to flow.' },
+      ] },
+    { id: 'morning', title: 'Calm morning', sub: 'No phone until step 5.', tag: 'Routine', tagTone: 'sage',
+      steps: [
+        { label: 'Make the bed', est: 2, kind: 'self', why: 'First small win, free.' },
+        { label: 'Glass of water', est: 1, kind: 'self', why: 'Hydration before caffeine.' },
+        { label: '5 min sun on the face', est: 5, kind: 'body', why: 'Sets circadian rhythm.' },
+        { label: 'Shower', est: 12, kind: 'self', why: 'Wake-up cue.' },
+        { label: 'Write today\u2019s one thing', est: 10, kind: 'focus', why: 'One thing beats a list of ten.' },
+      ] },
+    { id: 'wind-down', title: 'Wind down for sleep', sub: 'For light sleepers.', tag: 'Sleep', tagTone: 'lav',
+      steps: [
+        { label: 'Dim every light', est: 2, kind: 'self', why: 'Lower light = higher melatonin.' },
+        { label: 'No screens · pick a book', est: 3, kind: 'self', why: 'Boundary beats willpower.' },
+        { label: '5 min stretch', est: 5, kind: 'body', why: 'Loosens tension.' },
+        { label: 'Read 20 min', est: 20, kind: 'reading', why: 'Off-screen wind-down.' },
+        { label: 'Lights out', est: 1, kind: 'self', why: 'Same time each night, when you can.' },
+      ] },
+  ];
+
+  // ---------- actions ----------
+  openCreate = () => this.setState({ sheet: 'create' });
+  openLibrary = () => this.setState({ sheet: 'library' });
+  backToCreate = () => this.setState({ sheet: 'create' });
+  closeSheet = () => this.setState({ sheet: 'none' });
+  stop = (e) => { e.stopPropagation(); };
+
+  openEventBlank = () => this.setState({ sheet: 'event', evtTitle: '', evtCat: 'custom', evtStart: 690, evtDur: 45, evtAnchor: this.props.defaultAnchor || 'hard', evtReminder: 10 });
+  openEventCat = (cat) => {
+    const d = this.catMeta(cat).def;
+    this.setState({ sheet: 'event', evtCat: cat, evtTitle: d.title, evtDur: d.dur, evtAnchor: d.anchor, evtReminder: d.reminder, evtStart: cat === 'movie' ? 1020 : 690 });
+  };
+  onEvtTitle = (e) => this.setState({ evtTitle: e.target.value });
+
+  commitEvent = () => {
+    const { items, evtTitle, evtStart, evtDur, evtAnchor, evtReminder, evtCat } = this.state;
+    const ev = { id: 'ev' + Date.now(), type: 'event', label: evtTitle || this.catMeta(evtCat).label, startMin: evtStart, dur: evtDur, cat: evtCat, anchor: evtAnchor, reminder: evtReminder };
+    const before = items;
+    const next = this.reschedule([...items, ev]);
+    // detect a moved habit
+    const moved = next.find(n => {
+      const o = before.find(b => b.id === n.id);
+      return o && o.type === 'habit' && o.startMin !== n.startMin;
+    });
+    this.setState({ items: next, sheet: 'none', prevItems: before });
+    if (moved) {
+      const m = next.find(n => n.id === moved.id);
+      this.showToast(`"${ev.label}" added. Moved "${moved.label}" to ${this.minToTime(m.startMin)}.`, true);
+    } else {
+      this.showToast(`"${ev.label}" added to your day.`, false);
+    }
+  };
+  undoReschedule = () => {
+    if (this.state.prevItems) this.setState({ items: this.state.prevItems, prevItems: null, toast: null });
+    clearTimeout(this._toastT);
+  };
+
+  setEnergy = (n) => this.setState({ energy: n });
+  adaptDay = () => {
+    const next = this.reschedule(this.state.items);
+    this.setState({ items: next });
+    this.showToast('Day rebalanced. Your locked plans stayed put.', false);
+  };
+
+  toggleDone = (id) => this.setState(s => ({ items: s.items.map(x => x.id === id ? { ...x, done: !x.done } : x) }));
+
+  applyAdaptive = () => {
+    this.setState(s => ({
+      items: s.items.map(x => x.id === 'b6' ? { ...x, dur: 10, label: 'Read a few pages', why: 'Shrunk for busy evenings — keeps the thread alive.' } : x),
+      adaptiveStatus: 'applied',
+    }));
+    this.showToast('Tuned. "Read 1 chapter" is now a 10-min version on busy days.', false);
+  };
+  dismissAdaptive = () => this.setState({ adaptiveStatus: 'dismissed' });
+
+  // create flow
+  onGoalText = (e) => this.setState({ goalText: e.target.value });
+  generateSequence = () => {
+    const g = this.state.goalText.trim() || 'Get my portfolio site live';
+    this.setState({ sheet: 'draft', draftKind: 'ai', draftKicker: 'Suggested plan — tweak anything', draftTitle: g, draftSteps: this.genSteps(g) });
+  };
+  startBlank = () => this.setState({ sheet: 'draft', draftKind: 'blank', draftKicker: 'Your own sequence', draftTitle: this.state.goalText.trim() || 'Untitled sequence', draftSteps: [{ label: '', est: 10, kind: 'focus', why: '' }] });
+  pickTemplate = (t) => this.setState({ sheet: 'draft', draftKind: 'library', draftKicker: 'From library', draftTitle: t.title, draftSteps: t.steps.map(s => ({ ...s })) });
+
+  updateDraft = (idx, patch) => this.setState(s => ({ draftSteps: s.draftSteps.map((x, i) => i === idx ? { ...x, ...patch } : x) }));
+  deleteDraft = (idx) => this.setState(s => ({ draftSteps: s.draftSteps.filter((_, i) => i !== idx) }));
+  addDraftStep = () => this.setState(s => ({ draftSteps: [...s.draftSteps, { label: '', est: 10, kind: 'focus', why: '' }] }));
+  commitDraft = () => {
+    const { items, draftSteps } = this.state;
+    const valid = draftSteps.filter(s => (s.label || '').trim());
+    if (!valid.length) { this.showToast('Add at least one step first.', false); return; }
+    // append after the last item, then flow around events
+    let cursor = items.reduce((m, x) => Math.max(m, x.startMin + x.dur), 540);
+    const newBlocks = valid.map((s, i) => ({ id: 'd' + Date.now() + i, type: 'habit', label: s.label, startMin: (cursor += 0, cursor = cursor + (i === 0 ? 0 : 0), cursor), dur: Math.max(1, parseInt(s.est, 10) || 10), kind: s.kind, why: s.why }));
+    // lay them sequentially
+    let c = items.reduce((m, x) => Math.max(m, x.startMin + x.dur), 540);
+    newBlocks.forEach(b => { b.startMin = c; c += b.dur; });
+    const next = this.reschedule([...items, ...newBlocks]);
+    this.setState({ items: next, sheet: 'none' });
+    this.showToast(`Added ${valid.length} step${valid.length === 1 ? '' : 's'} to today.`, false);
+  };
+
+  // ---------- render ----------
+  renderVals() {
+    const s = this.state;
+    const accent = this.props.accent || '#C26A38';
+    const showWhy = this.props.showWhy !== false;
+
+    const items = s.items.map(it => {
+      const isEvent = it.type === 'event';
+      const k = this.kindStyle(it.kind);
+      const cardBg = isEvent ? '#FBF7EE' : (it.active ? '#fff' : k.bg);
+      const barColor = isEvent ? '#1F1B16' : k.bar;
+      const eyebrow = isEvent ? this.catMeta(it.cat).label : (it.goal ? `${k.label} · ${it.goal}` : k.label);
+      const reminderTxt = isEvent && it.reminder > 0 ? `${it.reminder} min before` : (isEvent && it.reminder === 0 && it.anchor ? 'At start' : '');
+      return {
+        id: it.id,
+        timeLabel: this.minToTime(it.startMin),
+        durLabel: `${it.dur}m`,
+        label: it.label,
+        eyebrow,
+        locked: isEvent && it.anchor === 'hard',
+        metaLabel: reminderTxt,
+        done: !!it.done,
+        onToggle: () => {},
+        onDone: () => this.toggleDone(it.id),
+        rowStyle: { display: 'flex', gap: '12px', alignItems: 'stretch', opacity: it.done ? 0.5 : 1, transition: 'opacity 200ms ease' },
+        timeStyle: { fontWeight: 500, fontSize: '12px', color: isEvent ? '#1F1B16' : 'rgba(31,27,22,0.7)' },
+        cardStyle: {
+          flex: 1, position: 'relative', background: cardBg,
+          borderRadius: '18px', padding: '13px 14px 13px 17px',
+          border: isEvent ? '1px solid rgba(31,27,22,0.16)' : '0.5px solid rgba(31,27,22,0.05)',
+          boxShadow: isEvent ? '0 6px 18px -14px rgba(31,27,22,0.5)' : 'none',
+          cursor: 'pointer',
+        },
+        barStyle: { position: 'absolute', left: 0, top: 13, bottom: 13, width: isEvent ? '4px' : '3px', background: barColor, borderRadius: '2px', opacity: it.done ? 0.4 : 1 },
+        eyebrowStyle: { fontSize: '11px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.6px', color: barColor },
+        labelStyle: { fontSize: '15px', lineHeight: 1.3, color: '#1F1B16', fontWeight: 500, letterSpacing: '-0.2px', textDecoration: it.done ? 'line-through' : 'none' },
+        checkStyle: {
+          width: '26px', height: '26px', borderRadius: '999px',
+          background: it.done ? '#6B8E5A' : 'transparent',
+          border: it.done ? 'none' : '1.5px solid rgba(31,27,22,0.2)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+        },
+      };
+    });
+
+    const done = s.items.filter(x => x.done).length;
+    const total = s.items.length;
+    const minsTotal = s.items.reduce((a, x) => a + x.dur, 0);
+    const minsDone = s.items.filter(x => x.done).reduce((a, x) => a + x.dur, 0);
+
+    const chip = (active, extra = {}) => ({
+      flexShrink: 0, padding: '10px 15px', borderRadius: '999px',
+      background: active ? '#1F1B16' : 'transparent',
+      color: active ? '#F6F1E8' : '#1F1B16',
+      border: `1px solid ${active ? '#1F1B16' : 'rgba(31,27,22,0.14)'}`,
+      fontFamily: 'inherit', fontSize: '13px', fontWeight: 500, cursor: 'pointer',
+      whiteSpace: 'nowrap', ...extra,
+    });
+
+    const catChips = [
+      { cat: 'meeting', label: 'Meeting' },
+      { cat: 'meal', label: 'Lunch' },
+      { cat: 'errand', label: 'Errand' },
+      { cat: 'movie', label: 'Movie' },
+    ].map(c => ({ label: c.label, onClick: () => this.openEventCat(c.cat), style: chip(false) }));
+
+    const energyDots = [1, 2, 3, 4, 5].map(n => ({
+      onClick: () => this.setEnergy(n),
+      style: {
+        width: '20px', height: '20px', borderRadius: '999px', display: 'block',
+        background: n <= s.energy ? accent : 'transparent',
+        border: `1.5px solid ${n <= s.energy ? accent : 'rgba(31,27,22,0.18)'}`,
+        transition: 'all 160ms ease',
+      },
+    }));
+
+    // event sheet option lists
+    const times = [540, 600, 630, 660, 690, 720, 780, 840, 900, 960, 1020, 1080];
+    const timeOptions = times.map(t => ({ label: this.minToTime(t), onClick: () => this.setState({ evtStart: t }), style: chip(s.evtStart === t) }));
+    const durs = [15, 30, 45, 60, 90, 120];
+    const durLabel = (d) => d < 60 ? `${d}m` : `${Math.floor(d / 60)}h${d % 60 ? ' ' + (d % 60) + 'm' : ''}`;
+    const durOptions = durs.map(d => ({ label: durLabel(d), onClick: () => this.setState({ evtDur: d }), style: chip(s.evtDur === d) }));
+    const anchorOptions = [
+      { v: 'hard', title: 'Locked', sub: 'Habits flow around it' },
+      { v: 'soft', title: 'Flexible', sub: 'Can nudge with a heads-up' },
+    ].map(a => {
+      const active = s.evtAnchor === a.v;
+      return {
+        title: a.title, sub: a.sub,
+        onClick: () => this.setState({ evtAnchor: a.v }),
+        style: { flex: 1, textAlign: 'left', padding: '12px 14px', borderRadius: '16px', cursor: 'pointer', fontFamily: 'inherit',
+          background: active ? 'rgba(194,106,56,0.10)' : 'transparent',
+          border: `1px solid ${active ? accent : 'rgba(31,27,22,0.14)'}`, color: '#1F1B16' },
+        subStyle: { fontSize: '11.5px', color: 'rgba(31,27,22,0.6)', marginTop: '3px', lineHeight: 1.3 },
+      };
+    });
+    const rems = [{ v: 0, l: 'At start' }, { v: 5, l: '5 min' }, { v: 10, l: '10 min' }, { v: 30, l: '30 min' }, { v: 60, l: '1 hr before' }];
+    const reminderOptions = rems.map(r => ({ label: r.l, onClick: () => this.setState({ evtReminder: r.v }), style: chip(s.evtReminder === r.v) }));
+
+    const tagTones = {
+      terra: { bg: 'rgba(194,106,56,0.10)', fg: '#C26A38' },
+      sage:  { bg: 'rgba(107,142,90,0.12)', fg: '#6B8E5A' },
+      lav:   { bg: 'rgba(142,124,184,0.16)', fg: '#8E7CB8' },
+    };
+    const templates = this.TEMPLATES.map(t => {
+      const mins = t.steps.reduce((a, x) => a + x.est, 0);
+      const tone = tagTones[t.tagTone] || tagTones.terra;
+      return {
+        title: t.title, sub: t.sub, tag: t.tag,
+        meta: `${mins}m · ${t.steps.length} steps`,
+        onPick: () => this.pickTemplate(t),
+        tagStyle: { padding: '3px 10px', borderRadius: '999px', background: tone.bg, color: tone.fg, fontSize: '11px', fontWeight: 600, letterSpacing: '0.4px', textTransform: 'uppercase' },
+      };
+    });
+
+    const draftSteps = s.draftSteps.map((st, idx) => {
+      const k = this.kindStyle(st.kind);
+      return {
+        num: idx + 1, label: st.label, est: st.est, why: st.why,
+        whyShown: showWhy && !!st.why,
+        kindLabel: k.label || st.kind,
+        kindLabelStyle: { color: k.bar, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.4px', fontSize: '11px' },
+        numStyle: { width: '26px', height: '26px', borderRadius: '999px', flexShrink: 0, background: k.bar, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Instrument Serif',Georgia,serif", fontSize: '14px' },
+        onLabel: (e) => this.updateDraft(idx, { label: e.target.value }),
+        onEst: (e) => this.updateDraft(idx, { est: Math.max(1, Math.min(180, parseInt(e.target.value, 10) || 1)) }),
+        onDelete: () => this.deleteDraft(idx),
+      };
+    });
+    const draftTotal = s.draftSteps.reduce((a, x) => a + (parseInt(x.est, 10) || 0), 0);
+
+    return {
+      accent,
+      greeting: 'Good morning, Alex.',
+      dateLabel: 'Tuesday · June 23',
+      catChips, energyDots,
+      adaptiveVisible: s.adaptiveStatus === 'open',
+      adaptiveTitle: 'You skip the evening read on busy days.',
+      adaptiveDetail: 'Last 3 days with a late meeting, "Read 1 chapter" went untouched. Want a 10-minute version that auto-swaps in when your day is full?',
+      adaptiveAction: 'Use the 10-min version',
+      applyAdaptive: this.applyAdaptive,
+      dismissAdaptive: this.dismissAdaptive,
+      adaptDay: this.adaptDay,
+      items,
+      doneCount: done, totalCount: total,
+      minsLabel: `${minsDone}m / ${minsTotal}m`,
+      progressBarStyle: { height: '100%', width: `${Math.round((minsDone / Math.max(1, minsTotal)) * 100)}%`, background: accent, borderRadius: '999px', transition: 'width 300ms ease' },
+      openCreate: this.openCreate,
+      openEventBlank: this.openEventBlank,
+      // toast
+      toast: !!s.toast,
+      toastMsg: s.toast ? s.toast.msg : '',
+      toastUndo: s.toast ? s.toast.undo : false,
+      undoReschedule: this.undoReschedule,
+      // sheets
+      eventSheetOpen: s.sheet === 'event',
+      createMenuOpen: s.sheet === 'create',
+      libraryOpen: s.sheet === 'library',
+      draftOpen: s.sheet === 'draft',
+      closeSheet: this.closeSheet, stop: this.stop,
+      // event form
+      evtTitle: s.evtTitle, onEvtTitle: this.onEvtTitle,
+      timeOptions, durOptions, anchorOptions, reminderOptions,
+      commitEvent: this.commitEvent,
+      // create
+      goalText: s.goalText, onGoalText: this.onGoalText,
+      generateSequence: this.generateSequence,
+      openLibrary: this.openLibrary, backToCreate: this.backToCreate,
+      startBlank: this.startBlank,
+      templates,
+      // draft
+      draftKicker: s.draftKicker, draftTitle: s.draftTitle,
+      draftStepCount: `${s.draftSteps.length} step${s.draftSteps.length === 1 ? '' : 's'}`,
+      draftTotalMin: draftTotal,
+      draftSteps, addDraftStep: this.addDraftStep, commitDraft: this.commitDraft,
+    };
+  }
+}
+</script>
+</body>
+</html>

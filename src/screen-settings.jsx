@@ -6,6 +6,7 @@ import { toast } from './utils.js';
 import { exportMyData, eraseMyData } from './data-rights.js';
 import { requestSignIn } from './consent.js';
 import { getReminder, saveReminder, enableReminder, disableReminder } from './notifications.js';
+import { useEntitlement } from './use-entitlement.js';
 
 const fmtTime = (h, m) => `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
 
@@ -211,7 +212,8 @@ function EraseDataRow() {
   );
 }
 
-function SettingsScreen({ onOpenEnergy, onReplay }) {
+function SettingsScreen({ onOpenEnergy, onReplay, onUpgrade }) {
+  const { pro } = useEntitlement();
   const [local, setLocal] = React.useState(true);
   const [calendar, setCalendar] = React.useState(false);
   const [voice, setVoice] = React.useState(true);
@@ -252,6 +254,22 @@ function SettingsScreen({ onOpenEnergy, onReplay }) {
 
       {/* Profile card — driven by Supabase auth when cloud is enabled */}
       <ProfileCard />
+
+      {/* Pacely Pro */}
+      <button onClick={() => !pro && onUpgrade && onUpgrade('general')} style={{
+        width: '100%', textAlign: 'left', cursor: pro ? 'default' : 'pointer',
+        padding: '14px 16px', borderRadius: 16,
+        background: pro ? 'rgba(107,142,90,0.10)' : 'rgba(200,96,47,0.08)',
+        border: `0.5px solid ${pro ? 'rgba(107,142,90,0.35)' : 'rgba(200,96,47,0.25)'}`,
+        fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: 12,
+      }}>
+        <Icon name="sparkle" size={18} color={pro ? 'var(--sage)' : 'var(--terra)'} />
+        <div style={{ flex: 1 }}>
+          <div style={{ fontSize: 15, fontWeight: 600, color: 'var(--ink)' }}>{pro ? 'Pacely Pro · active' : 'Upgrade to Pacely Pro'}</div>
+          <div style={{ fontSize: 12.5, color: 'rgba(31,27,22,0.6)' }}>{pro ? 'Thanks for your support 🌿' : 'Unlimited goals, Insights, reminders'}</div>
+        </div>
+        {!pro && <Icon name="chev" size={16} color="rgba(31,27,22,0.3)" />}
+      </button>
 
       <Section header="Privacy">
         <Row

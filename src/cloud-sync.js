@@ -9,6 +9,7 @@ import { save as saveLocal } from './storage.js';
 import { clearLocalCloudCache } from './use-auth.js';
 import { habitLogRow, loadLog, saveLog, mergeCloudLogs } from './habit-log.js';
 import { loadConsent, consentCloudRow } from './consent.js';
+import { pullEntitlement } from './entitlement-sync.js';
 
 const LAST_USER_KEY = 'cadence:last-user-id';
 
@@ -207,6 +208,9 @@ export function useCloudSync({ user, goals, setGoals }) {
       if (!cancelled && cloudLogs && cloudLogs.length > 0) {
         saveLog(mergeCloudLogs(loadLog(), cloudLogs));
       }
+
+      // Pull the user's Pro entitlement into the local cache (read-only here).
+      if (!cancelled) await pullEntitlement(user.id);
 
       // Record consent server-side now that we know who the user is (the gate
       // captured consent before the OAuth round-trip resolved their identity).
