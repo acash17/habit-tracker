@@ -1,5 +1,6 @@
 import React from 'react';
-import { Icon, Bloom, Card, H } from './ui.jsx';
+import { Icon, Bloom, Card, H, Btn } from './ui.jsx';
+import { useEntitlement } from './use-entitlement.js';
 import { analyzeBreakpoints } from './breakpoints.js';
 import { cellColor } from './palette.js';
 import { useAuth } from './use-auth.js';
@@ -270,10 +271,11 @@ function BreakpointInsight({ goals }) {
   );
 }
 
-function InsightsScreen({ goals }) {
+function InsightsScreen({ goals, onUpgrade }) {
   // Insights are derived from real goals/completions — no canned template cards.
   // With no goals there's nothing to analyse, so show a prompt instead.
   const hasGoals = Array.isArray(goals) && goals.length > 0;
+  const { pro } = useEntitlement();
   return (
     <div style={{ padding: '0 18px 32px', display: 'flex', flexDirection: 'column', gap: 18 }}>
       <div style={{ paddingTop: 8 }}>
@@ -291,11 +293,24 @@ function InsightsScreen({ goals }) {
       </div>
 
       {hasGoals ? (
-        <>
-          <CalendarMonth goals={goals} />
-          <BreakpointInsight goals={goals} />
-          <RhythmSection />
-        </>
+        pro ? (
+          <>
+            <CalendarMonth goals={goals} />
+            <BreakpointInsight goals={goals} />
+            <RhythmSection />
+          </>
+        ) : (
+          <Card style={{ padding: 24, display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: 12 }}>
+            <Bloom value={0.5} size={88} color="var(--terra)" />
+            <div style={{ fontFamily: 'var(--serif)', fontSize: 21, color: 'var(--ink)' }}>Insights are a Pro feature.</div>
+            <div style={{ fontSize: 13.5, color: 'rgba(31,27,22,0.64)', lineHeight: 1.5, maxWidth: 270 }}>
+              Your rhythm and full calendar history unlock with Pacely Pro.
+            </div>
+            <Btn variant="terra" size="md" onClick={() => onUpgrade && onUpgrade('insights')}>
+              <Icon name="sparkle" size={16} /> Unlock Insights
+            </Btn>
+          </Card>
+        )
       ) : (
         <Card style={{ padding: 24, display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: 12 }}>
           <Bloom value={0.4} size={92} color="var(--lav)" />

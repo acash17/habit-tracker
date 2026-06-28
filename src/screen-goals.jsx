@@ -10,6 +10,7 @@ import { useAuth } from './use-auth.js';
 import { syncCellToCloud } from './cloud-sync.js';
 import { getReminder, setReminder } from './reminders.js';
 import { applyGoalReminder } from './notifications.js';
+import { useEntitlement } from './use-entitlement.js';
 
 // Goals / Library — list + inline detail navigation.
 // Tap a card → drill into a full goal detail page inside the same tab.
@@ -210,11 +211,12 @@ function SubHabitRow({ s, color, onChange, onDelete, onMoveUp, onMoveDown, canUp
 
 // ── Detail view (inline; no sheet overlay) ───────────────────────────────────
 
-function GoalDetail({ goal, allGoals, onBack, onPrev, onNext, onUpdate, onDelete, indexLabel }) {
+function GoalDetail({ goal, allGoals, onBack, onPrev, onNext, onUpdate, onDelete, indexLabel, onUpgrade }) {
   const [confirmDel, setConfirmDel] = React.useState(false);
   const [titleEditing, setTitleEditing] = React.useState(false);
   const [log, setLog] = useHabitLog();
   const { user } = useAuth();
+  const { pro } = useEntitlement();
 
   const [reminder, setReminderState] = React.useState(() => getReminder(goal.id) || null);
   React.useEffect(() => { setReminderState(getReminder(goal.id) || null); }, [goal.id]);
@@ -442,8 +444,22 @@ function GoalDetail({ goal, allGoals, onBack, onPrev, onNext, onUpdate, onDelete
         )}
       </Section>
 
-      {/* due-day reminder — monthly/yearly only */}
-      {(goal.cadence === 'monthly' || goal.cadence === 'yearly') && (
+      {/* due-day reminder — monthly/yearly only, Pro-gated */}
+      {(goal.cadence === 'monthly' || goal.cadence === 'yearly') && !pro && (
+        <Section label="Reminder">
+          <button onClick={() => onUpgrade && onUpgrade('reminders')} style={{
+            width: '100%', textAlign: 'left', cursor: 'pointer',
+            padding: '12px 14px', borderRadius: 12, background: 'var(--paper-2)',
+            border: '0.5px solid rgba(31,27,22,0.1)', fontFamily: 'inherit',
+            display: 'flex', alignItems: 'center', gap: 10,
+          }}>
+            <Icon name="sparkle" size={16} color="var(--terra)" />
+            <span style={{ flex: 1, fontSize: 13.5, color: 'var(--ink)' }}>Due-day reminders are a Pro feature.</span>
+            <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--terra)' }}>Unlock</span>
+          </button>
+        </Section>
+      )}
+      {(goal.cadence === 'monthly' || goal.cadence === 'yearly') && pro && (
         <Section label="Reminder">
           <label style={{
             display: 'flex', alignItems: 'center', gap: 10, padding: '9px 12px',
@@ -573,7 +589,7 @@ function Section({ label, children }) {
 
 // ── Top-level GoalsScreen ────────────────────────────────────────────────────
 
-function GoalsScreen({ goals, openNewGoal, openGoal, detailGoalId, setDetailGoalId, updateGoal, deleteGoal }) {
+function GoalsScreen({ goals, openNewGoal, openGoal, detailGoalId, setDetailGoalId, updateGoal, deleteGoal, onUpgrade }) {
   const [filter, setFilter] = React.useState('all');
   const [log] = useHabitLog();
 
@@ -614,6 +630,7 @@ function GoalsScreen({ goals, openNewGoal, openGoal, detailGoalId, setDetailGoal
         onUpdate={updateGoal}
         onDelete={() => deleteGoal(goal.id)}
         indexLabel={`${String(activeIdx + 1).padStart(2, '0')} / ${String(goals.length).padStart(2, '0')}`}
+        onUpgrade={onUpgrade}
       />
     );
   }
