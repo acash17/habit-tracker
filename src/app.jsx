@@ -4,6 +4,8 @@ import { useAuth } from './use-auth.js';
 import { useCloudSync, deleteGoalCloud, syncCellToCloud } from './cloud-sync.js';
 import { makeGoalFromSteps, seedBlocksFromGoal, resolveStep, heatLevel } from './goal-factory.js';
 import { setSharedLog, setLevel, dayKey } from './habit-log.js';
+import { removeReminder } from './reminders.js';
+import { applyGoalReminder } from './notifications.js';
 import { Icon, Chip } from './ui.jsx';
 import { TodayScreen } from './screen-today.jsx';
 import { GoalsScreen } from './screen-goals.jsx';
@@ -438,6 +440,8 @@ function App({ requireAuth = true }) {
             deleteGoal={(id) => {
               setGoals(prev => prev.filter(g => g.id !== id));
               setEditingGoalId(null);
+              removeReminder(id);
+              applyGoalReminder({ id, cadence: '', title: '' }, null).catch(() => {});
               if (user) deleteGoalCloud(user.id, id);
               flash('Goal deleted');
             }}

@@ -20,7 +20,10 @@ export function makeGoalFromSteps(title, steps, opts = {}) {
   const deadlineKey = opts.deadline || 'this-week';
   const deadline = cadence === 'oneoff'
     ? (DEADLINE_LABEL[deadlineKey] || deadlineKey)
-    : (cadence === 'daily' ? 'Every day' : cadence === 'weekly' ? 'Every week' : 'Every month');
+    : (cadence === 'daily' ? 'Every day'
+      : cadence === 'weekly' ? 'Every week'
+      : cadence === 'yearly' ? 'Every year'
+      : 'Every month');
   return {
     id: newId('g_'),
     title: t || 'Untitled plan',

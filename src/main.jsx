@@ -3,7 +3,9 @@ import ReactDOM from 'react-dom/client';
 import { App } from './app.jsx';
 import { ErrorBoundary } from './error-boundary.jsx';
 import { initNativeAuthHandler } from './use-auth.js';
-import { rescheduleOnLaunch } from './notifications.js';
+import { rescheduleOnLaunch, rescheduleGoalReminders } from './notifications.js';
+import { load } from './storage.js';
+import { loadReminders } from './reminders.js';
 import './styles.css';
 
 // Arm Capacitor deep-link handler before mount so the OAuth callback isn't dropped.
@@ -12,6 +14,9 @@ initNativeAuthHandler();
 
 // Re-arm the daily reminder on launch if the user enabled it (native only; no-op on web).
 rescheduleOnLaunch();
+
+// Re-arm per-goal due-day reminders (monthly/yearly) on launch. Native only; no-op on web.
+rescheduleGoalReminders(load('goals', []), loadReminders());
 
 // The app ALWAYS fills the whole screen — like a real phone app — in both the
 // installed Capacitor build and the browser. No simulated phone frame, no marketing

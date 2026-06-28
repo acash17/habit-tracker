@@ -4,6 +4,7 @@
 // native-guarded) so the web build never breaks.
 import { Capacitor } from '@capacitor/core';
 import { load, save } from './storage.js';
+import { goalReminderId, buildGoalSchedule } from './reminder-schedule.js';
 
 const KEY = 'reminder';
 const NOTIF_ID = 1001; // single repeating daily reminder
@@ -78,4 +79,28 @@ export async function rescheduleOnLaunch() {
   if (r.enabled && isNativeNotify()) {
     if (await ensurePermission()) await scheduleDaily(r.hour, r.minute);
   }
+}
+
+// ── Per-goal due-day reminders (Monthly/Yearly) ───────────────────────────────
+// Schedules a recurring local notification for one goal. Native-only; on web this is
+// a no-op. Always cancels the goal's existing alarm first so edits don't stack.
+export async function applyGoalReminder(goal, reminder) {
+  if (!isNativeNotify()) return;
+  try {
+    const LN = await ln();
+    const id = goalReminderId(goal.id);
+    await LN.cancel({ notifications: [{ id }] });
+    const schedule = buildGoalSchedule(goal.cadence, reminder);
+    if (!schedule) return; // off, or non monthly/yearly → cancel only
+    if (!(await ensurePermission())) return;
+    await LN.schedule({
+      notifications: [{ id, title: 'Pacely', body: `${goal.title} is due today.`, schedule }],
+    });
+  } catch (e) { console.warn('[notify] goal reminder failed:', e?.message || e); }
+}
+
+// Re-arm every per-goal reminder on launch (alarms otherwise reset on reinstall).
+export async function rescheduleGoalReminders(goals, reminders) {
+  if (!isNativeNotify()) return;
+  for (const g of goals || []) await applyGoalReminder(g, (reminders || {})[g.id]);
 }
