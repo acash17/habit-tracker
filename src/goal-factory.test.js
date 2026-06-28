@@ -39,6 +39,13 @@ describe('makeGoalFromSteps', () => {
     expect(g.recurring).toBe(false);
     expect(g.deadline).toBe('Today');
   });
+
+  test('yearly cadence → "Every year" deadline', () => {
+    const g = makeGoalFromSteps('a', [{ label: 'x', est: 5 }], { cadence: 'yearly', recurring: true });
+    expect(g.deadline).toBe('Every year');
+    expect(g.cadence).toBe('yearly');
+    expect(g.recurring).toBe(true);
+  });
 });
 
 describe('seedBlocksFromGoal', () => {
