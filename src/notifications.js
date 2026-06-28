@@ -5,6 +5,7 @@
 import { Capacitor } from '@capacitor/core';
 import { load, save } from './storage.js';
 import { goalReminderId, buildGoalSchedule } from './reminder-schedule.js';
+import { dailyReminderBody } from './daily-reminder-body.js';
 
 const KEY = 'reminder';
 const NOTIF_ID = 1001; // single repeating daily reminder
@@ -39,11 +40,13 @@ async function scheduleDaily(hour, minute) {
   try {
     const LN = await ln();
     await LN.cancel({ notifications: [{ id: NOTIF_ID }] });
+    // Body reflects today's plan as of now; refreshed each launch via rescheduleOnLaunch.
+    const body = dailyReminderBody(load('blocks', []));
     await LN.schedule({
       notifications: [{
         id: NOTIF_ID,
         title: 'Pacely',
-        body: 'A gentle nudge — open today’s plan and take one small step. 🌱',
+        body,
         schedule: { on: { hour, minute }, repeats: true, allowWhileIdle: true },
       }],
     });
