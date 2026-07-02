@@ -104,8 +104,11 @@ export async function requestVoicePlan({ audioBlob, text, onRetry }) {
     // Lost the cold-start race. Wait for the backend to finish booting
     // (warmup resolves once /healthz answers), then retry the same audio once
     // instead of surfacing an error the user can only respond to by retrying.
+    // If the health probe says the backend is down (not merely booting),
+    // fail now — the retry would just burn another timeout.
     onRetry?.();
-    await warmVoiceBackend();
+    const healthy = await warmVoiceBackend();
+    if (!healthy) throw err;
     ({ data, error } = await supabase.functions.invoke('voice-plan', { body }));
     if (error) throw await classifyVoicePlanError(error);
   }

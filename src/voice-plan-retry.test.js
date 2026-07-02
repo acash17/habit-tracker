@@ -63,11 +63,25 @@ describe('requestVoicePlan cold-start retry', () => {
   it('surfaces the second failure if the retry also fails', async () => {
     invoke.mockReset();
     invoke.mockImplementation(async (_name, { body }) => {
-      if (body.warmup) return { data: null, error: { message: 'warmup failed' } };
+      if (body.warmup) return { data: { ok: true }, error: null };
       return timeout504();
     });
 
     await expect(requestVoicePlan({ text: 'plan my day' })).rejects.toThrow('backend-warming');
     expect(invoke.mock.calls.filter(([, { body }]) => !body.warmup)).toHaveLength(2);
+  });
+
+  it('skips the retry entirely when the health probe says the backend is down', async () => {
+    vi.resetModules();
+    invoke.mockReset();
+    invoke.mockImplementation(async (_name, { body }) => {
+      if (body.warmup) return { data: null, error: { message: 'warmup failed' } };
+      return timeout504();
+    });
+
+    // fresh module so the previous test's cached healthy warmup doesn't apply
+    const { requestVoicePlan: freshRequest } = await import('./voice-plan.js');
+    await expect(freshRequest({ text: 'plan my day' })).rejects.toThrow('backend-warming');
+    expect(invoke.mock.calls.filter(([, { body }]) => !body.warmup)).toHaveLength(1);
   });
 });

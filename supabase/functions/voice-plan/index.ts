@@ -65,10 +65,13 @@ Deno.serve(async (req) => {
     });
   } catch (e) {
     const timedOut = (e as Error)?.name === "TimeoutError";
+    // Full error (may contain the Modal URL) goes to function logs only —
+    // clients get a generic detail so the secret endpoint never leaks.
+    if (!timedOut) console.error("voice-plan: backend unreachable:", e);
     return json(
       timedOut
         ? { error: "backend-timeout", detail: "inference backend timed out — likely a cold start" }
-        : { error: "backend-unreachable", detail: String(e) },
+        : { error: "backend-unreachable", detail: "could not reach inference backend" },
       timedOut ? 504 : 502,
     );
   }
