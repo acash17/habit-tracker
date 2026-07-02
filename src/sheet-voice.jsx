@@ -27,6 +27,7 @@ function VoiceSheet({ onClose, onApply }) {
   const [title, setTitle] = React.useState('Voice plan');
   const [errorMsg, setErrorMsg] = React.useState('');
   const [seconds, setSeconds] = React.useState(0);
+  const [toCalendar, setToCalendar] = React.useState(false);
   const recRef = React.useRef(null);
 
   // --- live mode: record the mic, then send to the backend ---
@@ -101,7 +102,7 @@ function VoiceSheet({ onClose, onApply }) {
   }, [live, stage]);
 
   function apply() {
-    onApply({ title, steps: plan }, 'Day built from your voice plan');
+    onApply({ title, steps: plan }, 'Day built from your voice plan', { calendar: toCalendar });
   }
 
   function redo() {
@@ -187,6 +188,14 @@ function VoiceSheet({ onClose, onApply }) {
 
             <Chip tone="lav" size="sm" style={{ alignSelf: 'flex-start' }}>Edit before adding</Chip>
             <EditableSteps steps={plan} setSteps={setPlan} />
+            <Chip
+              tone={toCalendar ? 'sage' : 'ink'}
+              size="lg"
+              onClick={() => setToCalendar((v) => !v)}
+              style={{ alignSelf: 'flex-start', cursor: 'pointer', userSelect: 'none' }}
+            >
+              {toCalendar ? '✓ Will add to your calendar' : '+ Add to my calendar too'}
+            </Chip>
           </div>
         )}
 
