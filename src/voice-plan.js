@@ -42,16 +42,28 @@ export async function startRecording() {
 
 // ---------- backend call ----------
 
-// Fire-and-forget cold-start absorber: the GPU container scales to zero when
-// idle and takes ~30-60s to boot. Pinging it the moment the voice sheet opens
-// means it's warm (or warming) by the time the user finishes talking.
-let lastWarmup = 0;
+// Cold-start absorber: the GPU container scales to zero when idle and takes
+// ~30-60s to boot. Pinging it the moment the voice sheet opens means it's
+// warm (or warming) by the time the user finishes talking. Resolves true once
+// the backend reports healthy (models loaded), so requestVoicePlan can await
+// it before retrying a request that lost the cold-start race. Never rejects.
+let warm = null; // { promise, pending, at }
 export function warmVoiceBackend() {
-  if (!cloudEnabled) return;
-  const now = Date.now();
-  if (now - lastWarmup < 120_000) return;
-  lastWarmup = now;
-  supabase.functions.invoke('voice-plan', { body: { warmup: true } }).catch(() => {});
+  if (!cloudEnabled) return Promise.resolve(false);
+  if (warm && (warm.pending || Date.now() - warm.at < 120_000)) return warm.promise;
+  const entry = { pending: true, at: Date.now() };
+  entry.promise = supabase.functions
+    .invoke('voice-plan', { body: { warmup: true } })
+    .then(({ error }) => !error)
+    .catch(() => false)
+    .then((ok) => {
+      entry.pending = false;
+      entry.at = Date.now();
+      if (!ok) warm = null; // failed warmups aren't cached — next call tries again
+      return ok;
+    });
+  warm = entry;
+  return entry.promise;
 }
 
 // Turns a supabase.functions.invoke error into an Error whose message is a
@@ -77,7 +89,7 @@ export async function classifyVoicePlanError(error) {
   return err;
 }
 
-export async function requestVoicePlan({ audioBlob, text }) {
+export async function requestVoicePlan({ audioBlob, text, onRetry }) {
   if (!cloudEnabled) throw new Error('cloud-disabled');
 
   const body = {};
@@ -85,8 +97,18 @@ export async function requestVoicePlan({ audioBlob, text }) {
   else if (audioBlob) body.audio_b64 = await blobToBase64(audioBlob);
   else throw new Error('nothing to send');
 
-  const { data, error } = await supabase.functions.invoke('voice-plan', { body });
-  if (error) throw await classifyVoicePlanError(error);
+  let { data, error } = await supabase.functions.invoke('voice-plan', { body });
+  if (error) {
+    const err = await classifyVoicePlanError(error);
+    if (err.message !== 'backend-warming') throw err;
+    // Lost the cold-start race. Wait for the backend to finish booting
+    // (warmup resolves once /healthz answers), then retry the same audio once
+    // instead of surfacing an error the user can only respond to by retrying.
+    onRetry?.();
+    await warmVoiceBackend();
+    ({ data, error } = await supabase.functions.invoke('voice-plan', { body }));
+    if (error) throw await classifyVoicePlanError(error);
+  }
 
   const steps = normalizeSteps(data?.plan?.steps);
   if (!steps.length) throw new Error('empty-plan');
