@@ -45,6 +45,8 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<true/>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Cadence uses the microphone so you can describe your day out loud and get a plan built from it. Audio is processed on our private server and never stored.</string>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>

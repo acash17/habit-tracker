@@ -1,0 +1,64 @@
+// voice-plan — JWT-verified gateway between the app and the Modal GPU endpoint.
+// The Modal URL + API key stay server-side (Supabase secrets); clients only
+// ever hold their own Supabase session token.
+//
+// Secrets required:
+//   supabase secrets set MODAL_VOICE_URL=https://...modal.run MODAL_VOICE_API_KEY=...
+
+import { createClient } from "jsr:@supabase/supabase-js@2";
+
+const MODAL_URL = Deno.env.get("MODAL_VOICE_URL")!;
+const MODAL_KEY = Deno.env.get("MODAL_VOICE_API_KEY")!;
+
+const CORS = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+};
+
+Deno.serve(async (req) => {
+  if (req.method === "OPTIONS") return new Response("ok", { headers: CORS });
+  if (req.method !== "POST") {
+    return json({ error: "method not allowed" }, 405);
+  }
+
+  // Verify the caller is a signed-in Cadence user.
+  const supabase = createClient(
+    Deno.env.get("SUPABASE_URL")!,
+    Deno.env.get("SUPABASE_ANON_KEY")!,
+    { global: { headers: { Authorization: req.headers.get("Authorization") ?? "" } } },
+  );
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  if (authError || !user) return json({ error: "unauthorized" }, 401);
+
+  let body: { audio_b64?: string; text?: string };
+  try {
+    body = await req.json();
+  } catch {
+    return json({ error: "invalid json" }, 400);
+  }
+  if (!body.audio_b64 && !body.text) {
+    return json({ error: "audio_b64 or text required" }, 400);
+  }
+
+  const upstream = await fetch(`${MODAL_URL}/plan`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "x-api-key": MODAL_KEY },
+    body: JSON.stringify({ audio_b64: body.audio_b64, text: body.text }),
+    // Cold starts on the GPU container can take ~60s; Edge Functions allow it.
+    signal: AbortSignal.timeout(110_000),
+  }).catch(() => null);
+
+  if (!upstream) return json({ error: "inference backend unreachable" }, 502);
+  const payload = await upstream.text();
+  return new Response(payload, {
+    status: upstream.status,
+    headers: { ...CORS, "Content-Type": "application/json" },
+  });
+});
+
+function json(obj: unknown, status = 200) {
+  return new Response(JSON.stringify(obj), {
+    status,
+    headers: { ...CORS, "Content-Type": "application/json" },
+  });
+}

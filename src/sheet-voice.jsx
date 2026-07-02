@@ -1,20 +1,87 @@
 import React from 'react';
 import { Bloom, Chip, Btn, H, EditableSteps } from './ui.jsx';
 import { SheetShell, SheetFooter } from './planner.jsx';
+import { voicePlanEnabled, startRecording, requestVoicePlan } from './voice-plan.js';
 
 // Voice planning sheet — natural language → full day plan.
-// Simulates a voice capture, shows live transcript, then parses into a plan.
+// With cloud enabled it records the mic and sends audio to the self-hosted
+// Whisper + Qwen backend (via the `voice-plan` Edge Function). Without cloud
+// (local-only mode, demo pages) it falls back to the original simulation.
+
+const DEMO_TRANSCRIPT = "Plan my day — gym, two hours of deep work on the deck, lunch, emails, medium energy, around four hours free.";
+const DEMO_PLAN = [
+  { label: '20-min gym (low-rep)',          est: 20, kind: 'body',    why: 'Movement first lifts your next focus block by ~18%.' },
+  { label: 'Shower + transition',           est: 15, kind: 'self',    why: 'Buffer to switch modes.' },
+  { label: 'Deep work block 1 · deck draft',est: 50, kind: 'focus',   why: 'High energy + your morning peak.' },
+  { label: 'Walk + water',                  est: 10, kind: 'rest',    why: 'Protects focus for round two.' },
+  { label: 'Deep work block 2 · deck draft',est: 50, kind: 'focus',   why: 'Pair-block pattern — your sweet spot.' },
+  { label: 'Lunch · phone away',            est: 30, kind: 'rest',    why: 'Real break, not desk-eating.' },
+  { label: 'Email triage',                  est: 25, kind: 'self',    why: 'Lower-stakes work fits afternoon dip.' },
+];
 
 function VoiceSheet({ onClose, onApply }) {
-  const [stage, setStage] = React.useState('listening'); // listening | parsing | result
-  const fullTranscript = "Plan my day — gym, two hours of deep work on the deck, lunch, emails, medium energy, around four hours free.";
+  const live = voicePlanEnabled;
+  const [stage, setStage] = React.useState('listening'); // listening | parsing | result | error
   const [transcript, setTranscript] = React.useState('');
   const [plan, setPlan] = React.useState(null);
+  const [title, setTitle] = React.useState('Voice plan');
+  const [errorMsg, setErrorMsg] = React.useState('');
+  const [seconds, setSeconds] = React.useState(0);
+  const recRef = React.useRef(null);
 
-  // Type out the transcript word-by-word for a "voice" feel.
+  // --- live mode: record the mic, then send to the backend ---
   React.useEffect(() => {
-    if (stage !== 'listening') return;
-    const words = fullTranscript.split(' ');
+    if (!live || stage !== 'listening') return;
+    let cancelled = false;
+    setSeconds(0);
+    const timer = setInterval(() => setSeconds((s) => s + 1), 1000);
+
+    startRecording()
+      .then((rec) => {
+        if (cancelled) { rec.cancel(); return; }
+        recRef.current = rec;
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setErrorMsg('Microphone unavailable — check app permissions.');
+          setStage('error');
+        }
+      });
+
+    return () => {
+      cancelled = true;
+      clearInterval(timer);
+      recRef.current?.cancel();
+      recRef.current = null;
+    };
+  }, [live, stage]);
+
+  async function finishRecording() {
+    const rec = recRef.current;
+    recRef.current = null;
+    if (!rec) return;
+    setStage('parsing');
+    try {
+      const audioBlob = await rec.stop();
+      const result = await requestVoicePlan({ audioBlob });
+      setTranscript(result.transcript);
+      setTitle(result.title);
+      setPlan(result.steps);
+      setStage('result');
+    } catch (e) {
+      setErrorMsg(
+        e?.message === 'empty-plan'
+          ? "Didn't catch a plan in that — try describing your day again."
+          : 'Planning service unavailable right now — try again in a minute.'
+      );
+      setStage('error');
+    }
+  }
+
+  // --- demo mode: type out the transcript word-by-word for a "voice" feel ---
+  React.useEffect(() => {
+    if (live || stage !== 'listening') return;
+    const words = DEMO_TRANSCRIPT.split(' ');
     let i = 0;
     const tick = setInterval(() => {
       i++;
@@ -25,27 +92,20 @@ function VoiceSheet({ onClose, onApply }) {
       }
     }, 120);
     return () => clearInterval(tick);
-  }, [stage]);
+  }, [live, stage]);
 
   React.useEffect(() => {
-    if (stage !== 'parsing') return;
-    const t = setTimeout(() => {
-      setPlan([
-        { label: '20-min gym (low-rep)',          est: 20, kind: 'body',    why: 'Movement first lifts your next focus block by ~18%.' },
-        { label: 'Shower + transition',           est: 15, kind: 'self',    why: 'Buffer to switch modes.' },
-        { label: 'Deep work block 1 · deck draft',est: 50, kind: 'focus',   why: 'High energy + your morning peak.' },
-        { label: 'Walk + water',                  est: 10, kind: 'rest',    why: 'Protects focus for round two.' },
-        { label: 'Deep work block 2 · deck draft',est: 50, kind: 'focus',   why: 'Pair-block pattern — your sweet spot.' },
-        { label: 'Lunch · phone away',            est: 30, kind: 'rest',    why: 'Real break, not desk-eating.' },
-        { label: 'Email triage',                  est: 25, kind: 'self',    why: 'Lower-stakes work fits afternoon dip.' },
-      ]);
-      setStage('result');
-    }, 900);
+    if (live || stage !== 'parsing') return;
+    const t = setTimeout(() => { setPlan(DEMO_PLAN); setStage('result'); }, 900);
     return () => clearTimeout(t);
-  }, [stage]);
+  }, [live, stage]);
 
   function apply() {
-    onApply({ title: 'Voice plan', steps: plan }, 'Day built from your voice plan');
+    onApply({ title, steps: plan }, 'Day built from your voice plan');
+  }
+
+  function redo() {
+    setTranscript(''); setPlan(null); setErrorMsg(''); setStage('listening');
   }
 
   return (
@@ -65,14 +125,24 @@ function VoiceSheet({ onClose, onApply }) {
               display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 18,
             }}>
               <VoiceWave/>
-              <div style={{
-                fontFamily: 'var(--serif)', fontSize: 19, lineHeight: 1.35,
-                color: 'var(--ink)', textAlign: 'center', letterSpacing: -0.2,
-                minHeight: 96, textWrap: 'pretty',
-              }}>
-                "{transcript}<span style={{ color: 'var(--lav)' }}>{transcript.length < fullTranscript.length ? '\u2588' : ''}</span>"
-              </div>
-              <Chip tone="lav" size="sm">Listening · local</Chip>
+              {live ? (
+                <div style={{
+                  fontFamily: 'var(--serif)', fontSize: 19, lineHeight: 1.35,
+                  color: 'var(--ink)', textAlign: 'center', letterSpacing: -0.2,
+                  minHeight: 96, display: 'flex', alignItems: 'center',
+                }}>
+                  {seconds < 1 ? 'Listening…' : `Recording · 0:${String(seconds).padStart(2, '0')}`}
+                </div>
+              ) : (
+                <div style={{
+                  fontFamily: 'var(--serif)', fontSize: 19, lineHeight: 1.35,
+                  color: 'var(--ink)', textAlign: 'center', letterSpacing: -0.2,
+                  minHeight: 96, textWrap: 'pretty',
+                }}>
+                  "{transcript}<span style={{ color: 'var(--lav)' }}>{transcript.length < DEMO_TRANSCRIPT.length ? '█' : ''}</span>"
+                </div>
+              )}
+              <Chip tone="lav" size="sm">{live ? 'Listening · private' : 'Listening · local'}</Chip>
             </div>
           </div>
         )}
@@ -82,7 +152,16 @@ function VoiceSheet({ onClose, onApply }) {
             <Bloom value={0.4} size={110} color="var(--lav)" />
             <H size={22} style={{ maxWidth: 280 }}>Parsing constraints & organising…</H>
             <div style={{ fontSize: 13, color: 'rgba(31,27,22,0.64)', maxWidth: 260, lineHeight: 1.5 }}>
-              gym · 2h deep work · lunch · emails · medium energy · 4h
+              {live ? 'Transcribing and building your day…' : 'gym · 2h deep work · lunch · emails · medium energy · 4h'}
+            </div>
+          </div>
+        )}
+
+        {stage === 'error' && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 14, paddingTop: 32, alignItems: 'center', textAlign: 'center' }}>
+            <H size={22} style={{ maxWidth: 280 }}>Hmm, that didn't work.</H>
+            <div style={{ fontSize: 13, color: 'rgba(31,27,22,0.64)', maxWidth: 280, lineHeight: 1.5 }}>
+              {errorMsg}
             </div>
           </div>
         )}
@@ -96,14 +175,38 @@ function VoiceSheet({ onClose, onApply }) {
               <H size={22}>Your day, in order.</H>
             </div>
 
+            {live && transcript && (
+              <div style={{
+                fontSize: 13, lineHeight: 1.5, color: 'rgba(31,27,22,0.64)',
+                padding: '10px 14px', background: 'rgba(155,138,196,0.08)',
+                borderRadius: 14, border: '0.5px solid rgba(155,138,196,0.3)',
+              }}>
+                "{transcript}"
+              </div>
+            )}
+
             <Chip tone="lav" size="sm" style={{ alignSelf: 'flex-start' }}>Edit before adding</Chip>
             <EditableSteps steps={plan} setSteps={setPlan} />
           </div>
         )}
 
+        {live && stage === 'listening' && (
+          <SheetFooter>
+            <Btn variant="ghost" size="lg" onClick={onClose}>Cancel</Btn>
+            <Btn variant="terra" size="lg" full onClick={finishRecording}>Done talking</Btn>
+          </SheetFooter>
+        )}
+
+        {stage === 'error' && (
+          <SheetFooter>
+            <Btn variant="ghost" size="lg" onClick={onClose}>Close</Btn>
+            <Btn variant="terra" size="lg" full onClick={redo}>Try again</Btn>
+          </SheetFooter>
+        )}
+
         {stage === 'result' && (
           <SheetFooter>
-            <Btn variant="ghost" size="lg" onClick={() => { setStage('listening'); setTranscript(''); }}>Redo</Btn>
+            <Btn variant="ghost" size="lg" onClick={redo}>Redo</Btn>
             <Btn variant="terra" size="lg" full onClick={apply}>Use this day</Btn>
           </SheetFooter>
         )}
