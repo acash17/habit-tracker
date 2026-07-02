@@ -10,6 +10,8 @@ import { PaywallSheet } from './sheet-paywall.jsx';
 import { useEntitlement } from './use-entitlement.js';
 import { goalLimitReached } from './entitlement.js';
 import { Icon, Chip } from './ui.jsx';
+import { blocksToICS, icsFilename } from './calendar.js';
+import { exportICS } from './calendar-export.js';
 import { TodayScreen } from './screen-today.jsx';
 import { GoalsScreen } from './screen-goals.jsx';
 import { InsightsScreen } from './screen-insights.jsx';
@@ -400,17 +402,18 @@ function App({ requireAuth = true }) {
 
   // Library/voice plans become real goals (so they appear in Goals + propagate),
   // and their steps land on Today after any already-done blocks.
-  function applyPlan(plan, msg) {
+  // opts.calendar: also hand the new blocks to the OS calendar as an ICS.
+  function applyPlan(plan, msg, opts = {}) {
     if (goalLimitReached(goals.length, ent)) { setLibraryOpen(false); setVoiceOpen(false); openPaywall('goals'); return; }
     const steps = Array.isArray(plan?.steps) ? plan.steps.filter(s => (s.label || '').trim()) : [];
     if (!steps.length) { flash('Plan needs steps'); return; }
     const goal = makeGoalFromSteps(plan.title, steps, { cadence: 'oneoff', colorIndex: goals.length });
+    const kept = blocks.filter(b => b.done);
+    const seeded = seedBlocksFromGoal(goal, kept);
     setGoals(prev => [goal, ...prev]);
-    setBlocks(prev => {
-      const kept = prev.filter(b => b.done);
-      return [...kept, ...seedBlocksFromGoal(goal, kept)];
-    });
+    setBlocks([...kept, ...seeded]);
     setLibraryOpen(false); setVoiceOpen(false);
+    if (opts.calendar && seeded.length) exportICS(blocksToICS(seeded), icsFilename(plan.title || 'pacely-plan'));
     flash(msg);
   }
 

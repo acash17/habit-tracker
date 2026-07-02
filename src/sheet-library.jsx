@@ -187,9 +187,10 @@ function TemplatePreview({ t, onBack, onApply }) {
   // Local editable copy of the template — tweak wording/minutes, delete or add
   // steps before adding to today. The original template is never mutated.
   const [steps, setSteps] = React.useState(() => t.steps.map(s => ({ ...s })));
+  const [toCalendar, setToCalendar] = React.useState(false);
   const totalMin = steps.reduce((s, x) => s + (x.est || 0), 0);
   function add() {
-    onApply({ title: t.title, steps }, `Added "${t.title}"`);
+    onApply({ title: t.title, steps }, `Added "${t.title}"`, { calendar: toCalendar });
   }
   return (
     <SheetShell title="Preview" onClose={onBack}>
@@ -211,6 +212,15 @@ function TemplatePreview({ t, onBack, onApply }) {
         </div>
 
         <EditableSteps steps={steps} setSteps={setSteps} />
+
+        <Chip
+          tone={toCalendar ? 'sage' : 'ink'}
+          size="lg"
+          onClick={() => setToCalendar((v) => !v)}
+          style={{ alignSelf: 'flex-start', cursor: 'pointer', userSelect: 'none' }}
+        >
+          {toCalendar ? '✓ Will add to your calendar' : '+ Add to my calendar too'}
+        </Chip>
 
         <SheetFooter>
           <Btn variant="ghost" size="lg" onClick={onBack}>Back</Btn>
