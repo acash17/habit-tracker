@@ -57,7 +57,38 @@ Response:
 ## Cost behaviour
 
 - Idle (no requests for 5 min) → container stops → **$0**.
-- Cold start after idle is ~30–60s for the first request; during a scheduled
-  test session, warm it first with `curl <endpoint>/healthz`.
+- Cold start after idle is ~30–60s for the first request. The app fires a
+  warm-up ping the moment the voice sheet opens, so the container boots while
+  the user is still talking; for a scheduled test session you can also warm it
+  manually with `curl <endpoint>/healthz`.
 - Never set `min_containers=1` and walk away — that is the only way this
   costs real money (~$0.80/hr, 24/7 ≈ $580/mo).
+
+## When "Planning service unavailable" persists
+
+A one-off failure is usually a cold start; a failure lasting 10+ minutes is an
+outage. Run the end-to-end probe first — it tells you which layer is broken:
+
+```bash
+MODAL_VOICE_URL=https://<endpoint>.modal.run \
+MODAL_VOICE_API_KEY=<key> \
+scripts/voice-backend-check.sh
+```
+
+Then check, in order of likelihood:
+
+1. **Modal credits exhausted** — the free plan's $30/month runs ~37 L4-hours;
+   when it's gone, Modal stops serving the app entirely until the cycle resets
+   or a payment method is added. Check the Modal dashboard → Usage.
+2. **Container crash-looping** — `modal app logs cadence-voice-plan`. The app
+   now self-heals an empty weights volume on first boot (downloads once and
+   commits), so the classic cause — a skipped `modal run` weights step making
+   every cold start re-download 5.5GB and die — fixes itself after one slow boot.
+3. **Stale Supabase secrets** — after any `modal deploy` that changes the URL,
+   re-run `supabase secrets set MODAL_VOICE_URL=...` and redeploy the Edge
+   Function. `supabase secrets list` to verify.
+
+The GitHub Action `.github/workflows/voice-backend-health.yml` runs the same
+probe daily and fails loudly, so an outage is caught within a day instead of
+by a user mid-recording (set the `MODAL_VOICE_URL` / `MODAL_VOICE_API_KEY`
+repo secrets to enable it).

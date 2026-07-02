@@ -1,7 +1,7 @@
 import React from 'react';
 import { Bloom, Chip, Btn, H, EditableSteps } from './ui.jsx';
 import { SheetShell, SheetFooter } from './planner.jsx';
-import { voicePlanEnabled, startRecording, requestVoicePlan } from './voice-plan.js';
+import { voicePlanEnabled, startRecording, requestVoicePlan, warmVoiceBackend } from './voice-plan.js';
 
 // Voice planning sheet — natural language → full day plan.
 // With cloud enabled it records the mic and sends audio to the self-hosted
@@ -18,6 +18,13 @@ const DEMO_PLAN = [
   { label: 'Lunch · phone away',            est: 30, kind: 'rest',    why: 'Real break, not desk-eating.' },
   { label: 'Email triage',                  est: 25, kind: 'self',    why: 'Lower-stakes work fits afternoon dip.' },
 ];
+
+const VOICE_ERRORS = {
+  'empty-plan':      "Didn't catch a plan in that — try describing your day again.",
+  'backend-warming': 'The planner is waking up — give it a minute, then try again.',
+  'unauthorized':    'Your session expired — sign in again to use voice planning.',
+  fallback:          'Planning service unavailable right now — try again in a minute.',
+};
 
 function VoiceSheet({ onClose, onApply }) {
   const live = voicePlanEnabled;
@@ -36,6 +43,7 @@ function VoiceSheet({ onClose, onApply }) {
     let cancelled = false;
     setSeconds(0);
     const timer = setInterval(() => setSeconds((s) => s + 1), 1000);
+    warmVoiceBackend(); // cold-start the GPU container while the user talks
 
     startRecording()
       .then((rec) => {
@@ -70,11 +78,7 @@ function VoiceSheet({ onClose, onApply }) {
       setPlan(result.steps);
       setStage('result');
     } catch (e) {
-      setErrorMsg(
-        e?.message === 'empty-plan'
-          ? "Didn't catch a plan in that — try describing your day again."
-          : 'Planning service unavailable right now — try again in a minute.'
-      );
+      setErrorMsg(VOICE_ERRORS[e?.message] || VOICE_ERRORS.fallback);
       setStage('error');
     }
   }

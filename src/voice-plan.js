@@ -42,6 +42,41 @@ export async function startRecording() {
 
 // ---------- backend call ----------
 
+// Fire-and-forget cold-start absorber: the GPU container scales to zero when
+// idle and takes ~30-60s to boot. Pinging it the moment the voice sheet opens
+// means it's warm (or warming) by the time the user finishes talking.
+let lastWarmup = 0;
+export function warmVoiceBackend() {
+  if (!cloudEnabled) return;
+  const now = Date.now();
+  if (now - lastWarmup < 120_000) return;
+  lastWarmup = now;
+  supabase.functions.invoke('voice-plan', { body: { warmup: true } }).catch(() => {});
+}
+
+// Turns a supabase.functions.invoke error into an Error whose message is a
+// stable code the UI can map to a specific explanation. invoke() collapses
+// every non-2xx into one generic message, so read the real status/body from
+// error.context (the fetch Response).
+export async function classifyVoicePlanError(error) {
+  let status = 0;
+  let detail = '';
+  try {
+    const res = error?.context;
+    if (res && typeof res.status === 'number') {
+      status = res.status;
+      const body = await res.json();
+      detail = body?.detail || body?.error || '';
+    }
+  } catch { /* body unreadable — fall through to generic */ }
+  if (status === 422) return new Error('empty-plan');          // backend heard nothing usable
+  if (status === 504) return new Error('backend-warming');     // cold start outran the gateway timeout
+  if (status === 401) return new Error('unauthorized');        // session expired
+  const err = new Error('voice-plan-failed');
+  err.detail = detail || error?.message || '';
+  return err;
+}
+
 export async function requestVoicePlan({ audioBlob, text }) {
   if (!cloudEnabled) throw new Error('cloud-disabled');
 
@@ -51,7 +86,7 @@ export async function requestVoicePlan({ audioBlob, text }) {
   else throw new Error('nothing to send');
 
   const { data, error } = await supabase.functions.invoke('voice-plan', { body });
-  if (error) throw new Error(error.message || 'voice-plan failed');
+  if (error) throw await classifyVoicePlanError(error);
 
   const steps = normalizeSteps(data?.plan?.steps);
   if (!steps.length) throw new Error('empty-plan');
