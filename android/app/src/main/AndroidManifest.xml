@@ -41,6 +41,9 @@
     <!-- Permissions -->
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <!-- Voice planning (mic capture for the voice-plan sheet) -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
     <!-- Daily reminder (opt-in, local notifications; Android 13+) -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 </manifest>
