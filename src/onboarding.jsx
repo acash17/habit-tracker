@@ -272,14 +272,14 @@ function GoalsScreenOnboard({ value, onChange }) {
         </div>
       </div>
 
-      <Card style={{ padding: 14, background: 'rgba(155,138,196,0.08)' }}>
-        <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
-          <Icon name="mic" size={16} color="var(--lav)"/>
-          <div style={{ fontSize: 13, color: 'rgba(31,27,22,0.65)' }}>
-            Or speak it — voice planning lives on Today.
-          </div>
+      {/* Plain hint, not a Card: the suggestion buttons above are tappable, so
+          anything card-shaped here reads as a button and gets tapped. */}
+      <div style={{ display: 'flex', gap: 8, alignItems: 'center', padding: '2px 4px' }}>
+        <Icon name="mic" size={14} color="rgba(31,27,22,0.45)"/>
+        <div style={{ fontSize: 12, color: 'rgba(31,27,22,0.5)', lineHeight: 1.4 }}>
+          Tip: once you're set up, tap “Voice plan” on Today to speak your day instead.
         </div>
-      </Card>
+      </div>
     </div>
   );
 }
