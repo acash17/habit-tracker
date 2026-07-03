@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { normalizeSteps } from './voice-plan.js';
+import { normalizeSteps, classifyVoicePlanError } from './voice-plan.js';
 
 describe('normalizeSteps', () => {
   it('passes through valid steps untouched', () => {
@@ -39,5 +39,39 @@ describe('normalizeSteps', () => {
     const steps = normalizeSteps(raw);
     expect(steps).toHaveLength(9);
     expect(steps[0].label.length).toBeLessThanOrEqual(80);
+  });
+});
+
+describe('classifyVoicePlanError', () => {
+  const invokeError = (status, body) => ({
+    message: 'Edge Function returned a non-2xx status code',
+    context: new Response(JSON.stringify(body), { status }),
+  });
+
+  it('maps 422 (no speech / unusable audio) to empty-plan', async () => {
+    const err = await classifyVoicePlanError(invokeError(422, { detail: 'no speech detected' }));
+    expect(err.message).toBe('empty-plan');
+  });
+
+  it('maps 504 (cold start outran the gateway) to backend-warming', async () => {
+    const err = await classifyVoicePlanError(invokeError(504, { error: 'backend-timeout' }));
+    expect(err.message).toBe('backend-warming');
+  });
+
+  it('maps 401 to unauthorized', async () => {
+    const err = await classifyVoicePlanError(invokeError(401, { error: 'unauthorized' }));
+    expect(err.message).toBe('unauthorized');
+  });
+
+  it('keeps the upstream detail on generic failures', async () => {
+    const err = await classifyVoicePlanError(invokeError(502, { error: 'backend-unreachable', detail: 'dns failed' }));
+    expect(err.message).toBe('voice-plan-failed');
+    expect(err.detail).toBe('dns failed');
+  });
+
+  it('survives errors with no readable response body', async () => {
+    const err = await classifyVoicePlanError({ message: 'Failed to send a request' });
+    expect(err.message).toBe('voice-plan-failed');
+    expect(err.detail).toBe('Failed to send a request');
   });
 });

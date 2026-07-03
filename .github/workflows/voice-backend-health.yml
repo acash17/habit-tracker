@@ -1,0 +1,40 @@
+name: Voice backend health check
+
+# Pings the Modal voice-plan backend once a day and fails loudly if it's down,
+# so an outage (credits exhausted, crash loop, stale secrets) is caught within
+# a day instead of by a user mid-recording. Cost: one cold start + one small
+# LLM request per day — a couple of L4 GPU-minutes, pennies of the $30 credit.
+#
+# Required GitHub repo secrets (Settings → Secrets and variables → Actions):
+#   MODAL_VOICE_URL       — https://<workspace>--cadence-voice-plan-voiceplanner-api.modal.run
+#   MODAL_VOICE_API_KEY   — same value as the `cadence-voice` Modal secret
+#
+# If the secrets aren't set the job skips instead of failing.
+
+on:
+  schedule:
+    - cron: '30 3 * * *'   # daily 03:30 UTC (09:00 IST)
+  workflow_dispatch:
+
+jobs:
+  health:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check secrets present
+        id: secrets
+        run: |
+          if [ -z "${{ secrets.MODAL_VOICE_URL }}" ] || [ -z "${{ secrets.MODAL_VOICE_API_KEY }}" ]; then
+            echo "::warning::MODAL_VOICE_URL / MODAL_VOICE_API_KEY secrets not set — skipping health check."
+            echo "configured=false" >> $GITHUB_OUTPUT
+          else
+            echo "configured=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Probe voice backend end-to-end
+        if: steps.secrets.outputs.configured == 'true'
+        env:
+          MODAL_VOICE_URL: ${{ secrets.MODAL_VOICE_URL }}
+          MODAL_VOICE_API_KEY: ${{ secrets.MODAL_VOICE_API_KEY }}
+        run: bash scripts/voice-backend-check.sh

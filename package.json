@@ -9,6 +9,7 @@
     "start": "vite",
     "demo": "vite --open /demo.html",
     "prototype": "vite --open /prototype.html",
+    "prototype:file": "node scripts/build-prototype.mjs",
     "build": "vite build",
     "preview": "vite preview --port 4173",
     "sync": "npm run build && npx cap sync",

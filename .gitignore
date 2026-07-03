@@ -40,3 +40,4 @@ ios/App/App/config.xml
 xcuserdata/
 *.xcworkspace/xcuserdata/
 ios/App/Podfile.lock
+dist-proto/

@@ -80,7 +80,11 @@ Rules:
     volumes={MODELS_DIR: volume},
     secrets=[modal.Secret.from_name("cadence-voice")],
     scaledown_window=300,          # stay warm 5 min after last request
-    timeout=120,
+    timeout=600,
+    # vLLM's model load + engine init runs inside @modal.enter, and Modal kills
+    # a container that isn't ready within this window. The default (120s) is too
+    # short for a 7B model, so the container was crash-looping on every boot.
+    startup_timeout=600,
     max_containers=1,              # one L4 is enough for the 14-user test phase
 )
 @modal.concurrent(max_inputs=16)   # vLLM batches these concurrently
@@ -88,6 +92,12 @@ class VoicePlanner:
     @modal.enter()
     def start(self):
         from faster_whisper import WhisperModel
+
+        # Self-heal: if the volume is empty (deploy-time `modal run` skipped,
+        # or the volume was deleted), every cold start would re-download ~5.5GB
+        # and blow past the health deadline — a permanent crash loop. Download
+        # once here and commit so it only ever happens on the first boot.
+        self._ensure_weights()
 
         # Whisper shares the GPU; vLLM is told to leave room for it below.
         self.whisper = WhisperModel(
@@ -102,6 +112,11 @@ class VoicePlanner:
             "--port", str(VLLM_PORT),
             "--max-model-len", "4096",
             "--gpu-memory-utilization", "0.78",
+            # Skip torch.compile + CUDA-graph capture. That optimisation added
+            # 60s+ to every boot (blowing past the startup limit) for a few % of
+            # runtime speed we don't need at this scale — eager mode boots fast
+            # and makes cold starts much quicker too.
+            "--enforce-eager",
             "--disable-log-requests",
         ])
         deadline = time.time() + 600
@@ -118,6 +133,27 @@ class VoicePlanner:
     @modal.exit()
     def stop(self):
         self.vllm.terminate()
+
+    def _ensure_weights(self):
+        from faster_whisper import download_model
+        from huggingface_hub import snapshot_download
+
+        whisper_dir = os.path.join(MODELS_DIR, "whisper")
+        dirty = False
+        try:
+            snapshot_download(LLM_MODEL, local_files_only=True)
+        except Exception:
+            print("LLM weights missing from volume — downloading once")
+            snapshot_download(LLM_MODEL)
+            dirty = True
+        try:
+            download_model(WHISPER_MODEL, cache_dir=whisper_dir, local_files_only=True)
+        except Exception:
+            print("Whisper weights missing from volume — downloading once")
+            download_model(WHISPER_MODEL, cache_dir=whisper_dir)
+            dirty = True
+        if dirty:
+            volume.commit()
 
     def _transcribe(self, audio_b64: str) -> str:
         raw = base64.b64decode(audio_b64)
