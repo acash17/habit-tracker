@@ -148,7 +148,13 @@ function Demo() {
   const [active, setActive] = React.useState(0);
   const [autoplay, setAutoplay] = React.useState(false);
 
+  // While a CTA-initiated smooth scroll is in flight, chapters passing
+  // through the viewport must not fire their actions — they'd override the
+  // one the user actually clicked. settleRef mutes the observer until then.
+  const settleRef = React.useRef(0);
+
   const go = React.useCallback((idx) => {
+    settleRef.current = Date.now() + 1200;
     setActive(idx);
     fire(CHAPTERS[idx].action);
   }, []);
@@ -177,6 +183,7 @@ function Demo() {
     if (autoplay) return;
     const els = Array.from(document.querySelectorAll('.chapter'));
     const obs = new IntersectionObserver((entries) => {
+      if (Date.now() < settleRef.current) return;
       const visible = entries.filter(e => e.isIntersecting)
         .sort((a, b) => b.intersectionRatio - a.intersectionRatio);
       if (visible[0]) {
