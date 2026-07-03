@@ -68,8 +68,9 @@ Reply with ONLY a JSON object, no prose, shaped exactly like:
 
 Rules:
 - 3 to 9 steps, ordered for energy: movement/hard focus early, admin in dips, real breaks between focus blocks.
-- "est" is minutes (5-90). "kind" is exactly one of: body, self, focus, rest.
-- Split any focus work longer than 60 minutes into ~50-minute blocks with a short rest between.
+- "est" is minutes (5-600). "kind" is exactly one of: body, self, focus, rest.
+- Split focus/desk work longer than 60 minutes into ~50-minute blocks with a short rest between.
+- Long anchors are fine as a single block when that's how they're actually done — e.g. a night's sleep (~480 min), a full workout, a long walk — don't chop these up.
 - Respect the speaker's stated energy level and available time; total should not exceed their available time.
 - "why" is one concise sentence explaining the placement."""
 

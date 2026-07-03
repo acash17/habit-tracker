@@ -244,9 +244,9 @@ function EditableSteps({ steps, setSteps, showWhy = true }) {
                 {/* editable minutes */}
                 <div style={{ display: 'flex', alignItems: 'center', gap: 2, flexShrink: 0 }}>
                   <input
-                    type="number" min={1} max={120}
+                    type="number" min={1} max={600}
                     value={s.est}
-                    onChange={(e) => updateStep(idx, { est: Math.max(1, Math.min(120, parseInt(e.target.value, 10) || 1)) })}
+                    onChange={(e) => updateStep(idx, { est: Math.max(1, Math.min(600, parseInt(e.target.value, 10) || 1)) })}
                     aria-label={`minutes for step ${idx + 1}`}
                     style={{
                       width: 40, textAlign: 'right',

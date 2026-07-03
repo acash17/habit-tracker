@@ -15,15 +15,17 @@ describe('normalizeSteps', () => {
     expect(normalizeSteps([null, 42, { est: 10 }])).toEqual([]);
   });
 
-  it('clamps est into 5-90 and defaults bad values to 25', () => {
-    const [a, b, c] = normalizeSteps([
-      { label: 'a', est: 300, kind: 'focus', why: 'x' },
-      { label: 'b', est: 1, kind: 'focus', why: 'x' },
-      { label: 'c', est: 'soon', kind: 'focus', why: 'x' },
+  it('clamps est into 5-600 and defaults bad values to 25', () => {
+    const [a, b, c, d] = normalizeSteps([
+      { label: 'a', est: 900, kind: 'focus', why: 'x' },   // over the cap
+      { label: 'b', est: 1, kind: 'focus', why: 'x' },     // under the floor
+      { label: 'c', est: 'soon', kind: 'focus', why: 'x' },// not a number
+      { label: 'd', est: 480, kind: 'rest', why: 'sleep' },// a full night's sleep survives
     ]);
-    expect(a.est).toBe(90);
+    expect(a.est).toBe(600);
     expect(b.est).toBe(5);
     expect(c.est).toBe(25);
+    expect(d.est).toBe(480);
   });
 
   it('coerces unknown kinds to self and fills missing why', () => {
