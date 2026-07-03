@@ -5,6 +5,10 @@
 import { supabase, cloudEnabled } from './supabase.js';
 
 const KINDS = ['body', 'self', 'focus', 'rest'];
+// Upper bound on a single step's minutes. Kept generous so full-day routine
+// anchors — a night's sleep (~480), a long workout — survive normalisation,
+// while still rejecting nonsense (a step can't be longer than a day).
+const MAX_EST = 600;
 const MAX_RECORD_MS = 60_000;
 
 export const voicePlanEnabled = cloudEnabled;
@@ -147,7 +151,7 @@ export function normalizeSteps(raw) {
       const est = Math.round(Number(s.est));
       return {
         label: label.slice(0, 80),
-        est: Number.isFinite(est) ? Math.min(90, Math.max(5, est)) : 25,
+        est: Number.isFinite(est) ? Math.min(MAX_EST, Math.max(5, est)) : 25,
         kind: KINDS.includes(s.kind) ? s.kind : 'self',
         why: typeof s.why === 'string' && s.why.trim() ? s.why.trim().slice(0, 160) : 'Fits your flow here.',
       };
