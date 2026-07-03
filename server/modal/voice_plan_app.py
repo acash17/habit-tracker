@@ -80,7 +80,11 @@ Rules:
     volumes={MODELS_DIR: volume},
     secrets=[modal.Secret.from_name("cadence-voice")],
     scaledown_window=300,          # stay warm 5 min after last request
-    timeout=120,
+    timeout=600,
+    # vLLM's model load + engine init runs inside @modal.enter, and Modal kills
+    # a container that isn't ready within this window. The default (120s) is too
+    # short for a 7B model, so the container was crash-looping on every boot.
+    startup_timeout=600,
     max_containers=1,              # one L4 is enough for the 14-user test phase
 )
 @modal.concurrent(max_inputs=16)   # vLLM batches these concurrently
@@ -108,6 +112,11 @@ class VoicePlanner:
             "--port", str(VLLM_PORT),
             "--max-model-len", "4096",
             "--gpu-memory-utilization", "0.78",
+            # Skip torch.compile + CUDA-graph capture. That optimisation added
+            # 60s+ to every boot (blowing past the startup limit) for a few % of
+            # runtime speed we don't need at this scale — eager mode boots fast
+            # and makes cold starts much quicker too.
+            "--enforce-eager",
             "--disable-log-requests",
         ])
         deadline = time.time() + 600
