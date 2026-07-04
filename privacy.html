@@ -38,17 +38,18 @@
 <main>
   <div class="kicker">Pacely · Privacy Policy</div>
   <h1>Your data stays with you.</h1>
-  <div class="sub">Last updated: 2 July 2026</div>
+  <div class="sub">Last updated: 4 July 2026</div>
 
   <h2>The short version</h2>
-  <p>Pacely is a local-first habit-sequence planner. Your goals, sub-habits, energy profile, and progress live on your device by default. Optional Google sign-in backs up your goals and completion history to the cloud so they sync across your devices — it is off until you choose to sign in. Optional voice planning sends your spoken description of your day to our private server to build a plan — the audio is processed transiently and never stored. There is no advertising. There is no third-party analytics SDK in this version of the app. We never sell your data.</p>
+  <p>Pacely is a local-first habit-sequence planner. Your goals, sub-habits, energy profile, and progress live on your device by default. Optional Google sign-in backs up your goals and completion history to the cloud so they sync across your devices — it is off until you choose to sign in. Optional voice planning sends your spoken description of your day to our private server to build a plan — the audio is processed transiently and never stored. If you choose to add a plan to your calendar, Pacely writes those events into your device’s calendar with your permission; it never reads your existing calendar. There is no advertising. There is no third-party analytics SDK in this version of the app. We never sell your data.</p>
 
   <h2>What is stored, and where</h2>
   <ul>
     <li><strong>On your device:</strong> all goal titles, sub-habit names, completion state, timeline blocks, energy profile, onboarding flag, and your consent record. This is kept in your device’s local storage (browser <code>localStorage</code> on the web; the WebView’s local storage on iOS and Android).</li>
     <li><strong>In the cloud, only if you sign in:</strong> your account identifier, name, email and phone number, plus your goals and completion history — stored in our Supabase database and isolated to your account. This powers cross-device sync and your rhythm insights.</li>
     <li><strong>Never stored anywhere:</strong> voice recordings. Audio from voice planning is processed in memory to produce your transcript and plan, then discarded — it is not written to disk, logged, or used to train any model.</li>
-    <li><strong>What we never collect:</strong> precise location, contacts, photos, files, advertising ID, or device identifiers.</li>
+    <li><strong>In your device’s calendar, only if you ask:</strong> when you use “add to my calendar”, Pacely writes your plan’s steps as calendar events (with reminder alarms) into the calendar you choose. These live in your calendar — not on our servers — and Pacely does not read them back or send them anywhere. If your calendar itself syncs to a provider (e.g. Google Calendar), those events go wherever that calendar goes, under that provider’s policy.</li>
+    <li><strong>What we never collect:</strong> precise location, contacts, photos, files, advertising ID, device identifiers, or the contents of your existing calendar.</li>
   </ul>
 
   <h2>Optional AI sequence generation</h2>
@@ -65,8 +66,9 @@
     <li><strong>Internet</strong> — used only for the optional Google sign-in and cloud sync. Fonts are bundled inside the app, and sequence generation runs on-device. Pacely works fully offline if you never sign in.</li>
     <li><strong>Notifications</strong> — optional. If you turn on the daily reminder, Pacely schedules a local notification on your device at the time you choose. It is off by default, the reminder is generated entirely on-device, and no data is sent for it.</li>
     <li><strong>Microphone</strong> — optional, only for voice planning. The OS asks for your permission the first time you use the feature; recording happens only while the voice sheet is open, and the audio is processed transiently on our private server and never stored (see “Optional voice planning” above). Deny the permission and everything else in Pacely still works.</li>
+    <li><strong>Calendar (write-only)</strong> — optional, only when you tap “add to my calendar” on a plan. The OS asks for your permission the first time; Pacely then adds your plan’s steps as events with reminders to the calendar you choose. It requests <em>write</em> access to add events — it does not read your existing calendar, and it never sends calendar data to our servers. Deny the permission and Pacely falls back to handing you a calendar file to import yourself; everything else still works.</li>
   </ul>
-  <p>Pacely does not request the camera, contacts, location, calendar, files, or any other sensitive permission. (Adding a plan to your calendar works through your device’s share/import flow — Pacely never reads your calendar.)</p>
+  <p>Pacely does not request the camera, contacts, location, photos, files, or any other sensitive permission, and it never reads your existing calendar — the calendar permission is used only to add the events you asked for.</p>
 
   <h2>Your rights</h2>
   <p>Because all data is on-device, you control it directly:</p>
@@ -81,7 +83,7 @@
   <h2>Your rights under India’s DPDP Act, 2023</h2>
   <p>For users in India, the Digital Personal Data Protection Act, 2023 (Act No. 22 of 2023) applies. Under it you are a <strong>Data Principal</strong> and Pacely is the <strong>Data Fiduciary</strong>. We process your personal data only on the legal basis of your <strong>consent</strong>, which you give when you sign in, and for the specific purpose of providing and syncing your planner.</p>
   <ul>
-    <li><strong>Right to notice &amp; purpose:</strong> we collect your account identifier, name, email and phone number (name and email from Google sign-in; phone from the profile step), plus your goals, sub-habits, and completion history — solely to run the app, contact you about your account, and sync across your devices. If you use voice planning, your voice audio is processed transiently for the sole purpose of generating your plan and is not retained. We do not sell data or use it for advertising.</li>
+    <li><strong>Right to notice &amp; purpose:</strong> we collect your account identifier, name, email and phone number (name and email from Google sign-in; phone from the profile step), plus your goals, sub-habits, and completion history — solely to run the app, contact you about your account, and sync across your devices. If you use voice planning, your voice audio is processed transiently for the sole purpose of generating your plan and is not retained. If you use “add to my calendar”, we write your chosen plan steps to your device calendar with your permission — this data stays in your calendar and is not collected by us. We do not sell data or use it for advertising.</li>
     <li><strong>Right to access:</strong> Settings → “Download my data” exports everything we hold as JSON.</li>
     <li><strong>Right to correction &amp; erasure:</strong> edit any data in-app; Settings → “Erase all my data” permanently deletes your local data, your cloud data, and your account itself (including your email). See <a href="/delete-account.html">how to delete your account &amp; data</a>.</li>
     <li><strong>Right to withdraw consent:</strong> sign out and erase your data at any time — as easily as you gave consent. Withdrawal does not affect processing already done.</li>

@@ -403,7 +403,8 @@ function App({ requireAuth = true }) {
 
   // Library/voice plans become real goals (so they appear in Goals + propagate),
   // and their steps land on Today after any already-done blocks.
-  // opts.calendar: also hand the new blocks to the OS calendar as an ICS.
+  // opts.calendar: add the new blocks to the OS calendar — direct write on
+  // native (with permission), ICS export as the fallback.
   function applyPlan(plan, msg, opts = {}) {
     if (goalLimitReached(goals.length, ent)) { setLibraryOpen(false); setVoiceOpen(false); openPaywall('goals'); return; }
     const steps = Array.isArray(plan?.steps) ? plan.steps.filter(s => (s.label || '').trim()) : [];

@@ -27,9 +27,21 @@ handling.
 | Profile / settings / timezone | User | Feature behaviour | Consent |
 | Consent record | Consent gate | Proof of consent | Legal obligation |
 
+**Processed transiently, not retained:** voice-planning audio — sent over HTTPS
+to our private inference server (Supabase gateway → Modal), turned into a
+transcript + plan in memory, then discarded. Not stored, logged, or used for
+training.
+
+**Written to the user's own device, not collected by us:** calendar events. The
+opt-in "add to my calendar" writes plan steps (with reminder alarms) into the
+user's chosen calendar via write-only permission. These live in the user's
+calendar, are never read back, and are never sent to our servers.
+
 **Not collected:** precise location, contacts, photos, files, advertising ID,
-device identifiers. **No analytics/ads SDKs.** Goal text for sequence generation
-stays on-device (no LLM call in the shipped app).
+device identifiers, or the contents of the user's existing calendar. **No
+analytics/ads SDKs.** Typed goal text for on-device sequence generation stays on
+the device (no network call); only voice planning, which the user initiates,
+sends audio off-device.
 
 ## 3. Consent (DPDP §6)
 
@@ -112,6 +124,15 @@ log and user-notification templates). Summary:
 - Collects: Name, Email, **Phone number** (Personal info); Goals + completion history
   (App activity → other user-generated content). **Optional** (works local-first
   without sign-in; phone is collected in the post-sign-in profile chat).
+- **Voice audio:** processed transiently for the plan, **not retained** → not a
+  "collected" data type, but disclose the microphone use and the transient
+  processing.
+- **Calendar events written by the app:** stay on-device / in the user's own
+  calendar, never sent to us → **not** a collected data type. The
+  `WRITE_CALENDAR`/`READ_CALENDAR` permissions are declared in the manifest and,
+  because calendar is a sensitive permission, must be justified in review:
+  write-only, used solely to add the events the user requested, never reads the
+  existing calendar.
 - Shared with third parties: **No.** Sold: **No.** Used for ads: **No.**
 - Encrypted in transit: **Yes.** User can request deletion: **Yes** → `/delete-account.html`.
 
