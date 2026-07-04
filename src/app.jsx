@@ -12,6 +12,7 @@ import { goalLimitReached } from './entitlement.js';
 import { Icon, Chip } from './ui.jsx';
 import { blocksToICS, icsFilename } from './calendar.js';
 import { exportICS } from './calendar-export.js';
+import { addPlanToCalendar } from './calendar-native.js';
 import { TodayScreen } from './screen-today.jsx';
 import { GoalsScreen } from './screen-goals.jsx';
 import { InsightsScreen } from './screen-insights.jsx';
@@ -413,8 +414,19 @@ function App({ requireAuth = true }) {
     setGoals(prev => [goal, ...prev]);
     setBlocks([...kept, ...seeded]);
     setLibraryOpen(false); setVoiceOpen(false);
-    if (opts.calendar && seeded.length) exportICS(blocksToICS(seeded), icsFilename(plan.title || 'pacely-plan'));
+    if (opts.calendar && seeded.length) addPlanToCalendarOrExport(seeded, plan.title);
     flash(msg);
+  }
+
+  // Direct calendar write on native (asks permission, inserts each step with a
+  // reminder). Falls back to the ICS export on web, when the permission is
+  // unavailable, or on error. A hard "denied" is respected — no silent export.
+  function addPlanToCalendarOrExport(seeded, title) {
+    addPlanToCalendar(seeded).then((r) => {
+      if (r.ok) flash(`Added ${r.added} step${r.added === 1 ? '' : 's'} to your calendar`);
+      else if (r.reason === 'denied') flash('Calendar access denied — export it from Today anytime.');
+      else exportICS(blocksToICS(seeded), icsFilename(title || 'pacely-plan'));
+    }).catch(() => exportICS(blocksToICS(seeded), icsFilename(title || 'pacely-plan')));
   }
 
   return (

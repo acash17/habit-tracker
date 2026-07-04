@@ -47,6 +47,10 @@
 	<true/>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Cadence uses the microphone so you can describe your day out loud and get a plan built from it. Audio is processed on our private server and never stored.</string>
+	<key>NSCalendarsUsageDescription</key>
+	<string>Cadence adds your planned steps to your calendar with reminders, so timed tasks alert you at the right moment.</string>
+	<key>NSCalendarsWriteOnlyAccessUsageDescription</key>
+	<string>Cadence adds your planned steps to your calendar with reminders, so timed tasks alert you at the right moment.</string>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>
