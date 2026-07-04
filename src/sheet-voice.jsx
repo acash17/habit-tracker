@@ -1,7 +1,7 @@
 import React from 'react';
 import { Bloom, Chip, Btn, H, EditableSteps } from './ui.jsx';
 import { SheetShell, SheetFooter } from './planner.jsx';
-import { voicePlanEnabled, startRecording, requestVoicePlan, warmVoiceBackend } from './voice-plan.js';
+import { voicePlanEnabled, startRecording, requestVoicePlan, warmVoiceBackend, MAX_RECORD_SEC } from './voice-plan.js';
 
 // Voice planning sheet — natural language → full day plan.
 // With cloud enabled it records the mic and sends audio to the self-hosted
@@ -50,19 +50,27 @@ function VoiceSheet({ onClose, onApply }) {
   const [toCalendar, setToCalendar] = React.useState(false);
   const recRef = React.useRef(null);
   const lastAudioRef = React.useRef(null);
+  const [recording, setRecording] = React.useState(false); // mic actually live?
 
   // --- live mode: record the mic, then send to the backend ---
   React.useEffect(() => {
     if (!live || stage !== 'listening') return;
     let cancelled = false;
+    let timer = null;
+    setRecording(false);
     setSeconds(0);
-    const timer = setInterval(() => setSeconds((s) => s + 1), 1000);
     warmVoiceBackend(); // cold-start the GPU container while the user talks
 
+    // getUserMedia shows the OS permission prompt and does NOT capture any
+    // audio until the user approves. Only once it resolves do we mark the mic
+    // live — so the timer and the "Recording" label never appear before the
+    // user has granted access, and the user knows exactly when to start talking.
     startRecording()
       .then((rec) => {
         if (cancelled) { rec.cancel(); return; }
         recRef.current = rec;
+        setRecording(true);
+        timer = setInterval(() => setSeconds((s) => s + 1), 1000);
       })
       .catch(() => {
         if (!cancelled) {
@@ -73,9 +81,10 @@ function VoiceSheet({ onClose, onApply }) {
 
     return () => {
       cancelled = true;
-      clearInterval(timer);
+      if (timer) clearInterval(timer);
       recRef.current?.cancel();
       recRef.current = null;
+      setRecording(false);
     };
   }, [live, stage]);
 
@@ -87,6 +96,15 @@ function VoiceSheet({ onClose, onApply }) {
     lastAudioRef.current = audioBlob;
     await submitAudio(audioBlob);
   }
+
+  // Hit the recording cap → stop and submit automatically, so the flow never
+  // stalls on a maxed-out recorder. finishRecording no-ops if already stopped.
+  React.useEffect(() => {
+    if (live && recording && stage === 'listening' && seconds >= MAX_RECORD_SEC) {
+      finishRecording();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [live, recording, stage, seconds]);
 
   async function submitAudio(audioBlob) {
     setStage('parsing');
@@ -173,9 +191,27 @@ function VoiceSheet({ onClose, onApply }) {
                 <div style={{
                   fontFamily: 'var(--serif)', fontSize: 19, lineHeight: 1.35,
                   color: 'var(--ink)', textAlign: 'center', letterSpacing: -0.2,
-                  minHeight: 96, display: 'flex', alignItems: 'center',
+                  minHeight: 96, display: 'flex', flexDirection: 'column',
+                  alignItems: 'center', justifyContent: 'center', gap: 8,
                 }}>
-                  {seconds < 1 ? 'Listening…' : `Recording · 0:${String(seconds).padStart(2, '0')}`}
+                  {!recording ? (
+                    'Allow microphone access to start…'
+                  ) : (() => {
+                    const remaining = Math.max(0, MAX_RECORD_SEC - seconds);
+                    const low = remaining <= 10;
+                    return (
+                      <>
+                        <span>{`Recording · 0:${String(seconds).padStart(2, '0')}`}</span>
+                        <span style={{
+                          fontFamily: 'var(--sans)', fontSize: 12.5,
+                          color: low ? 'var(--terra)' : 'rgba(31,27,22,0.5)',
+                          fontWeight: low ? 600 : 400,
+                        }}>
+                          {`auto-stops in 0:${String(remaining).padStart(2, '0')}`}
+                        </span>
+                      </>
+                    );
+                  })()}
                 </div>
               ) : (
                 <div style={{
@@ -186,7 +222,7 @@ function VoiceSheet({ onClose, onApply }) {
                   "{transcript}<span style={{ color: 'var(--lav)' }}>{transcript.length < DEMO_TRANSCRIPT.length ? '█' : ''}</span>"
                 </div>
               )}
-              <Chip tone="lav" size="sm">{live ? 'Listening · private' : 'Listening · local'}</Chip>
+              <Chip tone="lav" size="sm">{live ? (recording ? 'Recording · private' : 'Waiting for mic') : 'Listening · local'}</Chip>
             </div>
           </div>
         )}
@@ -252,7 +288,7 @@ function VoiceSheet({ onClose, onApply }) {
         {live && stage === 'listening' && (
           <SheetFooter>
             <Btn variant="ghost" size="lg" onClick={onClose}>Cancel</Btn>
-            <Btn variant="terra" size="lg" full onClick={finishRecording}>Done talking</Btn>
+            <Btn variant="terra" size="lg" full onClick={finishRecording} disabled={!recording}>Done talking</Btn>
           </SheetFooter>
         )}
 

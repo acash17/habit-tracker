@@ -9,7 +9,8 @@ const KINDS = ['body', 'self', 'focus', 'rest'];
 // anchors — a night's sleep (~480), a long workout — survive normalisation,
 // while still rejecting nonsense (a step can't be longer than a day).
 const MAX_EST = 600;
-const MAX_RECORD_MS = 60_000;
+export const MAX_RECORD_SEC = 60;
+const MAX_RECORD_MS = MAX_RECORD_SEC * 1000;
 
 export const voicePlanEnabled = cloudEnabled;
 
@@ -25,7 +26,10 @@ export async function startRecording() {
   const rec = new MediaRecorder(stream, mime ? { mimeType: mime } : undefined);
   const chunks = [];
   rec.ondataavailable = (e) => { if (e.data.size) chunks.push(e.data); };
-  rec.start();
+  // Timeslice: emit a chunk every 250ms so audio is collected continuously.
+  // Without it, some webviews only flush on stop() and can drop the tail of
+  // the recording — losing the end of what the user said.
+  rec.start(250);
 
   const cleanup = () => stream.getTracks().forEach((t) => t.stop());
   const timeout = setTimeout(() => { if (rec.state === 'recording') rec.stop(); }, MAX_RECORD_MS);
