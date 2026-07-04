@@ -19,6 +19,21 @@ export function newId(prefix = '') {
 }
 
 /**
+ * Move an item within a list (pure — returns a new array, never mutates).
+ * Out-of-range `from` is a no-op; `to` is clamped into the list. Used by the
+ * drag-to-reorder step editor.
+ */
+export function moveItem(list, from, to) {
+  const a = [...(list || [])];
+  if (!a.length || from < 0 || from >= a.length) return a;
+  const t = Math.max(0, Math.min(a.length - 1, Math.round(to)));
+  if (from === t) return a;
+  const [item] = a.splice(from, 1);
+  a.splice(t, 0, item);
+  return a;
+}
+
+/**
  * Fire a global toast notification. App.jsx listens for `cadence:toast` events
  * and calls flash(). Use this from non-React code (auth handler, etc.).
  */

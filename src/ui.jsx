@@ -1,4 +1,5 @@
 import React from 'react';
+import { moveItem } from './utils.js';
 
 // Pacely shared UI primitives
 
@@ -50,6 +51,14 @@ function Icon({ name, size = 20, color = 'currentColor', strokeWidth = 1.75 }) {
       return <svg viewBox="0 0 24 24" style={s}><path d="M20 4c-2 8-7 14-16 16 2-8 7-14 16-16zM4 20c4-4 8-8 14-12" {...sp}/></svg>;
     case 'edit':
       return <svg viewBox="0 0 24 24" style={s}><path d="M12 20h9M16.5 3.5a2.1 2.1 0 113 3L7 19l-4 1 1-4 12.5-12.5z" {...sp}/></svg>;
+    case 'grip':
+      return (
+        <svg viewBox="0 0 24 24" style={s}>
+          {[6, 12, 18].map((y) => [9, 15].map((x) => (
+            <circle key={`${x}-${y}`} cx={x} cy={y} r="1.5" fill="currentColor" stroke="none"/>
+          )))}
+        </svg>
+      );
     default:
       return null;
   }
@@ -188,6 +197,48 @@ function EditableSteps({ steps, setSteps, showWhy = true }) {
   const [undo, setUndo] = React.useState(null); // { step, idx } | null
   const undoTimer = React.useRef(null);
 
+  // Drag-to-reorder: hold the grip handle and drag a step up/down. Pointer
+  // events cover touch + mouse; rows swap live as the pointer crosses their
+  // midpoints, so the list always shows the order that will be saved.
+  const rowRefs = React.useRef([]);
+  const [dragIdx, setDragIdx] = React.useState(null);
+  const dragRef = React.useRef(null); // { idx } during a drag
+
+  const startDrag = (idx) => (e) => {
+    e.preventDefault();
+    dragRef.current = { idx };
+    setDragIdx(idx);
+    const onMove = (ev) => {
+      const st = dragRef.current;
+      if (!st) return;
+      const y = ev.clientY;
+      let target = st.idx;
+      rowRefs.current.forEach((el, j) => {
+        if (!el || j === st.idx) return;
+        const r = el.getBoundingClientRect();
+        const mid = r.top + r.height / 2;
+        if (j < st.idx && y < mid) target = Math.min(target, j);
+        if (j > st.idx && y > mid) target = Math.max(target, j);
+      });
+      if (target !== st.idx) {
+        const from = st.idx;
+        st.idx = target;
+        setDragIdx(target);
+        setSteps((prev) => moveItem(prev || [], from, target));
+      }
+    };
+    const onUp = () => {
+      dragRef.current = null;
+      setDragIdx(null);
+      document.removeEventListener('pointermove', onMove);
+      document.removeEventListener('pointerup', onUp);
+      document.removeEventListener('pointercancel', onUp);
+    };
+    document.addEventListener('pointermove', onMove);
+    document.addEventListener('pointerup', onUp);
+    document.addEventListener('pointercancel', onUp);
+  };
+
   const updateStep = (idx, patch) =>
     setSteps(prev => (prev || []).map((s, i) => (i === idx ? { ...s, ...patch } : s)));
   const deleteStep = (idx) => {
@@ -215,11 +266,28 @@ function EditableSteps({ steps, setSteps, showWhy = true }) {
       {list.map((s, idx) => {
         const k = blockKindStyle(s.kind);
         return (
-          <div key={idx} style={{
-            display: 'flex', gap: 12, alignItems: 'flex-start',
+          <div key={s.id || idx} ref={(el) => { rowRefs.current[idx] = el; }} style={{
+            display: 'flex', gap: 10, alignItems: 'flex-start',
             padding: 14, background: 'var(--card)', borderRadius: 16,
             border: '0.5px solid rgba(31,27,22,0.06)',
+            opacity: dragIdx === idx ? 0.5 : 1,
+            boxShadow: dragIdx === idx ? '0 6px 20px rgba(31,27,22,0.18)' : 'none',
+            transition: dragIdx == null ? 'box-shadow 0.15s' : 'none',
           }}>
+            {/* drag handle — hold and drag to reorder (touch + mouse) */}
+            <button
+              onPointerDown={startDrag(idx)}
+              aria-label={`reorder step ${idx + 1}`}
+              style={{
+                flexShrink: 0, background: 'transparent', border: 'none',
+                cursor: 'grab', touchAction: 'none', padding: 0,
+                width: 28, height: 28, borderRadius: 999,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                color: 'rgba(31,27,22,0.35)',
+              }}
+            >
+              <Icon name="grip" size={18} />
+            </button>
             <div style={{
               width: 28, height: 28, borderRadius: 999, flexShrink: 0,
               background: k.bar, color: '#fff',
