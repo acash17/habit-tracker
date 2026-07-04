@@ -126,6 +126,19 @@ jarsigner -verify -verbose -certs android/app/build/outputs/bundle/release/app-r
        financial, browsing, advertising ID): **not collected**
      - Data shared with third parties: **No** (Supabase acts as a service
        provider/processor, which is not "sharing" under Play's definition)
+   - [ ] Permissions declaration — the app requests these sensitive runtime
+         permissions (all optional, requested only on first use of the feature):
+     - **RECORD_AUDIO** (microphone) → voice planning; audio processed
+       transiently on our server, never stored.
+     - **WRITE_CALENDAR / READ_CALENDAR** → "add to my calendar" writes plan
+       steps as events. ⚠️ Calendar is a **sensitive permission**: on the Data
+       safety form the *events we write* are user-generated content we do
+       **not collect** (they stay on-device / in the user's own calendar and
+       are never sent to us), so calendar data is **not** a "data type
+       collected". But you must still keep the permission in the manifest and
+       be ready to justify it in review — Pacely uses write-only access to add
+       events and never reads the user's existing calendar.
+     - **POST_NOTIFICATIONS** → optional daily reminder (local, on-device).
    - [ ] Account deletion URL → `https://<your-vercel-url>/delete-account.html`
          (required for any app that supports account creation; in-app path is
          Settings → "Erase all my data", which now deletes the auth account too —
