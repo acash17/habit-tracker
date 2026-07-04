@@ -25,7 +25,10 @@ export async function startRecording() {
   const rec = new MediaRecorder(stream, mime ? { mimeType: mime } : undefined);
   const chunks = [];
   rec.ondataavailable = (e) => { if (e.data.size) chunks.push(e.data); };
-  rec.start();
+  // Timeslice: emit a chunk every 250ms so audio is collected continuously.
+  // Without it, some webviews only flush on stop() and can drop the tail of
+  // the recording — losing the end of what the user said.
+  rec.start(250);
 
   const cleanup = () => stream.getTracks().forEach((t) => t.stop());
   const timeout = setTimeout(() => { if (rec.state === 'recording') rec.stop(); }, MAX_RECORD_MS);
