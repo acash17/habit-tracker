@@ -9,7 +9,8 @@ const KINDS = ['body', 'self', 'focus', 'rest'];
 // anchors — a night's sleep (~480), a long workout — survive normalisation,
 // while still rejecting nonsense (a step can't be longer than a day).
 const MAX_EST = 600;
-const MAX_RECORD_MS = 60_000;
+export const MAX_RECORD_SEC = 60;
+const MAX_RECORD_MS = MAX_RECORD_SEC * 1000;
 
 export const voicePlanEnabled = cloudEnabled;
 

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Bloom, Chip, Btn, H, EditableSteps } from './ui.jsx';
 import { SheetShell, SheetFooter } from './planner.jsx';
-import { voicePlanEnabled, startRecording, requestVoicePlan, warmVoiceBackend } from './voice-plan.js';
+import { voicePlanEnabled, startRecording, requestVoicePlan, warmVoiceBackend, MAX_RECORD_SEC } from './voice-plan.js';
 
 // Voice planning sheet — natural language → full day plan.
 // With cloud enabled it records the mic and sends audio to the self-hosted
@@ -97,6 +97,15 @@ function VoiceSheet({ onClose, onApply }) {
     await submitAudio(audioBlob);
   }
 
+  // Hit the recording cap → stop and submit automatically, so the flow never
+  // stalls on a maxed-out recorder. finishRecording no-ops if already stopped.
+  React.useEffect(() => {
+    if (live && recording && stage === 'listening' && seconds >= MAX_RECORD_SEC) {
+      finishRecording();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [live, recording, stage, seconds]);
+
   async function submitAudio(audioBlob) {
     setStage('parsing');
     try {
@@ -182,9 +191,27 @@ function VoiceSheet({ onClose, onApply }) {
                 <div style={{
                   fontFamily: 'var(--serif)', fontSize: 19, lineHeight: 1.35,
                   color: 'var(--ink)', textAlign: 'center', letterSpacing: -0.2,
-                  minHeight: 96, display: 'flex', alignItems: 'center',
+                  minHeight: 96, display: 'flex', flexDirection: 'column',
+                  alignItems: 'center', justifyContent: 'center', gap: 8,
                 }}>
-                  {!recording ? 'Allow microphone access to start…' : `Recording · 0:${String(seconds).padStart(2, '0')}`}
+                  {!recording ? (
+                    'Allow microphone access to start…'
+                  ) : (() => {
+                    const remaining = Math.max(0, MAX_RECORD_SEC - seconds);
+                    const low = remaining <= 10;
+                    return (
+                      <>
+                        <span>{`Recording · 0:${String(seconds).padStart(2, '0')}`}</span>
+                        <span style={{
+                          fontFamily: 'var(--sans)', fontSize: 12.5,
+                          color: low ? 'var(--terra)' : 'rgba(31,27,22,0.5)',
+                          fontWeight: low ? 600 : 400,
+                        }}>
+                          {`auto-stops in 0:${String(remaining).padStart(2, '0')}`}
+                        </span>
+                      </>
+                    );
+                  })()}
                 </div>
               ) : (
                 <div style={{
