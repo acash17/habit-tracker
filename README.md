@@ -13,6 +13,19 @@ npm run dev
 
 Open http://localhost:5173 — Vite HMR, sub-second reload.
 
+### Money Dashboard (personal finance)
+
+A standalone, local-first finance dashboard lives at **`/finance.html`**:
+
+```bash
+npm run dev
+# then open http://localhost:5173/finance.html
+```
+
+Track income/expenses, see spending-by-category and income-vs-expense charts,
+set per-category budgets, and fund savings goals. All data stays on the device
+(localStorage) — no account, no network. Source under `src/finance/`.
+
 ---
 
 ## 2. Build Android APK (Windows / Mac / Linux)
