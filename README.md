@@ -4,7 +4,7 @@ Habit sequence planner — iOS-style React app. **Vite + React 18 + Capacitor 6*
 
 ## Feature tour
 
-A ~60-second walkthrough of the app. See [`docs/demo/`](docs/demo/) for the
+A ~35-second walkthrough of the app. See [`docs/demo/`](docs/demo/) for the
 higher-quality video and how to regenerate it.
 
 ![Cadence feature tour](docs/demo/cadence-tour.gif)

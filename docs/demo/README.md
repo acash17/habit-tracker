@@ -1,18 +1,21 @@
 # Cadence — feature tour
 
-A ~60-second walkthrough of the app, driven through the real UI.
+A ~35-second walkthrough of the app, driven through the real UI. Both files are
+under 5 MB.
 
 ![Cadence feature tour](./cadence-tour.gif)
 
-- **`cadence-tour.webm`** — higher-quality video (402×874). Crisper text; best for landing pages / stores.
-- **`cadence-tour.gif`** — autoplaying GIF for READMEs, Slack, and anywhere a video won't embed.
+- **`cadence-tour.webm`** — higher-quality video (402×874, ~3.5 MB). Crisper text; best for landing pages / stores.
+- **`cadence-tour.gif`** — autoplaying GIF (~4.4 MB) for READMEs, Slack, X, and anywhere a video won't embed.
 
 ## What it shows
 
 Intro → **Today** (pre-planned time blocks) → **New goal → plan** → **Why this order?** →
-**Life happened** → **Library** → **Voice plan** → **Goals** (with cadence filters) →
-**Goal editor** (year heatmap + stats) → **Insights** (calendar + breakpoints) →
-**Energy profile** → outro.
+**Life happened** → **Voice plan** → **Goals** (with cadence filters) →
+**Goal editor** (year heatmap + stats) → **Insights** (calendar + breakpoints) → outro.
+
+The script also has commented-out **Library** and **Energy profile** sections —
+add them back and lengthen the holds for a longer tour.
 
 ## Regenerating
 

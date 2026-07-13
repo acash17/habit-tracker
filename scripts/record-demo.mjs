@@ -69,19 +69,19 @@ await p.addInitScript(() => {
     document.body.appendChild(el);
     return el;
   }
-  window.__capShow = async (kicker, title, sub, hold = 1150) => {
+  window.__capShow = async (kicker, title, sub, hold = 650) => {
     const el = ensure();
     el.querySelector('#__cap_kicker').textContent = kicker || '';
     el.querySelector('#__cap_title').textContent = title || '';
     el.querySelector('#__cap_sub').textContent = sub || '';
     el.style.opacity = '1';
-    await wait(450 + hold);
+    await wait(350 + hold);
   };
   window.__capHide = async () => {
     const el = document.getElementById('__cap');
     if (!el) return;
     el.style.opacity = '0';
-    await wait(500);
+    await wait(400);
   };
 });
 
@@ -93,39 +93,40 @@ const cap = (k, t, s, hold) => p.evaluate(({ k, t, s, hold }) => window.__capSho
 const uncap = () => p.evaluate(() => window.__capHide());
 const hold = (ms) => p.waitForTimeout(ms);
 
+// A tight cut: the 8 strongest features. To include Library (05) and the
+// Energy profile (10) for a longer tour, add them back and lengthen the holds.
+const FEATURE = 1550;
 const SECTIONS = [
-  { detail: { tab: 'today' },                      k: '01 · Today',       t: 'Your day,\npre-planned',      s: 'Time-estimated blocks arrive already ordered. No empty calendar.' },
-  { detail: { tab: 'today', sheet: 'new-goal' },   k: '02 · New goal',    t: 'Goal in,\nplan out',          s: '"Run a 5K" becomes twelve micro-steps with realistic durations.' },
-  { detail: { tab: 'today', sheet: 'why' },        k: '03 · The planner', t: 'Why this\norder?',            s: 'Energy curve, dependencies, deadline math — exposed, not magic.' },
-  { detail: { tab: 'today', sheet: 'life' },       k: '04 · Resilience',  t: 'When life\nhappens',          s: 'Missed a day? Cadence rebalances the rest — no guilt, no broken streaks.' },
-  { detail: { tab: 'today', sheet: 'library' },    k: '05 · Templates',   t: 'Plans that\nrespect you',     s: 'Curated routines for sleep, focus and fitness. Apply in one tap.' },
-  { detail: { tab: 'today', sheet: 'voice' },      k: '06 · Voice',       t: 'Speak\nyour intent',          s: '"I want to write more." Cadence catches the verb and drafts a plan.' },
-  { detail: { tab: 'goals' },                      k: '07 · Goals',       t: 'Every plan,\none place',      s: 'Cards, not lists. See effort bloom instead of red streaks.', filter: true },
-  { detail: { tab: 'goals', editGoalIndex: 0 },    k: '08 · Editable',    t: 'Tap to\nshape it',            s: 'Rename, recolor, reorder sub-habits — manual mode when AI guessed wrong.', closeEditor: true },
-  { detail: { tab: 'insights' },                   k: '09 · Insights',    t: 'Patterns,\nnot pressure',     s: 'Which hours work? Which goals stall? Small tweaks, never demands.' },
-  { detail: { tab: 'settings', sheet: 'energy' },  k: '10 · Your shape',  t: 'Your energy,\ndrawn',         s: 'A literal curve, not a morning-person toggle. Cadence plans against it.' },
+  { detail: { tab: 'today' },                    k: 'Today',      t: 'Your day,\npre-planned',  s: 'Time-estimated blocks, already ordered.' },
+  { detail: { tab: 'today', sheet: 'new-goal' }, k: 'New goal',   t: 'Goal in,\nplan out',      s: '"Run a 5K" → twelve realistic micro-steps.' },
+  { detail: { tab: 'today', sheet: 'why' },      k: 'Planner',    t: 'Why this\norder?',        s: 'Energy, dependencies, deadlines — exposed.' },
+  { detail: { tab: 'today', sheet: 'life' },     k: 'Resilience', t: 'When life\nhappens',      s: 'Missed a day? It rebalances. No broken streaks.' },
+  { detail: { tab: 'today', sheet: 'voice' },    k: 'Voice',      t: 'Speak\nyour intent',      s: '"I want to write more." → a drafted plan.' },
+  { detail: { tab: 'goals' },                    k: 'Goals',      t: 'Every plan,\none place',  s: 'Cards, not lists. Filter by rhythm.', filter: true },
+  { detail: { tab: 'goals', editGoalIndex: 0 },  k: 'Editable',   t: 'Tap to\nshape it',        s: 'Rename, recolor, reorder sub-habits by hand.', closeEditor: true },
+  { detail: { tab: 'insights' },                 k: 'Insights',   t: 'Patterns,\nnot pressure', s: 'What works, what stalls — never a scold.' },
 ];
 
 // Intro
-await cap('Cadence', 'The planner\nthat plans for you', 'Turns vague goals into tiny, time-estimated steps you can actually start.', 1900);
+await cap('Cadence', 'The planner\nthat plans for you', 'Vague goals → tiny, time-estimated steps.', 1450);
 await uncap();
 
 for (const sec of SECTIONS) {
-  await cap(sec.k, sec.t, sec.s, 1150);
+  await cap(sec.k, sec.t, sec.s, 650);
   await uncap();
   await fire(sec.detail);
-  await hold(2600);
+  await hold(FEATURE);
   if (sec.filter) {
-    try { await p.getByText('Daily', { exact: false }).first().click({ timeout: 1500 }); } catch {}
-    await hold(1600);
+    try { await p.getByText('Daily', { exact: false }).first().click({ timeout: 1200 }); } catch {}
+    await hold(1100);
   }
-  if (sec.closeEditor) { await fire({ editGoalClose: true }); await hold(300); }
+  if (sec.closeEditor) { await fire({ editGoalClose: true }); await hold(250); }
 }
 
 // Outro
 await fire({ close: 'all', tab: 'today' });
-await cap('Cadence', 'Progress\nwithout punishment', 'A habit planner for real brains and real life.', 1900);
-await hold(500);
+await cap('Cadence', 'Progress\nwithout punishment', 'For real brains and real life.', 1450);
+await hold(400);
 
 await ctx.close();
 await browser.close();
